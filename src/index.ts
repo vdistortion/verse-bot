@@ -35,7 +35,7 @@ bot.command('cat', (ctx) => api.getCat().then((url) => ctx.replyWithPhoto(Input.
 
 bot.command('item', (ctx) => api.getList().then((text) => ctx.replyWithHTML(text)));
 
-bot.on(message('sticker'), (ctx) => ctx.reply('👀'));
+bot.on(message('sticker'), (ctx) => ctx.replyWithPhoto(Input.fromURL('/img/turtle.jpg')));
 
 bot.on(message('location'), async (ctx: any) => {
   type AnswerType = {
@@ -51,7 +51,10 @@ bot.on(message('location'), async (ctx: any) => {
     },
   };
   const { latitude, longitude, live_period } = ctx.message.location;
-  if (live_period) return;
+  if (live_period) {
+    await ctx.reply('Автообновляемая геолокация не поддерживается, отправьте статичную 🌐');
+    return;
+  }
   const answer = await api.getWeather(latitude, longitude) as AnswerType;
   const wind = answer.wind.speed > 0 ? `<i>Ветер</i> ${answer.wind.speed} м/с`: 'Штиль';
   const text = `
@@ -85,11 +88,12 @@ bot.on(message('text'), async (ctx: any) => {
     await getQuote(ctx);
   } else if (mapRand[ctx.message.text]) {
     await getRand(ctx, mapRand[ctx.message.text]);
-  } else if (ctx.chat.type === 'private') {
+  } else {
     await ctx.reply(`${ctx.chat.first_name}, не понимаю тебя!`, {
       reply_to_message_id: ctx.message.message_id,
     });
     await ctx.reply('😈');
+    await ctx.replyWithPhoto(Input.fromURL('/img/had_tried.jpg'));
   }
 });
 

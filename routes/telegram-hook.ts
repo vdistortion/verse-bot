@@ -10,7 +10,7 @@ export default eventHandler(async (evt) => {
     const webhookUrl = `https://${host}/telegram-hook?secret_hash=${hash}`;
     const isSet = await bot.telegram.setWebhook(webhookUrl);
     const info = await bot.telegram.getWebhookInfo();
-    return `<pre>Set webhook to ${webhookUrl}: ${isSet}<br/>${JSON.stringify(info)}</pre>`;
+    return `Set webhook to ${webhookUrl}: ${isSet}<br/><pre>${JSON.stringify(info, null, 2)}</pre>`;
   } else if (query.secret_hash === hash) {
     const body = await readBody(evt);
     await bot.handleUpdate(body);

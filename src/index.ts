@@ -1,6 +1,7 @@
 import { keyboard, keyboardButtons } from './keyboard';
 import api from './api/fetch';
 import { bot, message, Markup, Input } from './api/bot';
+import fs from 'node:fs';
 
 const groupId: string = process.env.LOGS!;
 
@@ -20,6 +21,8 @@ bot.start(async (ctx: any) => {
     await ctx.replyWithHTML(`Будь как дома, путник <b>${ctx.chat.first_name}</b>! 😈`, Markup.keyboard(keyboard));
   }
 
+  console.log(ctx.message);
+
   await forwardMessage(ctx);
 });
 
@@ -35,7 +38,7 @@ bot.command('cat', (ctx) => api.getCat().then((url) => ctx.replyWithPhoto(Input.
 
 bot.command('item', (ctx) => api.getList().then((text) => ctx.replyWithHTML(text)));
 
-bot.on(message('sticker'), (ctx) => ctx.replyWithPhoto(Input.fromURL('/img/turtle.jpg')));
+bot.on(message('sticker'), (ctx) => ctx.reply('👀'));
 
 bot.on(message('location'), async (ctx: any) => {
   type AnswerType = {
@@ -73,11 +76,13 @@ ${wind}
 });
 
 async function forwardMessage(ctx: any) {
-  if (ctx.chat.id !== groupId) {
+  if (ctx.chat.id !== Number(groupId)) {
     await ctx.forwardMessage(groupId, {
       from_chat_id: ctx.chat.id,
       message_id: ctx.message.message_id,
     });
+  } else {
+    await ctx.reply('😈');
   }
 }
 
@@ -89,11 +94,10 @@ bot.on(message('text'), async (ctx: any) => {
   } else if (mapRand[ctx.message.text]) {
     await getRand(ctx, mapRand[ctx.message.text]);
   } else {
-    await ctx.reply(`${ctx.chat.first_name}, не понимаю тебя!`, {
+    await ctx.reply(`${ctx.from.first_name}, не понимаю тебя!`, {
       reply_to_message_id: ctx.message.message_id,
     });
     await ctx.reply('😈');
-    await ctx.replyWithPhoto(Input.fromURL('/img/had_tried.jpg'));
   }
 });
 

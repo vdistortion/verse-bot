@@ -1,4 +1,3 @@
-import { encoding } from '../utils/encodingText';
 import list from './list';
 
 const weatherApiKey: string = process.env.API_KEY_OPENWEATHERMAP!;
@@ -40,14 +39,6 @@ export default {
     const response = await fetch('https://fucking-great-advice.ru/api/random');
     const data = (await response.json()) as IApiData;
     return data.text;
-  },
-
-  async getRand(typeId: string) {
-    const response = await fetch(`http://rzhunemogu.ru/RandJSON.aspx?CType=${typeId}`);
-    const data = await response.arrayBuffer();
-    const buffer = Buffer.from(data);
-    const encodingData = encoding(buffer);
-    return encodingData.replace('{"content":"', '').replace('"}', '');
   },
 
   async getWeather(latitude: number, longitude: number) {

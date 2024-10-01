@@ -2,17 +2,6 @@ import { keyboard, keyboardButtons } from './keyboard';
 import api from './api/fetch';
 import { bot, message, Markup, Input } from './api/bot';
 
-const logsGroupId: string = process.env.LOGS_GROUP_ID!;
-
-type MapRandType = {
-  [index: string]: string;
-};
-
-const mapRand: MapRandType = keyboardButtons.rand.reduce((acc: MapRandType, { id, title }) => {
-  acc[title] = id;
-  return acc;
-}, {});
-
 bot.start(async (ctx: any) => {
   if (ctx.chat.type === 'supergroup') {
     await ctx.replyWithHTML(`Привет, чат <b>${ctx.chat.title}</b>! 😈`, Markup.keyboard(keyboard));
@@ -73,25 +62,12 @@ ${wind}
   });
 });
 
-async function forwardMessage(ctx: any) {
-  if (logsGroupId && ctx.chat.id !== Number(logsGroupId)) {
-    await ctx.forwardMessage(logsGroupId, {
-      from_chat_id: ctx.chat.id,
-      message_id: ctx.message.message_id,
-    });
-  } else {
-    await ctx.reply('😈');
-  }
-}
-
 bot.on(message('text'), async (ctx: any) => {
   try {
     if (ctx.message.text === keyboardButtons.advice.title) {
       await getAdvice(ctx);
     } else if (ctx.message.text === keyboardButtons.quote.title) {
       await getQuote(ctx);
-    } else if (mapRand[ctx.message.text]) {
-      await getRand(ctx, mapRand[ctx.message.text]);
     } else {
       await ctx.reply(`${ctx.from.first_name}, не понимаю тебя!`, {
         reply_to_message_id: ctx.message.message_id,
@@ -112,13 +88,6 @@ async function getQuote(ctx: any) {
 
 async function getAdvice(ctx: any) {
   const text = await api.getAdvice();
-  await ctx.reply(text, {
-    reply_to_message_id: ctx.message.message_id,
-  });
-}
-
-async function getRand(ctx: any, buttonId: string) {
-  const text = await api.getRand(buttonId);
   await ctx.reply(text, {
     reply_to_message_id: ctx.message.message_id,
   });

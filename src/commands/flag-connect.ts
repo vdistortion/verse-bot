@@ -1,6 +1,6 @@
 import { Context, Input } from 'telegraf';
 import createDebug from 'debug';
-import countries from '../src/countries.json';
+import countries from '../../../src/countries.json';
 
 const debug = createDebug('bot:flagConnect_command');
 

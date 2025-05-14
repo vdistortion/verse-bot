@@ -1,8 +1,8 @@
-import type { Context } from 'telegraf';
+import { Context, Input } from 'telegraf';
 import type { Update } from 'telegraf/typings/core/types/typegram';
 import createDebug from 'debug';
-import { getAdvice, getQuote } from '../api/fetch';
-import { keyboardButtons } from '../keyboard';
+import { getQuote, getAdvice, getCat } from '../api/fetch';
+import { ButtonTypes } from '../keyboard';
 
 const debug = createDebug('bot:greeting_text');
 
@@ -19,10 +19,16 @@ const greeting = () => async (ctx: Context<Update>) => {
 
   if (messageId) {
     // @ts-ignore
-    if (ctx.message.text === keyboardButtons.advice.title) {
+    if (ctx.message.text === ButtonTypes.CAT) {
+      const url = await getCat();
+      return ctx.replyWithPhoto(Input.fromURL(url));
+    }
+
+    // @ts-ignore
+    if (ctx.message.text === ButtonTypes.ADVICE) {
       message = await getAdvice();
       // @ts-ignore
-    } else if (ctx.message.text === keyboardButtons.quote.title) {
+    } else if (ctx.message.text === ButtonTypes.QUOTE) {
       message = await getQuote();
     } else {
       message = `${ctx.from?.first_name}, не понимаю тебя! 😈`;

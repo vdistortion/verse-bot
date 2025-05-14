@@ -1,13 +1,13 @@
 import { Markup, type Context } from 'telegraf';
 import createDebug from 'debug';
-import { keyboard } from '../keyboard';
+import { getKeyboard } from '../keyboard';
 
 const debug = createDebug('bot:start_command');
 
 const start = (aliases: Record<string, string>) => async (ctx: Context) => {
   debug('Triggered "start" command');
 
-  const keyboardMarkup = Markup.keyboard(keyboard);
+  const keyboardMarkup = Markup.keyboard(getKeyboard());
   let message = 'Держи клавиатуру! 😈';
 
   if (ctx.chat?.type === 'supergroup') {

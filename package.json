@@ -19,8 +19,6 @@
   "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
   "license": "GPL",
   "dependencies": {
-    "@vercel/node": "^5.1.16",
-    "dotenv-cli": "^8.0.0",
     "grammy": "^1.36.1"
   },
   "devDependencies": {
@@ -28,6 +26,7 @@
     "@types/node": "^22.15.17",
     "@vercel/ncc": "^0.38.3",
     "debug": "^4.4.0",
+    "dotenv-cli": "^8.0.0",
     "nodemon": "^3.1.10",
     "prettier": "3.5.3",
     "ts-node": "^10.9.2",

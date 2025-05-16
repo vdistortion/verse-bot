@@ -1,4 +1,4 @@
-import type { Context } from 'telegraf';
+import type { Context } from 'grammy';
 import createDebug from 'debug';
 import { buttons } from '../keyboard';
 import { reply } from '../utils/reply';

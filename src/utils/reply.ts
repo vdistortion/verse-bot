@@ -1,6 +1,6 @@
-import { type Context, Input } from 'telegraf';
-import type { ParseMode } from '@telegraf/types/message';
-import type { KeyboardButton } from '@telegraf/types/markup';
+import { type Context } from 'grammy';
+import type { ParseMode } from '@grammyjs/types/message';
+import type { KeyboardButton } from '@grammyjs/types/markup';
 
 export const reply = (
   ctx: Context,
@@ -25,4 +25,4 @@ export const reply = (
   });
 };
 
-export const replyWithPhoto = (ctx: Context, url: string) => ctx.replyWithPhoto(Input.fromURL(url));
+export const replyWithPhoto = (ctx: Context, url: string) => ctx.replyWithPhoto(url);

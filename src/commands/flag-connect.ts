@@ -1,4 +1,4 @@
-import type { Context } from 'telegraf';
+import type { Context } from 'grammy';
 import createDebug from 'debug';
 import { reply, replyWithPhoto } from '../utils/reply';
 import countries from '../countries.json';

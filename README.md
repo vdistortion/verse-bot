@@ -1,6 +1,6 @@
 # ImpBot
 
-ImpBot based on Node.js and [Telegraf](https://github.com/telegraf/telegraf) framework.
+ImpBot based on Node.js and [grammY](https://github.com/grammyjs/grammY) framework.
 
 ## Before you start
 

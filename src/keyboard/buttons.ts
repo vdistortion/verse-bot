@@ -1,5 +1,5 @@
-import { Markup } from 'telegraf';
-import type { KeyboardButton } from '@telegraf/types/markup';
+import { Keyboard } from 'grammy';
+import type { KeyboardButton } from '@grammyjs/types/markup';
 
 type ButtonsType = Record<
   'cat' | 'quote' | 'advice' | 'flags',
@@ -14,7 +14,7 @@ export const buttons: ButtonsType = {
 };
 
 const getButtons = (buttons: string[][]): KeyboardButton[][] =>
-  buttons.map((row) => row.map((button) => Markup.button.text(button)));
+  buttons.map((row) => row.map((button) => Keyboard.text(button)));
 
 export const getKeyboard = (advice?: boolean): KeyboardButton[][] => {
   return getButtons([

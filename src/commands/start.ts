@@ -1,6 +1,7 @@
-import { type Context } from 'telegraf';
+import type { Context } from 'telegraf';
 import createDebug from 'debug';
 import { getKeyboard } from '../keyboard';
+import { reply } from '../utils/reply';
 
 const debug = createDebug('bot:start_command');
 
@@ -16,7 +17,7 @@ const start = (aliases: Record<string, string>) => async (ctx: Context) => {
     message = `Будь как дома, путник <b>${alias}</b>! 😈`;
   }
 
-  await ctx.replyWithHTML(message, getKeyboard());
+  await reply(ctx, message, { parseMode: 'HTML', keyboard: getKeyboard() });
 };
 
 export { start };

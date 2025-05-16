@@ -1,15 +1,11 @@
-import { Context, Input } from 'telegraf';
+import type { Context } from 'telegraf';
 import type { Update } from 'telegraf/typings/core/types/typegram';
 import createDebug from 'debug';
 import { getQuote, getAdvice, getCat } from '../api/fetch';
 import { ButtonTypes } from '../keyboard';
+import { reply, replyWithPhoto } from '../utils/reply';
 
 const debug = createDebug('bot:greeting_text');
-
-const replyToMessage = (ctx: Context, messageId: number, string: string) =>
-  ctx.replyWithHTML(string, {
-    reply_parameters: { message_id: messageId },
-  });
 
 const greeting = () => async (ctx: Context<Update>) => {
   debug('Triggered "greeting" text command');
@@ -21,7 +17,7 @@ const greeting = () => async (ctx: Context<Update>) => {
     // @ts-ignore
     if (ctx.message.text === ButtonTypes.CAT) {
       const url = await getCat();
-      return ctx.replyWithPhoto(Input.fromURL(url));
+      return replyWithPhoto(ctx, url);
     }
 
     // @ts-ignore
@@ -34,7 +30,7 @@ const greeting = () => async (ctx: Context<Update>) => {
       message = `${ctx.from?.first_name}, не понимаю тебя! 😈`;
     }
 
-    await replyToMessage(ctx, messageId, message);
+    await reply(ctx, message, { messageId, parseMode: 'HTML' });
   }
 };
 

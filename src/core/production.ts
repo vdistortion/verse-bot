@@ -1,7 +1,7 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import createDebug from 'debug';
 import { type Context, Telegraf } from 'telegraf';
 import { type Update } from 'telegraf/typings/core/types/typegram';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import createDebug from 'debug';
 
 const debug = createDebug('bot:production');
 

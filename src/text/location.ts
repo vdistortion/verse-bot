@@ -2,13 +2,9 @@ import type { Context } from 'telegraf';
 import type { Update } from 'telegraf/typings/core/types/typegram';
 import createDebug from 'debug';
 import { getWeather } from '../api/fetch';
+import { reply } from '../utils/reply';
 
 const debug = createDebug('bot:location_text');
-
-const replyToMessage = (ctx: Context, messageId: number, string: string) =>
-  ctx.replyWithHTML(string, {
-    reply_parameters: { message_id: messageId },
-  });
 
 const location = (apiKey: string) => async (ctx: Context<Update>) => {
   debug('Triggered "location" text command');
@@ -19,7 +15,7 @@ const location = (apiKey: string) => async (ctx: Context<Update>) => {
 
   if (messageId) {
     if (live_period) {
-      await ctx.reply('Автообновляемая геолокация не поддерживается, отправьте статичную 🌐');
+      await reply(ctx, 'Автообновляемая геолокация не поддерживается, отправьте статичную 🌐');
       return;
     }
     const answer = await getWeather(apiKey, latitude, longitude);
@@ -32,7 +28,7 @@ const location = (apiKey: string) => async (ctx: Context<Update>) => {
 <i>Давление</i> ${answer.main.pressure} мм рт. ст.
 ${wind}
   `;
-    await replyToMessage(ctx, messageId, message);
+    await reply(ctx, message, { messageId, parseMode: 'HTML' });
   }
 };
 

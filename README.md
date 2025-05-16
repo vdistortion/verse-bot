@@ -22,3 +22,11 @@ npm run dev
 You can fork this template and do the necessary changes you need. Then you when are done with your changes simply goto [vercel git import](https://vercel.com/import/git).
 
 Reference to [this update](https://vercel.com/docs/security/deployment-protection#migrating-to-standard-protection), you need turn off `Vercel Authentication`, Settings => Deployment Protection
+
+## Links
+
+- https://vdistortion.github.io/flag-connect/
+- https://openweathermap.org
+- https://thecatapi.com
+- https://forismatic.com
+- https://fucking-great-advice.ru

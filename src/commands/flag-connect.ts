@@ -1,14 +1,15 @@
-import { Context, Input } from 'telegraf';
+import type { Context } from 'telegraf';
 import createDebug from 'debug';
+import { reply, replyWithPhoto } from '../utils/reply';
 import countries from '../countries.json';
 
-const debug = createDebug('bot:flagConnect_command');
+const debug = createDebug('bot:flag_connect_command');
 
 const flagConnect = (path: string) => async (ctx: Context) => {
   const message = 'Выберите тест:';
-  debug(`Triggered "flagConnect" command with message \n${message}`);
-  await ctx.replyWithMarkdownV2(message, { parse_mode: 'Markdown' });
-  await ctx.replyWithPhoto(Input.fromURL(path + countries[0].flag[0]));
+  debug(`Triggered "flag_connect" command with message \n${message}`);
+  await reply(ctx, message);
+  await replyWithPhoto(ctx, path + countries[0].flag[0]);
 };
 
 export { flagConnect };

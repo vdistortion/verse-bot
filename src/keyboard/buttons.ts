@@ -1,27 +1,19 @@
 import { Markup } from 'telegraf';
+import type { KeyboardButton } from '@telegraf/types/markup';
 
 export const ButtonTypes = {
-  CAT: '🐈 Вызвать котиков 🐈',
+  CAT: '🐈🐾🐾🐾',
   QUOTE: '🗯 Крутая цитата 🗯',
   ADVICE: '🔞 Отмочить 🔞',
+  FLAGS: '🏴 Флаги 🏳️',
 };
 
-const getButtons = (advice?: boolean) => {
-  if (advice) {
-    return [
-      [Markup.button.text(ButtonTypes.ADVICE), Markup.button.text(ButtonTypes.QUOTE)],
-      [Markup.button.text(ButtonTypes.CAT)],
-    ];
-  }
+const getButtons = (buttons: string[][]): KeyboardButton[][] =>
+  buttons.map((row) => row.map((button) => Markup.button.text(button)));
 
-  return [[Markup.button.text(ButtonTypes.QUOTE)], [Markup.button.text(ButtonTypes.CAT)]];
-};
-
-export const getKeyboard = (advice?: boolean) => {
-  return {
-    reply_markup: {
-      keyboard: getButtons(advice),
-      resize_keyboard: true,
-    },
-  };
+export const getKeyboard = (advice?: boolean): KeyboardButton[][] => {
+  return getButtons([
+    advice ? [ButtonTypes.ADVICE, ButtonTypes.QUOTE] : [ButtonTypes.QUOTE],
+    [ButtonTypes.CAT],
+  ]);
 };

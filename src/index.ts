@@ -8,7 +8,7 @@ import { getKeyboard, buttons } from './keyboard';
 import { reply, replyWithPhoto } from './utils/reply';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
-const API_KEY_OPENWEATHERMAP = process.env.API_KEY_OPENWEATHERMAP!;
+const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY!;
 const ALIASES = process.env.ALIASES!;
 const IMAGE_SRC = process.env.IMAGE_SRC!;
 const ENVIRONMENT = process.env.NODE_ENV || '';
@@ -22,13 +22,13 @@ bot.command(buttons.cat.command, (ctx) => getCat().then((url) => replyWithPhoto(
 bot.command('item', (ctx) => getList().then((text) => reply(ctx, text, { parseMode: 'HTML' })));
 bot.command('advice', (ctx) => reply(ctx, '😈', { keyboard: getKeyboard(true) }));
 
-bot.on('message:location', location(API_KEY_OPENWEATHERMAP));
+bot.on('message:location', location(OPENWEATHERMAP_API_KEY));
 bot.on('message:sticker', (ctx) => reply(ctx, '👀'));
 bot.on('message:text', greeting());
 
 //prod mode (Vercel)
 export const startVercel = async (req: VercelRequest, res: VercelResponse) => {
-  // await production();
+  await production(bot);
   webhookCallback(bot, 'https')(req, res);
 };
 

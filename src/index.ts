@@ -1,5 +1,6 @@
 import { Bot } from 'grammy';
-import { development } from './core';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { development, production } from './core';
 import { start, help, flagConnect } from './commands';
 import { greeting, location } from './text';
 import { getCat, getList } from './api/fetch';
@@ -25,4 +26,10 @@ bot.on('message:location', location(API_KEY_OPENWEATHERMAP));
 bot.on('message:sticker', (ctx) => reply(ctx, '👀'));
 bot.on('message:text', greeting());
 
+//prod mode (Vercel)
+export const startVercel = async (req: VercelRequest, res: VercelResponse) => {
+  await production(req, res, bot);
+};
+
+//dev mode
 ENVIRONMENT !== 'production' && development(bot);

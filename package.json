@@ -19,6 +19,7 @@
   "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
   "license": "GPL",
   "dependencies": {
+    "@vercel/node": "^5.1.16",
     "grammy": "^1.36.1"
   },
   "devDependencies": {

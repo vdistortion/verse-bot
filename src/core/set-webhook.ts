@@ -1,10 +1,10 @@
 import { Bot } from 'grammy';
 
-const token = process.env.BOT_TOKEN;
+const token = process.env.TELEGRAM_BOT_TOKEN;
 const domain = process.env.VERCEL_URL;
 
 if (!token || !domain) {
-  throw new Error('BOT_TOKEN или VERCEL_URL не установлены');
+  throw new Error('TELEGRAM_BOT_TOKEN или VERCEL_URL не установлены');
 }
 
 const bot = new Bot(token);

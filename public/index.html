@@ -34,7 +34,7 @@
         'click',
         async () => {
           const res = await fetch('/api/set-webhook');
-          const { message } = await res.text();
+          const { message } = await res.json();
           a.href = message;
           a.click();
         },

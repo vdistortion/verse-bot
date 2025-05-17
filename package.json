@@ -6,8 +6,9 @@
   "main": "src/index.ts",
   "homepage": "https://github.com/vdistortion/imp-telegram-bot",
   "scripts": {
+    "postprepare": "touch .env.dev",
     "dev": "DEBUG=bot* dotenv -- nodemon -e ts -x ts-node src/index.ts",
-    "build": "ncc build src/index.ts -o public -m",
+    "build": "ncc build src/core/production.ts -o public -m",
     "format": "prettier . --write",
     "lint": "tsc --noemit"
   },

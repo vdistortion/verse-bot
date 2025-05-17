@@ -1,14 +1,14 @@
 import { Bot } from 'grammy';
 
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const domain = process.env.VERCEL_URL;
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const VERCEL_URL = process.env.VERCEL_URL;
 
-if (!token || !domain) {
+if (!TELEGRAM_BOT_TOKEN || !VERCEL_URL) {
   throw new Error('TELEGRAM_BOT_TOKEN или VERCEL_URL не установлены');
 }
 
-const bot = new Bot(token);
-const webhookUrl = `https://${domain}/api`;
+const bot = new Bot(TELEGRAM_BOT_TOKEN);
+const webhookUrl = `https://${VERCEL_URL}/api`;
 
 bot.api
   .setWebhook(webhookUrl)

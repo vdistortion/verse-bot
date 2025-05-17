@@ -12,7 +12,7 @@
         align-items: center;
         justify-content: center;
       }
-      button {
+      a {
         font-size: 1.2em;
         padding: 10px 20px;
         border: none;
@@ -20,18 +20,26 @@
         color: white;
         border-radius: 8px;
         cursor: pointer;
+        text-decoration: none;
       }
     </style>
   </head>
   <body>
-    <button>Установить Webhook</button>
+    <a href="" target="_blank">Установить Webhook</a>
 
     <script>
-      document.querySelector('button').addEventListener('click', async () => {
-        const res = await fetch('/api/set-webhook');
-        const { message } = await res.text();
-        location.href = message;
-      });
+      const a = document.querySelector('a');
+
+      a.addEventListener(
+        'click',
+        async () => {
+          const res = await fetch('/api/set-webhook');
+          const { message } = await res.text();
+          a.href = message;
+          a.click();
+        },
+        { once: true },
+      );
     </script>
   </body>
 </html>

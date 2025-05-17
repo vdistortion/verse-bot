@@ -7,9 +7,7 @@
   "homepage": "https://github.com/vdistortion/imp-telegram-bot",
   "scripts": {
     "dev": "DEBUG=bot* dotenv -- nodemon -e ts -x ts-node src/index.ts",
-    "build": "npm run build-only && npm run postbuild",
-    "build-only": "ncc build src/index.ts -o public -m",
-    "postbuild": "ts-node src/core/set-webhook.ts",
+    "build": "ncc build src/index.ts -o public -m",
     "format": "prettier . --write",
     "lint": "tsc --noemit"
   },

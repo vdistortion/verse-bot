@@ -8,21 +8,22 @@ const VERCEL_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 
 export const production = async (req: VercelRequest, res: VercelResponse, bot: Bot) => {
   if (!VERCEL_URL) throw new Error('VERCEL_URL is not set.');
+  const webhookUrl = `https://${VERCEL_URL}/api`;
 
   debug('Bot runs in production mode');
-  debug(`setting webhook: ${VERCEL_URL}`);
+  debug(`setting webhook: ${webhookUrl}`);
 
   const getWebhookInfo = await bot.api.getWebhookInfo();
-  if (getWebhookInfo.url !== VERCEL_URL + '/api') {
-    debug(`deleting webhook ${VERCEL_URL}`);
+  if (getWebhookInfo.url !== webhookUrl) {
+    debug(`deleting webhook ${getWebhookInfo.url}`);
     await bot.api.deleteWebhook();
-    debug(`setting webhook: ${VERCEL_URL}/api`);
-    await bot.api.setWebhook(`${VERCEL_URL}/api`);
+    debug(`setting webhook: ${webhookUrl}`);
+    await bot.api.setWebhook(webhookUrl);
   }
 
   if (req.method === 'POST') {
     await bot.handleUpdate(req.body as Update);
   } else {
-    res.status(200).json(`Listening to bot events... ${VERCEL_URL}`);
+    res.status(200).json(`Listening to bot events... ${webhookUrl}`);
   }
 };

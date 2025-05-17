@@ -12,8 +12,6 @@ const ALIASES = process.env.ALIASES!;
 const IMAGE_SRC = process.env.IMAGE_SRC!;
 const ENVIRONMENT = process.env.NODE_ENV || '';
 
-console.log({ ENVIRONMENT });
-
 export const bot = new Bot(TELEGRAM_BOT_TOKEN);
 
 bot.command('start', start(JSON.parse(ALIASES)));

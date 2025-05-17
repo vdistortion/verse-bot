@@ -1,10 +1,8 @@
 import { Bot } from 'grammy';
-
 import createDebug from 'debug';
 
-const debug = createDebug('bot:production');
-
 const VERCEL_URL = process.env.VERCEL_URL;
+const debug = createDebug('bot:production');
 
 export const production = async (bot: Bot) => {
   if (!VERCEL_URL) throw new Error('VERCEL_URL is not set.');

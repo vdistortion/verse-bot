@@ -1,6 +1,7 @@
 import { Bot } from 'grammy';
 
-const VERCEL_URL = process.env.VERCEL_URL;
+const VERCEL_URL =
+  process.env.VERCEL_URL || 'imp-telegram-lcn6dlvdf-ws1wm6ok881jhqvrt4w.vercel.app';
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN!);
 
 export default async function handler() {

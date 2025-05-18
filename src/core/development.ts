@@ -1,4 +1,4 @@
-import { Bot } from 'grammy';
+import type { Bot } from 'grammy';
 import createDebug from 'debug';
 
 const debug = createDebug('bot:development');

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>setWebhook</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+
+      button {
+        font-size: 1.2em;
+        padding: 10px 20px;
+        border: none;
+        background-color: black;
+        color: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <button>setWebhook</button>
+
+    <script>
+      document.querySelector('button').addEventListener('click', () => fetch('/api/set-webhook'));
+    </script>
+  </body>
+</html>

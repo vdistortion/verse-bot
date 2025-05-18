@@ -1,3 +1,4 @@
-import { startVercel } from '../src';
+import { webhookCallback } from 'grammy';
+import { bot } from '../src';
 
-export default startVercel;
+export default webhookCallback(bot, 'https');

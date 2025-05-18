@@ -8,13 +8,16 @@ const debug = createDebug('bot:start_command');
 const start = (aliases: Record<string, string>) => async (ctx: CommandContext<Context>) => {
   debug('Triggered "start" command');
 
+  const { type, title, first_name, username } = ctx.chat;
   let message = 'Держи клавиатуру! 😈';
 
-  if (ctx.chat.type === 'supergroup') {
-    message = `Привет, чат <b>${ctx.chat.title}</b>! 😈`;
-  } else if (ctx.chat.type === 'private') {
-    const alias = aliases[ctx.chat.username as string] || ctx.chat.first_name;
-    message = `Будь как дома, путник <b>${alias}</b>! 😈`;
+  if (['supergroup', 'group'].includes(type)) {
+    message = `Привет, чат <b>${title}</b>! 😈`;
+  } else if (type === 'private') {
+    const alias = aliases[String(username)];
+    message = alias
+      ? `Будь как дома, <b>${alias}</b>! 😈`
+      : `Будь как дома, путник <b>${first_name}</b>! 😈`;
   }
 
   await reply(ctx, message, { parseMode: 'HTML', keyboard: getKeyboard() });

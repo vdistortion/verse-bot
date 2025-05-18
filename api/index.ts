@@ -1,8 +1,3 @@
-import { webhookCallback } from 'grammy';
-import { bot } from '../src';
-import { production } from '../src/core';
+import { startVercel } from '../src';
 
-export default async function handler(req: any, res: any) {
-  await production();
-  webhookCallback(bot, 'https')(req, res);
-};
+export default startVercel;

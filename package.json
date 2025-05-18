@@ -25,6 +25,7 @@
     "@types/debug": "^4.1.12",
     "@types/node": "^22.15.18",
     "@vercel/ncc": "^0.38.3",
+    "@vercel/node": "^5.1.16",
     "debug": "^4.4.1",
     "dotenv-cli": "^8.0.0",
     "nodemon": "^3.1.10",

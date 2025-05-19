@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { development, production } from './core';
 import { start, help, flagConnect } from './commands';
 import { greeting, location } from './text';
-import { getCat, getList, getQuote } from './api/fetch';
+import { getCat, getList, getQuote } from './api';
 import { getKeyboard, buttons } from './keyboard';
 import { reply, replyWithPhoto } from './utils/reply';
 

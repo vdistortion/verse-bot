@@ -1,49 +1,95 @@
-import list from './list';
+import { list } from './list';
 
-async function HttpClient<T>(url: string) {
-  const response = await fetch(url);
+async function HttpClient<T, P = null>(url: string, params?: P): Promise<T> {
+  const search = params ? '?' + new URLSearchParams(params).toString() : '';
+  const response = await fetch(url + search);
   return (await response.json()) as T;
 }
 
-export function getList() {
+export function getApiList() {
+  interface IResultItem {
+    text: string;
+    number: number;
+    length: number;
+  }
+
   const randomIndex = Math.floor(Math.random() * list.length);
-  const randomItem = list[randomIndex];
-  const number = `<b>[${randomIndex + 1}/${list.length}]</b>`;
-  const text = `${randomItem}\n\n${number}`;
-  return Promise.resolve(text);
+  const result: IResultItem = {
+    text: list[randomIndex],
+    number: randomIndex + 1,
+    length: list.length,
+  };
+
+  return Promise.resolve(result);
 }
 
-export async function getCat() {
+/**
+ * Сайт: https://thecatapi.com/
+ *
+ * API: https://developers.thecatapi.com
+ */
+export async function getApiCat() {
   interface IApiData {
+    id: string;
     url: string;
+    width: number;
+    height: number;
   }
 
   const [data] = await HttpClient<IApiData[]>('https://api.thecatapi.com/v1/images/search');
-  return data.url;
+  return data;
 }
 
-export async function getQuote() {
+/**
+ * Сайт: https://forismatic.com
+ *
+ * API: https://forismatic.com/ru/api/
+ */
+export function getApiQuote() {
   interface IApiData {
     quoteText: string;
     quoteAuthor: string;
+    quoteLink: string;
+  }
+  interface IApiParams {
+    method: string;
+    key: number;
+    format: string;
+    lang: string;
   }
 
-  const { quoteText, quoteAuthor } = await HttpClient<IApiData>(
-    'https://api.forismatic.com/api/1.0/?method=getQuote&key=457653&format=json&lang=ru',
-  );
-  return quoteAuthor ? `${quoteText}\n<b>${quoteAuthor}</b>` : quoteText;
+  return HttpClient<IApiData, IApiParams>('https://api.forismatic.com/api/1.0/', {
+    method: 'getQuote',
+    key: 457653,
+    format: 'json',
+    lang: 'ru',
+  });
 }
 
-export async function getAdvice() {
+/**
+ * Сайт: https://fucking-great-advice.ru
+ *
+ * API: https://fucking-great-advice.ru/api
+ */
+export function getApiAdvice() {
   interface IApiData {
+    id: number;
     text: string;
   }
 
-  const data = await HttpClient<IApiData>('https://fucking-great-advice.ru/api/random');
-  return data.text;
+  return HttpClient<IApiData>('https://fucking-great-advice.ru/api/random');
 }
 
-export async function getWeather(apiKey: string, latitude: number, longitude: number) {
+/**
+ * Сайт: https://openweathermap.org
+ *
+ * API: https://openweathermap.org/current
+ */
+export async function getApiWeather(
+  apiKey: string,
+  latitude: number,
+  longitude: number,
+) {
   interface IApiData {
     name: string;
     wind: {
@@ -56,13 +102,25 @@ export async function getWeather(apiKey: string, latitude: number, longitude: nu
       pressure: number;
     };
   }
+  interface IApiParams {
+    lat: number;
+    lon: number;
+    appid: string;
+    mode?: 'xml' | 'html';
+    units?: 'standard' | 'metric' | 'imperial';
+    lang?: string;
+  }
 
-  return await HttpClient<IApiData>(
-    `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=ru`,
-  );
+  return HttpClient<IApiData, IApiParams>(`https://api.openweathermap.org/data/2.5/weather`, {
+    lat: latitude,
+    lon: longitude,
+    appid: apiKey,
+    units: 'metric',
+    lang: 'ru',
+  });
 }
 
-export async function getCountries(path: string) {
+export function getApiCountries(path: string) {
   interface ICountry {
     name: {
       en: string;
@@ -71,5 +129,5 @@ export async function getCountries(path: string) {
     flag: string[];
   }
 
-  return await HttpClient<ICountry[]>(`${path}/countries.json`);
+  return HttpClient<ICountry[]>(`${path}/countries.json`);
 }

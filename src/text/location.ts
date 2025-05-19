@@ -1,6 +1,6 @@
 import type { Context, Filter } from 'grammy';
 import createDebug from 'debug';
-import { getWeather } from '../api/fetch';
+import { getWeather } from '../api';
 import { reply } from '../utils/reply';
 
 const debug = createDebug('bot:location_text');
@@ -15,16 +15,8 @@ const location = (apiKey: string) => async (ctx: Filter<Context, 'message:locati
     return;
   }
 
-  const answer = await getWeather(apiKey, latitude, longitude);
-  const wind = answer.wind.speed > 0 ? `<i>Ветер</i> ${answer.wind.speed} м/с` : 'Штиль';
-  const message = `
-<b>${answer.name}</b>
-<i>Температура</i> ${answer.main.temp} ℃
-<i>По ощущению</i> ${answer.main.feels_like} ℃
-<i>Влажность</i> ${answer.main.humidity}%
-<i>Давление</i> ${answer.main.pressure} мм рт. ст.
-${wind}
-  `;
+  const message = await getWeather(apiKey, latitude, longitude);
+
   await reply(ctx, message, { messageId: ctx.message.message_id, parseMode: 'HTML' });
 };
 

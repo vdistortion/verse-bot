@@ -1,6 +1,6 @@
 import type { Context, Filter } from 'grammy';
 import createDebug from 'debug';
-import { getQuote, getAdvice, getCat } from '../api/fetch';
+import { getQuote, getAdvice, getCat } from '../api';
 import { buttons } from '../keyboard';
 import { reply, replyWithPhoto } from '../utils/reply';
 

@@ -9,12 +9,6 @@ const location = (apiKey: string) => async (ctx: Filter<Context, 'message:locati
   debug('Triggered "location" text command');
 
   const { latitude, longitude } = ctx.message.location;
-
-  if ('live_period' in ctx.message.location) {
-    await reply(ctx, 'Автообновляемая геолокация не поддерживается, отправьте статичную 🌐');
-    return;
-  }
-
   const message = await getWeather(apiKey, latitude, longitude);
 
   await reply(ctx, message, { messageId: ctx.message.message_id, parseMode: 'HTML' });

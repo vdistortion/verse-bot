@@ -1,7 +1,7 @@
 import { Bot, webhookCallback } from 'grammy';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { commands, development, production } from './core';
-import { start, stop, cat, item, quote, advice, help, flagConnect, imp } from './commands';
+import { start, stop, cat, item, quote, advice, help, flagConnect, imp, image } from './commands';
 import { greeting, location, sticker } from './text';
 import {
   ALIASES,
@@ -17,6 +17,7 @@ bot.command(commands.start.command, start(JSON.parse(ALIASES!)));
 bot.command(commands.stop.command, stop());
 bot.command(commands.help.command, help());
 bot.command('item', item());
+bot.command('image', image());
 bot.command(commands.flags.command, flagConnect(FLAG_CONNECT!));
 bot.command(commands.cat.command, cat());
 bot.command(commands.quote.command, quote());

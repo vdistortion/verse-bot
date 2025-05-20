@@ -1,4 +1,5 @@
 import { list } from './list';
+import images from './images.json';
 
 async function HttpClient<T, P = null>(url: string, params?: P): Promise<T> {
   const search = params ? '?' + new URLSearchParams(params).toString() : '';
@@ -18,6 +19,26 @@ export function getApiList() {
     text: list[randomIndex],
     number: randomIndex + 1,
     length: list.length,
+  };
+
+  return Promise.resolve(result);
+}
+
+export function getApiImages() {
+  interface IResultImage {
+    path: string;
+    text: string;
+    number: number;
+    length: number;
+  }
+
+  const randomIndex = Math.floor(Math.random() * images.length);
+  const { name } = images[randomIndex];
+  const result: IResultImage = {
+    path: name,
+    text: name.split('.')[0],
+    number: randomIndex + 1,
+    length: images.length,
   };
 
   return Promise.resolve(result);

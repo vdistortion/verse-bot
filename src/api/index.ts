@@ -2,6 +2,7 @@ import {
   getApiAdvice,
   getApiCat,
   getApiCountries,
+  getApiImages,
   getApiList,
   getApiQuote,
   getApiWeather,
@@ -10,6 +11,11 @@ import {
 export async function getList() {
   const { text, number, length } = await getApiList();
   return `${text}\n\n*[${number}/${length}]*`;
+}
+
+export async function getImage() {
+  const { path, text, number, length } = await getApiImages();
+  return { image: path, caption: `${text}\n\n[${number}/${length}]` };
 }
 
 export async function getCat() {

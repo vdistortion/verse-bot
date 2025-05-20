@@ -1,8 +1,8 @@
 import createDebug from 'debug';
 import { bot } from '../';
+import { VERCEL_PROJECT_PRODUCTION_URL } from '../utils/env';
 
 const debug = createDebug('bot:production');
-const { VERCEL_PROJECT_PRODUCTION_URL } = process.env;
 
 export const production = async () => {
   if (!VERCEL_PROJECT_PRODUCTION_URL) throw new Error('VERCEL_PROJECT_PRODUCTION_URL is not set.');

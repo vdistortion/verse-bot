@@ -3,8 +3,14 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { commands, development, production } from './core';
 import { start, stop, cat, item, quote, advice, help, flagConnect, imp } from './commands';
 import { greeting, location, sticker } from './text';
+import {
+  ALIASES,
+  FLAG_CONNECT,
+  NODE_ENV,
+  OPENWEATHERMAP_API_KEY,
+  TELEGRAM_BOT_TOKEN,
+} from './utils/env';
 
-const { TELEGRAM_BOT_TOKEN, OPENWEATHERMAP_API_KEY, ALIASES, FLAG_CONNECT, NODE_ENV } = process.env;
 export const bot = new Bot(TELEGRAM_BOT_TOKEN!);
 
 bot.command(commands.start.command, start(JSON.parse(ALIASES!)));

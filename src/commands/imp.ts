@@ -6,13 +6,13 @@ import { replyWithPhotoGroup } from '../utils/reply';
 
 const debug = createDebug('bot:imp_command');
 const { NODE_ENV, VERCEL_PROJECT_PRODUCTION_URL } = process.env;
-const path = NODE_ENV === 'production' ? `https://${VERCEL_PROJECT_PRODUCTION_URL}/public/assets` : './public/assets';
+const path = NODE_ENV === 'production' ? `https://${VERCEL_PROJECT_PRODUCTION_URL}` : './public';
 
 export const imp = () => async (ctx: CommandContext<Context>) => {
   debug('Triggered "imp" command');
   await replyWithPhotoGroup(
     ctx,
-    [`${path}/avatar.jpg`, `${path}/hellboy.jpg`],
+    [`${path}/assets/avatar.jpg`, `${path}/assets/hellboy.jpg`],
     `
 @ImpTelegramBot
 

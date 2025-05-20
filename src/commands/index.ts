@@ -1,3 +1,9 @@
 export { start } from './start';
+export { stop } from './stop';
 export { help } from './help';
+export { item } from './item';
+export { imp } from './imp';
+export { cat } from './cat';
+export { quote } from './quote';
+export { advice } from './advice';
 export { flagConnect } from './flag-connect';

@@ -1,29 +1,24 @@
 import { Bot, webhookCallback } from 'grammy';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { development, production } from './core';
-import { start, help, flagConnect } from './commands';
-import { greeting, location } from './text';
-import { getCat, getList, getQuote } from './api';
-import { getKeyboard, buttons } from './keyboard';
-import { reply, replyWithPhoto } from './utils/reply';
+import { commands, development, production } from './core';
+import { start, stop, cat, item, quote, advice, help, flagConnect, imp } from './commands';
+import { greeting, location, sticker } from './text';
 
 const { TELEGRAM_BOT_TOKEN, OPENWEATHERMAP_API_KEY, ALIASES, FLAG_CONNECT, NODE_ENV } = process.env;
-
 export const bot = new Bot(TELEGRAM_BOT_TOKEN!);
 
-bot.command('start', start(JSON.parse(ALIASES!)));
-bot.command('help', help());
-bot.command(buttons.flags.command, flagConnect(FLAG_CONNECT!));
-bot.command(buttons.cat.command, (ctx) => getCat().then((url) => replyWithPhoto(ctx, url)));
-bot.command('item', (ctx) => getList().then((text) => reply(ctx, text, { parseMode: 'Markdown' })));
-bot.command(buttons.quote.command, (ctx) =>
-  getQuote().then((text) => reply(ctx, text, { parseMode: 'Markdown' })),
-);
-bot.command(buttons.advice.command, (ctx) => reply(ctx, '😈', { keyboard: getKeyboard(true) }));
-bot.command('stop', (ctx) => reply(ctx, 'Stopped', { removeKeyboard: true }));
+bot.command(commands.start.command, start(JSON.parse(ALIASES!)));
+bot.command(commands.stop.command, stop());
+bot.command(commands.help.command, help());
+bot.command('item', item());
+bot.command(commands.flags.command, flagConnect(FLAG_CONNECT!));
+bot.command(commands.cat.command, cat());
+bot.command(commands.quote.command, quote());
+bot.command(commands.advice.command, advice());
+bot.command('imp', imp());
 
 bot.on('message:location', location(OPENWEATHERMAP_API_KEY!));
-bot.on('message:sticker', (ctx) => reply(ctx, '👀'));
+bot.on('message:sticker', sticker());
 bot.on('message:text', greeting());
 
 //prod mode (Vercel)

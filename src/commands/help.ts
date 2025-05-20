@@ -1,21 +1,20 @@
-import type { Context } from 'grammy';
+import type { CommandContext, Context } from 'grammy';
 import createDebug from 'debug';
-import { buttons } from '../keyboard';
+import { commands } from '../core';
 import { reply } from '../utils/reply';
 
 const debug = createDebug('bot:help_command');
 
-export const help = () => async (ctx: Context) => {
+export const help = () => async (ctx: CommandContext<Context>) => {
   debug('Triggered "help" command');
   await reply(
     ctx,
     `
-/start — Запуск/перезапуск бота
-/${buttons.cat.command} — ${buttons.cat.description}
-/${buttons.quote.command} — ${buttons.quote.description}
-/help — Список возможных команд
-/stop — Убрать клавиатуру
-📍 Погода по геолокации
+/${commands.start.command} — ${commands.start.description}
+/${commands.cat.command} — ${commands.cat.description}
+/${commands.quote.command} — ${commands.quote.description}
+/${commands.stop.command} — ${commands.stop.description}
+${commands.location.description}
 `,
   );
 };

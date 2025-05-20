@@ -1,4 +1,5 @@
-import { type Context } from 'grammy';
+import { type Context, InputFile } from 'grammy';
+import type { InputMediaPhoto } from 'grammy/types';
 import type { ParseMode } from '@grammyjs/types/message';
 import type { KeyboardButton } from '@grammyjs/types/markup';
 
@@ -32,3 +33,14 @@ export const reply = (
 };
 
 export const replyWithPhoto = (ctx: Context, url: string) => ctx.replyWithPhoto(url);
+
+export const replyWithPhotoGroup = (ctx: Context, images: string[], caption: string) => {
+  const list = images.map((image, index) => {
+    const item: InputMediaPhoto = {
+      type: 'photo',
+      media: new InputFile(image),
+    };
+    return index === 0 ? { ...item, caption } : item;
+  });
+  return ctx.replyWithMediaGroup(list);
+};

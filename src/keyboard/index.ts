@@ -1,1 +1,1 @@
-export { getKeyboard, buttons } from './buttons';
+export { getKeyboard } from './buttons';

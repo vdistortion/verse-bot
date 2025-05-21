@@ -11,10 +11,11 @@ import {
   TELEGRAM_BOT_TOKEN,
 } from './utils/env';
 import { getApiCountries } from './api';
+import { homepage } from '../package.json';
 
 export const bot = new Bot(TELEGRAM_BOT_TOKEN!);
 
-bot.command(commands.start.command, start(JSON.parse(ALIASES!)));
+bot.command(commands.start.command, start(JSON.parse(ALIASES!), setSpecification));
 bot.command(commands.stop.command, stop());
 bot.command(commands.help.command, help());
 bot.command('item', item());
@@ -44,15 +45,53 @@ bot.on('callback_query:data', async (ctx) => {
     await ctx.editMessageCaption({
       caption: answer,
       reply_markup: {
-        inline_keyboard: [],
+        inline_keyboard: [
+          [
+            {
+              text: '🌐 Открыть сайт',
+              web_app: {
+                url: 'https://zvalentin.ru/flag-connect/',
+              },
+            },
+          ],
+        ],
       },
     });
   }
-  if (data === 'more') {
-    flagConnect(FLAG_CONNECT!);
-  }
+
   await ctx.answerCallbackQuery();
 });
+
+async function setSpecification() {
+  await bot.api.setMyName('😈 ImpBot 😈');
+
+  await bot.api.setMyCommands([
+    { command: commands.start.command, description: commands.start.description },
+    { command: commands.flags.command, description: commands.flags.description },
+    { command: commands.quote.command, description: commands.quote.description },
+    { command: commands.cat.command, description: commands.cat.description },
+    { command: commands.help.command, description: commands.help.description },
+    { command: commands.stop.command, description: commands.stop.description },
+  ]);
+
+  await bot.api.setMyShortDescription(
+    'Бот отправляет погоду и котиков 🐈\nА ещё цитаты и ценные советы 🤭',
+  );
+
+  await bot.api.setMyDescription(`
+Команды:
+/${commands.start.command} — ${commands.start.description}
+/${commands.flags.command} — ${commands.flags.description}
+/${commands.quote.command} — ${commands.quote.description}
+/${commands.cat.command} — ${commands.cat.description}
+/${commands.help.command} — ${commands.help.description}
+/${commands.stop.command} — ${commands.stop.description}
+${commands.location.description}
+
+Исходный код:
+${homepage}
+  `);
+}
 
 bot.catch((err) => {
   const ctx = err.ctx;

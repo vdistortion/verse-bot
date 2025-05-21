@@ -1,7 +1,7 @@
 import { type Context } from 'grammy';
 import type { InputMediaPhoto } from 'grammy/types';
 import type { ParseMode } from '@grammyjs/types/message';
-import type { KeyboardButton } from '@grammyjs/types/markup';
+import type { InlineKeyboardButton, KeyboardButton } from '@grammyjs/types/markup';
 import { getPathToAssets } from './path';
 
 export const reply = (
@@ -33,15 +33,28 @@ export const reply = (
   });
 };
 
-export const replyWithPhoto = (ctx: Context, url: string) => ctx.replyWithPhoto(url);
+export const replyWithPhoto = (
+  ctx: Context,
+  url: string,
+  caption?: string,
+  keyboard?: InlineKeyboardButton[][],
+) =>
+  ctx.replyWithPhoto(url, {
+    ...(caption && { caption }),
+    ...(keyboard && {
+      reply_markup: {
+        inline_keyboard: keyboard,
+      },
+    }),
+  });
 
-export const replyWithPhotoGroup = (ctx: Context, images: string[], caption: string) => {
+export const replyWithPhotoGroup = (ctx: Context, images: string[], caption?: string) => {
   const list = images.map((image, index) => {
     const item: InputMediaPhoto = {
       type: 'photo',
       media: getPathToAssets(image),
     };
-    return index === 0 ? { ...item, caption } : item;
+    return caption && index === 0 ? { ...item, caption } : item;
   });
   return ctx.replyWithMediaGroup(list);
 };

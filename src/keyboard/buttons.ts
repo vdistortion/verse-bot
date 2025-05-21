@@ -8,6 +8,6 @@ const getButtons = (buttons: string[][]): KeyboardButton[][] =>
 export const getKeyboard = (advice?: boolean): KeyboardButton[][] => {
   return getButtons([
     advice ? [commands.advice.text, commands.quote.text] : [commands.quote.text],
-    [commands.cat.text],
+    [commands.flags.text, commands.cat.text],
   ]);
 };

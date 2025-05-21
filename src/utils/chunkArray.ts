@@ -1,4 +1,4 @@
-export function chunk(array: String[], size = 1) {
+export function chunk<T = string>(array: T[], size = 1) {
   size = Math.max(Number(size), 0);
   const length = array == null ? 0 : array.length;
   if (!length || size < 1) {

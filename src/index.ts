@@ -10,7 +10,7 @@ import { runFlagsService } from './services/flagService';
 export const bot = new Bot(TELEGRAM_BOT_TOKEN!);
 const isDev = NODE_ENV !== 'production';
 
-bot.command(commands.start.command, start(JSON.parse(ALIASES!), setSpecification));
+bot.command(commands.start.command, start(JSON.parse(ALIASES!)));
 bot.command(commands.stop.command, stop());
 bot.command(commands.help.command, help());
 bot.command('item', item());
@@ -19,7 +19,7 @@ bot.command(commands.cat.command, cat());
 bot.command(commands.quote.command, quote());
 bot.command(commands.advice.command, advice());
 bot.command('id', id());
-bot.command('imp', imp());
+bot.command('imp', imp(setSpecification));
 
 runFlagsService(bot);
 

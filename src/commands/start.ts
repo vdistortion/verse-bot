@@ -5,23 +5,18 @@ import { reply } from '../utils/reply';
 
 const debug = createDebug('bot:start_command');
 
-export const start =
-  (aliases: Record<string, string>, setSpecification: () => Promise<void>) =>
-  async (ctx: CommandContext<Context>) => {
-    debug('Triggered "start" command');
+export const start = (aliases: Record<string, string>) => async (ctx: CommandContext<Context>) => {
+  debug('Triggered "start" command');
 
-    const { type, title, first_name, username } = ctx.chat;
-    let message = 'Держи клавиатуру! 😈';
+  const { type, title, first_name, username } = ctx.chat;
+  let message = 'Держи клавиатуру! 😈';
 
-    if (['supergroup', 'group'].includes(type)) {
-      message = `Привет, чат *${title}*! 😈`;
-    } else if (type === 'private') {
-      const alias = aliases[String(username)];
-      message = alias
-        ? `Будь как дома, *${alias}*! 😈`
-        : `Будь как дома, путник *${first_name}*! 😈`;
-    }
+  if (['supergroup', 'group'].includes(type)) {
+    message = `Привет, чат *${title}*! 😈`;
+  } else if (type === 'private') {
+    const alias = aliases[String(username)];
+    message = alias ? `Будь как дома, *${alias}*! 😈` : `Будь как дома, путник *${first_name}*! 😈`;
+  }
 
-    await setSpecification();
-    await reply(ctx, message, { parseMode: 'Markdown', keyboard: getKeyboard() });
-  };
+  await reply(ctx, message, { parseMode: 'Markdown', keyboard: getKeyboard() });
+};

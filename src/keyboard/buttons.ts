@@ -6,10 +6,10 @@ const locationButton: KeyboardButton = {
   request_location: true,
 };
 
-export const getKeyboard = (advice?: boolean): KeyboardButton[][] => {
+export const getKeyboard = (isPrivateChat?: boolean, advice?: boolean): KeyboardButton[][] => {
   return [
     advice ? [commands.advice.text, commands.quote.text] : [commands.quote.text],
-    [locationButton, commands.cat.text],
+    isPrivateChat ? [locationButton, commands.cat.text] : [commands.cat.text],
     [commands.flags.text],
   ];
 };

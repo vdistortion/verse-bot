@@ -18,5 +18,8 @@ export const start = (aliases: Record<string, string>) => async (ctx: CommandCon
     message = alias ? `Будь как дома, *${alias}*! 😈` : `Будь как дома, путник *${first_name}*! 😈`;
   }
 
-  await reply(ctx, message, { parseMode: 'Markdown', keyboard: getKeyboard() });
+  await reply(ctx, message, {
+    parseMode: 'Markdown',
+    keyboard: getKeyboard(ctx.chat.type === 'private'),
+  });
 };

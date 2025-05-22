@@ -7,5 +7,5 @@ const debug = createDebug('bot:advice_command');
 
 export const advice = () => async (ctx: CommandContext<Context>) => {
   debug('Triggered "advice" command');
-  await reply(ctx, '😈', { keyboard: getKeyboard(true) });
+  await reply(ctx, '😈', { keyboard: getKeyboard(ctx.chat.type === 'private', true) });
 };

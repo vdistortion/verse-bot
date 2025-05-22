@@ -42,7 +42,7 @@ export async function handlerFlagConnect(ctx: Context) {
   const [indexCountry, country] = list[randomIndex];
   const flag = url + '/images/flags/' + country.flag[0];
   const buttons = list.map(([index, { name }]) => ({
-    text: name.ru,
+    text: count > 1 ? name.ru : 'Показать ответ',
     callback_data: `flag_answer|${index}|${indexCountry}`,
   }));
 
@@ -56,7 +56,9 @@ async function callbackQueryCountries(countryIndex: number, correctCountryIndex:
 
   const answer =
     countryIndex === correctCountryIndex
-      ? `☑️ Правильно, это ${correctCountryName}`
+      ? count > 1
+        ? `☑️ Правильно, это ${correctCountryName}`
+        : `Это ${correctCountryName}`
       : `Вы ответили ${countryName}.\n❌ Неправильно, это ${correctCountryName}`;
   return { answer };
 }
@@ -104,6 +106,11 @@ export function runFlagsService(bot: Bot) {
           { text: '6', callback_data: 'flag_setting|6' },
           { text: '7', callback_data: 'flag_setting|7' },
           { text: '8', callback_data: 'flag_setting|8' },
+          { text: '9', callback_data: 'flag_setting|9' },
+        ],
+        [
+          { text: '10', callback_data: 'flag_setting|10' },
+          { text: 'Без вариантов', callback_data: 'flag_setting|1' },
         ],
       ],
     });

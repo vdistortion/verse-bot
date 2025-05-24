@@ -1,6 +1,7 @@
 import { list } from './list';
 import { images } from './images';
 import { http, pickRandom } from '../utils';
+import type { IApiLocationData } from '../types';
 
 export function getApiList() {
   interface IResultItem {
@@ -102,18 +103,6 @@ export function getApiAdvice() {
  * API: https://openweathermap.org/current
  */
 export async function getApiWeather(apiKey: string, latitude: number, longitude: number) {
-  interface IApiData {
-    name: string;
-    wind: {
-      speed: number;
-    };
-    main: {
-      temp: number;
-      feels_like: number;
-      humidity: number;
-      pressure: number;
-    };
-  }
   interface IApiParams {
     lat: number;
     lon: number;
@@ -123,7 +112,7 @@ export async function getApiWeather(apiKey: string, latitude: number, longitude:
     lang?: string;
   }
 
-  return http<IApiData, IApiParams>(`https://api.openweathermap.org/data/2.5/weather`, {
+  return http<IApiLocationData, IApiParams>(`https://api.openweathermap.org/data/2.5/weather`, {
     lat: latitude,
     lon: longitude,
     appid: apiKey,

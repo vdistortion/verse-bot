@@ -1,19 +1,29 @@
-type CommandsType = Record<
-  'start' | 'stop' | 'help' | 'cat' | 'quote' | 'advice' | 'flags' | 'location',
-  Record<'command' | 'text' | 'description', string>
->;
+import { getPhrase } from '../utils';
+import type { CommandsType } from '../types';
 
 export const commands: CommandsType = {
-  start: { command: 'start', text: '', description: 'Если что-то пошло не так' },
-  stop: { command: 'stop', text: '', description: 'Убрать клавиатуру' },
-  help: { command: 'help', text: '', description: 'Список возможных команд' },
-  cat: { command: 'cat', text: '🐾 Муа! 🐾', description: 'За котиком! 🧶' },
-  flags: { command: 'flag_connect', text: '🌍 Флаги', description: 'Угадай страну 🚩' },
-  quote: { command: 'quote', text: '💬 Крутая цитата', description: 'Умное слово 🗯' },
-  advice: { command: 'advice', text: '🧨 Отмочить', description: '' },
+  start: { command: 'start', text: '', description: getPhrase('commandDescription')('start') },
+  stop: { command: 'stop', text: '', description: getPhrase('commandDescription')('stop') },
+  help: { command: 'help', text: '', description: getPhrase('commandDescription')('help') },
+  cat: {
+    command: 'cat',
+    text: getPhrase('buttonLabel')('cat'),
+    description: getPhrase('commandDescription')('cat'),
+  },
+  flags: {
+    command: 'flag_connect',
+    text: getPhrase('buttonLabel')('flags'),
+    description: getPhrase('commandDescription')('flags'),
+  },
+  quote: {
+    command: 'quote',
+    text: getPhrase('buttonLabel')('quote'),
+    description: getPhrase('commandDescription')('quote'),
+  },
+  advice: { command: 'advice', text: getPhrase('buttonLabel')('advice'), description: '' },
   location: {
     command: '',
-    text: '📍 Погода по геолокации',
-    description: '📍 Погода по геолокации',
+    text: getPhrase('buttonLabel')('location'),
+    description: getPhrase('commandDescription')('location'),
   },
 };

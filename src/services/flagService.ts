@@ -1,6 +1,6 @@
 import { bot, commands, type Context } from '../core';
 import { flag_connect } from '../commands';
-import { http, chunk, pickRandom } from '../utils';
+import { http, chunk, getPhrase, pickRandom } from '../utils';
 import { FLAG_CONNECT_MINI_APP } from '../env';
 
 interface ICountry {
@@ -37,12 +37,12 @@ export async function handlerFlagConnect(ctx: Context) {
   const [indexCountry, country] = list[randomIndex];
   const flag = url + '/images/flags/' + country.flag[0];
   const buttons = list.map(([index, { name }]) => ({
-    text: ctx.session.count > 1 ? name.ru : 'Показать ответ',
+    text: ctx.session.count > 1 ? name.ru : getPhrase('flagEmptyAnswer'),
     callback_data: `flag_answer|${index}|${indexCountry}`,
   }));
 
   await ctx.replyWithPhoto(flag, {
-    caption: 'Какая это страна?',
+    caption: getPhrase('flagAnswer'),
     reply_markup: {
       inline_keyboard: chunk(buttons, 2),
     },
@@ -61,9 +61,9 @@ async function callbackQueryCountries(
   const answer =
     countryIndex === correctCountryIndex
       ? count > 1
-        ? `☑️ Правильно, это ${correctCountryName}`
-        : `Это ${correctCountryName}`
-      : `Вы ответили ${countryName}.\n❌ Неправильно, это ${correctCountryName}`;
+        ? getPhrase('flagsSuccessAnswer')(correctCountryName)
+        : getPhrase('flagsSuccessEmptyAnswer')(correctCountryName)
+      : getPhrase('flagsErrorAnswer')(countryName, correctCountryName);
   return { answer };
 }
 
@@ -86,7 +86,7 @@ export function runFlagsService() {
         inline_keyboard: [
           [
             { text: '⚙️', callback_data: 'flag_settings' },
-            { text: 'Продолжить', callback_data: 'flag_more' },
+            { text: getPhrase('flagsMore'), callback_data: 'flag_more' },
           ],
         ],
       },
@@ -101,7 +101,7 @@ export function runFlagsService() {
   });
 
   bot.callbackQuery('flag_settings', async (ctx) => {
-    await ctx.reply('⚠️ Настройки нестабильны\nСколько должно быть вариантов ответа?', {
+    await ctx.reply(getPhrase('flagSettings'), {
       reply_markup: {
         inline_keyboard: [
           [
@@ -115,7 +115,7 @@ export function runFlagsService() {
             { text: '9', callback_data: 'flag_setting|9' },
           ],
           [
-            { text: 'Без вариантов', callback_data: 'flag_setting|1' },
+            { text: getPhrase('flagSettingsEmpty'), callback_data: 'flag_setting|1' },
             { text: '10', callback_data: 'flag_setting|10' },
           ],
         ],

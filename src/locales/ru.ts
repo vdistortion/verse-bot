@@ -114,6 +114,7 @@ const locationAnswer = (answer: IApiLocationData) => {
 
   return `
 🌍 *${answer.name}*
+🕘 Данные на ${new Date(answer.dt * 1000).toLocaleString()}
 
 ${getEmoji(answer.main.temp)} _Температура_: ${answer.main.temp} ℃
 🤔 _Ощущается как_: ${answer.main.feels_like} ℃

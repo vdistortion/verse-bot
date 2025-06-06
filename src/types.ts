@@ -6,6 +6,7 @@ export type CommandsType = Record<
 export interface IApiLocationData {
   name: string;
   dt: number;
+  timezone: number;
   wind: {
     speed: number;
   };

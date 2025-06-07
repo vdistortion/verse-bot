@@ -3,6 +3,7 @@ import {
   getApiCat,
   getApiImages,
   getApiList,
+  getApiOperator,
   getApiQuote,
   getApiWeather,
 } from './fetch';
@@ -34,4 +35,8 @@ export async function getAdvice() {
 
 export function getWeather(apiKey: string, latitude: number, longitude: number) {
   return getApiWeather(apiKey, latitude, longitude);
+}
+
+export function getOperator(key: string, search: string) {
+  return getApiOperator(key, search);
 }

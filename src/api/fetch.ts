@@ -120,3 +120,58 @@ export async function getApiWeather(apiKey: string, latitude: number, longitude:
     lang: 'ru',
   });
 }
+
+/**
+ * Сайт: https://www.kody.su/
+ *
+ * API: https://www.kody.su/api
+ */
+export function getApiOperator(key: string, q: string) {
+  interface IApiDataError {
+    success: false;
+    query: string;
+    quota: number;
+    error_code:
+      | 'NUMBER_NOT_SET'
+      | 'FORMAT_NOT_SET'
+      | 'AUTH_REQUIRED'
+      | 'AUTH_FAILED'
+      | 'LIMIT_EXCEEDED'
+      | 'NUMBER_TOO_SHORT'
+      | 'NUMBER_TOO_LONG'
+      | 'NUMBER_NOT_FOUND'
+      | 'UNKNOWN_ERROR';
+    error_message: string;
+  }
+  interface IApiDataSuccess {
+    success: true;
+    query: string;
+    quota: number;
+    numbers: [
+      {
+        number_current: string;
+        success: boolean;
+        number_type_str: 'ru_mobile' | 'ru_fixed' | 'ua_mobile' | 'other';
+        number_type: number;
+        def: string;
+        number: string;
+        code_start: string;
+        code_end: string;
+        operator: string;
+        operator_full: string;
+        region: string;
+        time: string;
+        bdpn: boolean;
+        bdpn_operator: string;
+      },
+    ];
+  }
+
+  return http<IApiDataError | IApiDataSuccess, { q: string; key: string }>(
+    'https://www.kody.su/api/v2.1/search.json',
+    {
+      q,
+      key,
+    },
+  );
+}

@@ -1,5 +1,5 @@
 {
-  "name": "imp-monorepo-bot",
+  "name": "imp-universal-bot",
   "version": "1.0.0",
   "description": "Monorepo for Telegram and VK bots, and Angular MiniApp",
   "private": true,
@@ -15,7 +15,7 @@
     "format": "prettier . --write"
   },
   "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
-  "homepage": "https://github.com/vdistortion/imp-monorepo-bot",
+  "homepage": "https://github.com/vdistortion/imp-universal-bot",
   "license": "Apache-2.0",
   "workspaces": [
     "packages/*",

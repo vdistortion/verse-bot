@@ -1,15 +1,26 @@
 import { InputFile } from 'grammy';
 import { createBot, dbMiddleware } from '@scope/tg-bot-core';
 import { createVKBot, VKBot, VKContext } from '@scope/vk-bot-core';
-import { getSupabaseClient, type UniversalContext } from '@scope/shared';
-import { startCommand, idCommand, backupDbCommand } from './commands';
-import { escapeMarkdownV2 } from './utils/markdown';
 import {
-  TELEGRAM_BOT_TOKEN,
-  TELEGRAM_ADMIN_ID,
-  VK_TOKEN,
-  VK_GROUP_ID,
-} from './env';
+  getSupabaseClient,
+  type UniversalContext,
+  createUniversalKeyboard,
+  createVKKeyboard,
+} from '@scope/shared';
+import {
+  startCommand,
+  idCommand,
+  backupDbCommand,
+  fullCommand,
+  catCommand,
+  quoteCommand,
+  adviceCommand,
+  randomCommand,
+  contentCommand,
+  stopCommand,
+} from './commands';
+import { escapeMarkdownV2 } from './utils/markdown';
+import { TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_ID, VK_TOKEN, VK_GROUP_ID } from './env';
 
 // ─── Telegram Bot ────────────────────────────────────────────────────────────
 if (TELEGRAM_BOT_TOKEN) {
@@ -25,8 +36,12 @@ if (TELEGRAM_BOT_TOKEN) {
         text: ctx.message?.text ?? '',
         isAdmin: ctx.from?.id === Number(TELEGRAM_ADMIN_ID),
         db: ctx.db,
-        reply: async (text) => {
-          await ctx.reply(escapeMarkdownV2(text), { parse_mode: 'MarkdownV2' });
+        reply: async (text, extra) => {
+          // Для Telegram, extra.telegramReplyMarkup должен быть объектом
+          await ctx.reply(escapeMarkdownV2(text), {
+            parse_mode: 'MarkdownV2',
+            ...(extra?.telegramReplyMarkup && { reply_markup: extra.telegramReplyMarkup }),
+          });
         },
         replyWithFile: async (buffer, filename, caption) => {
           await ctx.replyWithDocument(
@@ -45,12 +60,65 @@ if (TELEGRAM_BOT_TOKEN) {
       await startCommand((ctx as any).uctx);
     });
 
+    tgBot.command('full', async (ctx) => {
+      await fullCommand((ctx as any).uctx);
+    });
+
+    tgBot.command('cat', async (ctx) => {
+      await catCommand((ctx as any).uctx);
+    });
+
+    tgBot.command('quote', async (ctx) => {
+      await quoteCommand((ctx as any).uctx);
+    });
+
+    tgBot.command('advice', async (ctx) => {
+      await adviceCommand((ctx as any).uctx);
+    });
+
+    tgBot.command('random', async (ctx) => {
+      await randomCommand((ctx as any).uctx);
+    });
+
+    tgBot.command('content', async (ctx) => {
+      const itemNumber = parseInt(ctx.match, 10);
+      if (!isNaN(itemNumber)) {
+        await contentCommand((ctx as any).uctx, itemNumber);
+      } else {
+        await ctx.reply('Пожалуйста, укажите номер контента. Например: /content 1');
+      }
+    });
+
+    tgBot.command('stop', async (ctx) => {
+      await stopCommand((ctx as any).uctx);
+    });
+
     tgBot.command('id', async (ctx) => {
       await idCommand((ctx as any).uctx);
     });
 
     tgBot.command('backupdb', async (ctx) => {
       await backupDbCommand((ctx as any).uctx);
+    });
+
+    // Обработка текстовых кнопок Telegram
+    tgBot.hears('Котики 🐾', async (ctx) => {
+      await catCommand((ctx as any).uctx);
+    });
+    tgBot.hears('Цитаты 💬', async (ctx) => {
+      await quoteCommand((ctx as any).uctx);
+    });
+    tgBot.hears('Советы 💡', async (ctx) => {
+      await adviceCommand((ctx as any).uctx);
+    });
+    tgBot.hears('Рандом 🎲', async (ctx) => {
+      await randomCommand((ctx as any).uctx);
+    });
+    tgBot.hears('Мой ID 🆔', async (ctx) => {
+      await idCommand((ctx as any).uctx);
+    });
+    tgBot.hears('Стоп 🛑', async (ctx) => {
+      await stopCommand((ctx as any).uctx);
     });
 
     tgBot.start();
@@ -74,6 +142,18 @@ if (VK_TOKEN && VK_GROUP_ID) {
 
     vkBot.on('message_new', async (ctx: VKContext) => {
       const text = ctx.text?.trim() ?? '';
+      let payloadCommand: string | undefined;
+
+      if (ctx.payload) {
+        try {
+          const parsedPayload = JSON.parse(ctx.payload);
+          if (parsedPayload.command) {
+            payloadCommand = parsedPayload.command;
+          }
+        } catch (e) {
+          console.warn('Failed to parse VK payload:', e);
+        }
+      }
 
       const uctx: UniversalContext = {
         platform: 'vk',
@@ -82,25 +162,70 @@ if (VK_TOKEN && VK_GROUP_ID) {
         text,
         isAdmin: false,
         db,
-        reply: async (msg) => {
-          await vkBot.sendMessage(ctx.peerId, msg);
+        reply: async (msg, extra) => {
+          // Для VK, extra.vkKeyboard должен быть JSON строкой
+          await vkBot.sendMessage(ctx.peerId, msg, extra?.vkKeyboard);
         },
       };
 
-      if (text === '/start') {
+      const commandToExecute = payloadCommand || text;
+
+      if (
+        commandToExecute === '/start' ||
+        commandToExecute === '🚀 Запустить бота и показать основное меню'
+      ) {
         await startCommand(uctx);
         return;
       }
-      if (text === '/id') {
+      if (
+        commandToExecute === '/full' ||
+        commandToExecute === '🌟 Открыть полное меню с дополнительными функциями'
+      ) {
+        await fullCommand(uctx);
+        return;
+      }
+      if (commandToExecute === '/cat' || commandToExecute === 'Котики 🐾') {
+        await catCommand(uctx);
+        return;
+      }
+      if (commandToExecute === '/quote' || commandToExecute === 'Цитаты 💬') {
+        await quoteCommand(uctx);
+        return;
+      }
+      if (commandToExecute === '/advice' || commandToExecute === 'Советы 💡') {
+        await adviceCommand(uctx);
+        return;
+      }
+      if (commandToExecute === '/random' || commandToExecute === 'Рандом 🎲') {
+        await randomCommand(uctx);
+        return;
+      }
+      if (commandToExecute.startsWith('/content ')) {
+        const itemNumber = parseInt(commandToExecute.replace('/content ', ''), 10);
+        if (!isNaN(itemNumber)) {
+          await contentCommand(uctx, itemNumber);
+        } else {
+          await uctx.reply('Пожалуйста, укажите номер контента. Например: /content 1');
+        }
+        return;
+      }
+      if (commandToExecute === '/stop' || commandToExecute === 'Стоп 🛑') {
+        await stopCommand(uctx);
+        return;
+      }
+      if (commandToExecute === '/id' || commandToExecute === 'Мой ID 🆔') {
         await idCommand(uctx);
         return;
       }
-      if (text === '/backupdb') {
+      if (commandToExecute === '/backupdb') {
         await backupDbCommand(uctx);
         return;
       }
 
-      await vkBot.sendMessage(ctx.peerId, '❓ Неизвестная команда');
+      // Если команда не распознана, показываем базовую клавиатуру
+      await uctx.reply('❓ Неизвестная команда', {
+        vkKeyboard: createVKKeyboard(createUniversalKeyboard('vk', false)),
+      });
     });
 
     vkBot.start();

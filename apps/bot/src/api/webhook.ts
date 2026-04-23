@@ -3,6 +3,7 @@ import { createBot } from '@scope/tg-bot-core';
 import { createVKWebhookProcessor, VKSendMessageFunction } from '@scope/vk-bot-core';
 
 let botInstance: ReturnType<typeof createBot> | null = null;
+let botInitPromise: Promise<void> | null = null;
 
 function getBot() {
   if (!botInstance) {
@@ -13,9 +14,11 @@ function getBot() {
     botInstance = createBot({
       token: process.env.TELEGRAM_BOT_TOKEN,
     });
+
+    botInitPromise = botInstance.init();
   }
 
-  return botInstance;
+  return { bot: botInstance, init: botInitPromise! };
 }
 
 const sendVKMessage: VKSendMessageFunction = async (peerId, text, keyboard) => {
@@ -62,10 +65,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (body.update_id) {
-      const bot = getBot();
+      const { bot, init } = getBot();
 
       try {
-        await bot.handleUpdate(body); // 💥 ВАЖНО
+        await init;
+        await bot.handleUpdate(body);
 
         return res.status(200).send('ok');
       } catch (e) {

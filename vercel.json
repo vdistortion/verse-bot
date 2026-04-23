@@ -1,5 +1,5 @@
 {
-  "public": "apps/bot/public",
+  "public": true,
   "functions": {
     "dist/api/webhook.js": {
       "memory": 1024,

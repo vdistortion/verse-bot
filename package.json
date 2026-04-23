@@ -5,14 +5,16 @@
   "private": true,
   "scripts": {
     "prepare": "cp -n .env.example .env",
-    "prestart": "npm run build",
     "build": "tsc --build",
-    "dev": "dotenv -- tsx apps/bot/src/index.ts",
     "dev:tg": "dotenv -- env VK_TOKEN='' VK_GROUP_ID='' tsx apps/bot/src/index.ts",
     "dev:vk": "dotenv -- env TELEGRAM_BOT_TOKEN='' tsx apps/bot/src/index.ts",
-    "start": "dotenv -- node apps/bot/dist/index.js",
-    "clean": "rm -rf node_modules package-lock.json dist && find . -name \"*.tsbuildinfo\" -delete && npm i",
+    "clean": "rm -rf dist && find . -name \"*.tsbuildinfo\" -delete",
+    "clean:all": "npm run clean && rm -rf node_modules package-lock.json && npm i",
     "format": "prettier . --write"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "printWidth": 100
   },
   "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
   "homepage": "https://github.com/vdistortion/universal-vercel-bot",

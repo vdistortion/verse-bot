@@ -1,9 +1,6 @@
-
 # 😈 ImpBot 😈
 
 @ImpUniversalBot
-
-![Bot Preview](./bot-avatar.jpg)
 
 ## Short Description
 
@@ -11,7 +8,7 @@
 
 ## Description
 
-![Bot Preview](./bot-preview.jpg)
+![Bot Preview](./public/bot-preview.jpg)
 
 🕳 Вы обратились к забытой системе. Она всё ещё отвечает. Причина неизвестна.
 
@@ -43,3 +40,5 @@
 /content - 📄 Получить контент по номеру
 /id - 🆔 Показать ID чата/пользователя
 /backupdb - 💾 Сделать бэкап базы данных (только админ TG)
+
+![Bot Avatar](./public/bot-avatar.jpg)

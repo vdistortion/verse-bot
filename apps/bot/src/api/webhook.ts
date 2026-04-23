@@ -4,39 +4,6 @@ import { createBot } from '@scope/tg-bot-core';
 import { createVKWebhookProcessor, VKSendMessageFunction } from '@scope/vk-bot-core';
 import { VERCEL_PROJECT_PRODUCTION_URL } from '../env';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-function getPlatform(req: VercelRequest): string | undefined {
-  const p = req.query.platform;
-  return Array.isArray(p) ? p[0] : p;
-}
-
-function parseJsonBody(req: VercelRequest): any {
-  const body = req.body;
-
-  if (body == null) return null;
-
-  if (Buffer.isBuffer(body)) {
-    const text = body.toString('utf-8').trim();
-    return text ? JSON.parse(text) : null;
-  }
-
-  if (typeof body === 'string') {
-    const text = body.trim();
-    return text ? JSON.parse(text) : null;
-  }
-
-  if (typeof body === 'object') {
-    return body;
-  }
-
-  return null;
-}
-
 const sendVKMessage: VKSendMessageFunction = async (peerId, text, keyboard) => {
   const token = process.env.VK_TOKEN;
   if (!token) {
@@ -68,7 +35,16 @@ const sendVKMessage: VKSendMessageFunction = async (peerId, text, keyboard) => {
   }
 };
 
+function getPlatform(req: VercelRequest): string | undefined {
+  const p = req.query.platform;
+  return Array.isArray(p) ? p[0] : p;
+}
+
 export default async (req: VercelRequest, res: VercelResponse) => {
+  if (req.method !== 'POST') {
+    return res.status(200).send('ok');
+  }
+
   const platform = getPlatform(req);
 
   if (platform === 'tg' && process.env.TELEGRAM_BOT_TOKEN) {
@@ -79,11 +55,17 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       if (VERCEL_PROJECT_PRODUCTION_URL) {
         const webhookUrl = `https://${VERCEL_PROJECT_PRODUCTION_URL}/api/webhook?platform=tg`;
-        const webhookInfo = await bot.api.getWebhookInfo();
 
-        if (webhookInfo.url !== webhookUrl) {
-          await bot.api.deleteWebhook();
-          await bot.api.setWebhook(webhookUrl);
+        try {
+          const webhookInfo = await bot.api.getWebhookInfo();
+
+          if (webhookInfo.url !== webhookUrl) {
+            console.log('[Telegram] Updating webhook...');
+            await bot.api.deleteWebhook();
+            await bot.api.setWebhook(webhookUrl);
+          }
+        } catch (e) {
+          console.error('Failed to check/set Telegram webhook:', e);
         }
       }
 
@@ -96,10 +78,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
   if (platform === 'vk' && process.env.VK_TOKEN && process.env.VK_GROUP_ID) {
     try {
-      const body = parseJsonBody(req);
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
       if (!body) {
-        return res.status(400).send('Empty or invalid body');
+        return res.status(400).send('Empty body');
       }
 
       if (body.type === 'confirmation') {

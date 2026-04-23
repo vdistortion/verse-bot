@@ -1,6 +1,7 @@
 import type { UniversalContext, UniversalReplyOptions } from '@scope/shared';
 import { addUser, createUniversalKeyboard, createVKKeyboard } from '@scope/shared';
 import { createTelegramKeyboard } from '@scope/tg-bot-core';
+import { escapeMarkdownV2 } from '../utils/markdown';
 
 export async function startCommand(
   ctx: UniversalContext,
@@ -17,5 +18,7 @@ export async function startCommand(
     replyOptions.vkKeyboard = createVKKeyboard(universalKeyboard);
   }
 
-  await ctx.reply(`👋 Привет! Я работаю на платформе: ${ctx.platform}`, replyOptions);
+  const greetingText = `👋 Привет! Я работаю на платформе: ${ctx.platform}`;
+  const messageToSend = ctx.platform === 'telegram' ? escapeMarkdownV2(greetingText) : greetingText;
+  await ctx.reply(messageToSend, replyOptions);
 }

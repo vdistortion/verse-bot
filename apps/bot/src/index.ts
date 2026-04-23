@@ -82,15 +82,6 @@ if (tgBot) {
 
       const uctx: UniversalContext = (ctx as any).uctx;
       if (!uctx) return next();
-
-      const exists = await userExists('telegram', uctx.userId);
-      if (!exists) {
-        await ctx.reply(escapeMarkdownV2('Напишите /start чтобы начать.'), {
-          parse_mode: 'MarkdownV2',
-        });
-        return;
-      }
-
       return next();
     });
 
@@ -224,14 +215,6 @@ if (vkBot) {
       const isStart =
         commandToExecute === '/start' ||
         commandToExecute === '🚀 Запустить бота и показать основное меню';
-
-      if (!isStart) {
-        const exists = await userExists('vk', ctx.userId);
-        if (!exists) {
-          await vkBot.sendMessage(ctx.peerId, 'Напишите /start чтобы начать.');
-          return;
-        }
-      }
 
       if (isStart) {
         await startCommand(uctx);

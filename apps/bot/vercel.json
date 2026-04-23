@@ -1,4 +1,6 @@
 {
+  "outputDirectory": "dist",
+  "public": "public",
   "functions": {
     "dist/api/webhook.js": {
       "memory": 1024,
@@ -7,8 +9,19 @@
   },
   "routes": [
     {
+      "src": "/content-images/(.*)",
+      "dest": "/content-images/$1"
+    },
+    {
       "src": "/api/webhook",
       "dest": "dist/api/webhook.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/$1"
     }
   ]
 }

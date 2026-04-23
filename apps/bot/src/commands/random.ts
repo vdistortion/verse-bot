@@ -34,15 +34,16 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
     const randomItem = allContent[randomIndex];
 
     const imageUrl = randomItem.image_url ? getImageUrl(randomItem.image_url) : null;
+    const isTg = ctx.platform === 'telegram';
+    const counter = `\n\nВсего элементов: ${randomIndex + 1}/${allContent.length}`;
 
     // Если есть картинка и есть метод replyWithPhoto - отправляем фото
     if (imageUrl && ctx.replyWithPhoto) {
       let caption = '';
       if (randomItem.text_content) {
-        caption += escapeMarkdownV2(randomItem.text_content);
+        caption += isTg ? escapeMarkdownV2(randomItem.text_content) : randomItem.text_content;
       }
-      caption += `\n\nВсего элементов: ${randomIndex + 1}/${allContent.length}`;
-
+      caption += counter;
       await ctx.replyWithPhoto(imageUrl, caption);
       return;
     }
@@ -50,21 +51,22 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
     // Иначе - просто текст (или ссылка на картинку для старых ботов)
     let message = '';
     if (randomItem.text_content) {
-      message += escapeMarkdownV2(randomItem.text_content);
+      message += isTg ? escapeMarkdownV2(randomItem.text_content) : randomItem.text_content;
     }
 
     if (imageUrl) {
       message += `\n\n[📷 Смотреть изображение](${imageUrl})`;
     }
-
-    message += `\n\nВсего элементов: ${randomIndex + 1}/${allContent.length}`;
+    message += counter;
 
     await ctx.reply(message);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении случайного контента:', err);
-    await ctx.reply(
-      `❌ Произошла ошибка при получении случайного контента: ${escapeMarkdownV2(msg)}`,
-    );
+    const errText =
+      ctx.platform === 'telegram'
+        ? `❌ Произошла ошибка при получении случайного контента: ${escapeMarkdownV2(msg)}`
+        : `❌ Произошла ошибка при получении случайного контента: ${msg}`;
+    await ctx.reply(errText);
   }
 }

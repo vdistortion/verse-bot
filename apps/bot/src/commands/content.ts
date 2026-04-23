@@ -46,14 +46,15 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
 
     const requestedItem = allContent[itemIndex];
     const imageUrl = requestedItem.image_url ? getImageUrl(requestedItem.image_url) : null;
+    const isTg = ctx.platform === 'telegram';
 
     // Если есть картинка и есть метод replyWithPhoto - отправляем фото
     if (imageUrl && ctx.replyWithPhoto) {
-      let caption = '';
-      if (requestedItem.text_content) {
-        caption += escapeMarkdownV2(requestedItem.text_content);
-      }
-
+      const caption = requestedItem.text_content
+        ? isTg
+          ? escapeMarkdownV2(requestedItem.text_content)
+          : requestedItem.text_content
+        : '';
       await ctx.replyWithPhoto(imageUrl, caption);
       return;
     }
@@ -61,7 +62,7 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     // Иначе - просто текст
     let message = '';
     if (requestedItem.text_content) {
-      message += escapeMarkdownV2(requestedItem.text_content);
+      message += isTg ? escapeMarkdownV2(requestedItem.text_content) : requestedItem.text_content;
     }
 
     if (imageUrl) {
@@ -72,8 +73,10 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении контента по номеру:', err);
-    await ctx.reply(
-      `❌ Произошла ошибка при получении контента по номеру: ${escapeMarkdownV2(msg)}`,
-    );
+    const errText =
+      ctx.platform === 'telegram'
+        ? `❌ Произошла ошибка при получении контента по номеру: ${escapeMarkdownV2(msg)}`
+        : `❌ Произошла ошибка при получении контента по номеру: ${msg}`;
+    await ctx.reply(errText);
   }
 }

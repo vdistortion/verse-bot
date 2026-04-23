@@ -7,7 +7,8 @@ export async function quoteCommand(ctx: UniversalContext): Promise<void> {
     const quoteText = await getQuote();
 
     if (quoteText) {
-      await ctx.reply(escapeMarkdownV2(quoteText));
+      const text = ctx.platform === 'telegram' ? escapeMarkdownV2(quoteText) : quoteText;
+      await ctx.reply(text);
       return;
     }
 
@@ -15,6 +16,10 @@ export async function quoteCommand(ctx: UniversalContext): Promise<void> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении цитаты:', err);
-    await ctx.reply(`❌ Произошла ошибка при получении цитаты: ${escapeMarkdownV2(msg)}`);
+    const errText =
+      ctx.platform === 'telegram'
+        ? `❌ Произошла ошибка при получении цитаты: ${escapeMarkdownV2(msg)}`
+        : `❌ Произошла ошибка при получении цитаты: ${msg}`;
+    await ctx.reply(errText);
   }
 }

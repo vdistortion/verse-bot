@@ -1,6 +1,5 @@
 {
-  "outputDirectory": "dist",
-  "public": "public",
+  "public": "apps/bot/public",
   "functions": {
     "dist/api/webhook.js": {
       "memory": 1024,

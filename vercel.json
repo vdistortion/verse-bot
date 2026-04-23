@@ -17,5 +17,11 @@
     {
       "handle": "filesystem"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "dev": false,
+      "release": false
+    }
+  }
 }

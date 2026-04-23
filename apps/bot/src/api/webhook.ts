@@ -4,6 +4,12 @@ import { createBot } from '@scope/tg-bot-core';
 import { createVKWebhookProcessor, VKSendMessageFunction } from '@scope/vk-bot-core';
 import { VERCEL_PROJECT_PRODUCTION_URL } from '../env';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 const sendVKMessage: VKSendMessageFunction = async (peerId, text, keyboard) => {
   const token = process.env.VK_TOKEN;
   if (!token) {
@@ -77,7 +83,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   }
 
   if (platform === 'vk' && process.env.VK_TOKEN && process.env.VK_GROUP_ID) {
-    const body = req.body;
+    // Вручную парсим сырое тело, т.к. bodyParser отключён
+    const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf-8') : req.body;
+    const body = JSON.parse(rawBody);
 
     if (body.type === 'confirmation') {
       return res.status(200).send(process.env.VK_CONFIRMATION);
@@ -106,10 +114,4 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   }
 
   res.status(404).send('Platform not supported or token missing');
-};
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
 };

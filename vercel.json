@@ -2,7 +2,6 @@
   "public": true,
   "functions": {
     "api/webhook.ts": {
-      "memory": 1024,
       "maxDuration": 10
     }
   },
@@ -17,10 +16,6 @@
     },
     {
       "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
     }
   ]
 }

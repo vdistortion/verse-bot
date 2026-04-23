@@ -7,7 +7,8 @@ export async function adviceCommand(ctx: UniversalContext): Promise<void> {
     const adviceText = await getAdvice();
 
     if (adviceText) {
-      await ctx.reply(escapeMarkdownV2(adviceText));
+      const text = ctx.platform === 'telegram' ? escapeMarkdownV2(adviceText) : adviceText;
+      await ctx.reply(text);
       return;
     }
 
@@ -15,6 +16,10 @@ export async function adviceCommand(ctx: UniversalContext): Promise<void> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении совета:', err);
-    await ctx.reply(`❌ Произошла ошибка при получении совета: ${escapeMarkdownV2(msg)}`);
+    const errText =
+      ctx.platform === 'telegram'
+        ? `❌ Произошла ошибка при получении совета: ${escapeMarkdownV2(msg)}`
+        : `❌ Произошла ошибка при получении совета: ${msg}`;
+    await ctx.reply(errText);
   }
 }

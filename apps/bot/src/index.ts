@@ -6,6 +6,7 @@ import {
   type UniversalContext,
   createUniversalKeyboard,
   createVKKeyboard,
+  userExists,
 } from '@scope/shared';
 import {
   startCommand,
@@ -47,7 +48,7 @@ if (tgBot) {
         db: ctx.db,
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
-          await ctx.reply(escapeMarkdownV2(text), {
+          await ctx.reply(text, {
             parse_mode: 'MarkdownV2',
             ...(extra?.telegramReplyMarkup && { reply_markup: extra.telegramReplyMarkup }),
             ...(extra?.remove_keyboard && { reply_markup: { remove_keyboard: true } }),
@@ -56,20 +57,41 @@ if (tgBot) {
         replyWithFile: async (buffer, filename, caption) => {
           await ctx.replyWithDocument(
             new InputFile(buffer, filename),
-            caption
-              ? { caption: escapeMarkdownV2(caption), parse_mode: 'MarkdownV2' }
-              : { parse_mode: 'MarkdownV2' },
+            caption ? { caption, parse_mode: 'MarkdownV2' } : { parse_mode: 'MarkdownV2' },
           );
         },
         replyWithPhoto: async (photoUrl, caption) => {
           await ctx.replyWithPhoto(photoUrl, {
-            caption: caption ? escapeMarkdownV2(caption) : undefined,
+            caption: caption ?? undefined,
             parse_mode: 'MarkdownV2',
           });
         },
       };
       (ctx as any).uctx = uctx;
       await next();
+    });
+
+    // Guard: пропускаем /start всегда, остальное — только зарегистрированным
+    tgBot.use(async (ctx, next) => {
+      const text = ctx.message?.text ?? '';
+      const isStart = text === '/start' || text.startsWith('/start ');
+
+      if (isStart) {
+        return next();
+      }
+
+      const uctx: UniversalContext = (ctx as any).uctx;
+      if (!uctx) return next();
+
+      const exists = await userExists('telegram', uctx.userId);
+      if (!exists) {
+        await ctx.reply(escapeMarkdownV2('Напишите /start чтобы начать.'), {
+          parse_mode: 'MarkdownV2',
+        });
+        return;
+      }
+
+      return next();
     });
 
     tgBot.command('start', async (ctx) => {
@@ -101,7 +123,10 @@ if (tgBot) {
       if (!isNaN(itemNumber)) {
         await contentCommand((ctx as any).uctx, itemNumber);
       } else {
-        await ctx.reply('Пожалуйста, укажите номер контента. Например: /content 1');
+        await ctx.reply(
+          escapeMarkdownV2('Пожалуйста, укажите номер контента. Например: /content 1'),
+          { parse_mode: 'MarkdownV2' },
+        );
       }
     });
 
@@ -196,10 +221,19 @@ if (vkBot) {
 
       const commandToExecute = payloadCommand || text;
 
-      if (
+      const isStart =
         commandToExecute === '/start' ||
-        commandToExecute === '🚀 Запустить бота и показать основное меню'
-      ) {
+        commandToExecute === '🚀 Запустить бота и показать основное меню';
+
+      if (!isStart) {
+        const exists = await userExists('vk', ctx.userId);
+        if (!exists) {
+          await vkBot.sendMessage(ctx.peerId, 'Напишите /start чтобы начать.');
+          return;
+        }
+      }
+
+      if (isStart) {
         await startCommand(uctx);
         return;
       }

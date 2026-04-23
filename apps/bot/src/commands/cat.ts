@@ -8,12 +8,12 @@ export async function catCommand(ctx: UniversalContext): Promise<void> {
 
     if (catImageUrl) {
       if (ctx.replyWithPhoto) {
-        await ctx.replyWithPhoto(catImageUrl, escapeMarkdownV2('Мяу! 🐾'));
+        const caption = ctx.platform === 'telegram' ? escapeMarkdownV2('Мяу! 🐾') : 'Мяу! 🐾';
+        await ctx.replyWithPhoto(catImageUrl, caption);
         return;
       } else {
-        await ctx.reply(
-          escapeMarkdownV2('Мяу! 🐾') + `\n\n[📷 Смотреть изображение](${catImageUrl})`,
-        );
+        const label = ctx.platform === 'telegram' ? escapeMarkdownV2('Мяу! 🐾') : 'Мяу! 🐾';
+        await ctx.reply(`${label}\n\n[📷 Смотреть изображение](${catImageUrl})`);
         return;
       }
     }
@@ -22,6 +22,10 @@ export async function catCommand(ctx: UniversalContext): Promise<void> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении котика:', err);
-    await ctx.reply(`❌ Произошла ошибка при получении котика: ${escapeMarkdownV2(msg)}`);
+    const errText =
+      ctx.platform === 'telegram'
+        ? `❌ Произошла ошибка при получении котика: ${escapeMarkdownV2(msg)}`
+        : `❌ Произошла ошибка при получении котика: ${msg}`;
+    await ctx.reply(errText);
   }
 }

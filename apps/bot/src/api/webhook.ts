@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { webhookCallback } from 'grammy';
 import { tgBot, vkBot } from '../';
+import { VK_CONFIRMATION } from '../env';
 
 function getBot() {
   if (!tgBot) {
@@ -39,7 +40,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       if (body.type === 'confirmation') {
-        return res.status(200).send(process.env.VK_CONFIRMATION ?? '');
+        return res.status(200).send(VK_CONFIRMATION ?? '');
       }
 
       // Используем глобальный vkBot для обработки обновления

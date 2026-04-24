@@ -1,11 +1,12 @@
 import type { UniversalContext } from '@scope/shared';
 import { escapeMarkdownV2 } from '../utils/markdown';
+import { VERCEL_PROJECT_PRODUCTION_URL } from '../env';
 
 function getImageUrl(filename: string): string {
   const encodedFilename = encodeURIComponent(filename);
 
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/content-images/${encodedFilename}`;
+  if (VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${VERCEL_PROJECT_PRODUCTION_URL}/content-images/${encodedFilename}`;
   }
 
   return `/content-images/${encodedFilename}`;

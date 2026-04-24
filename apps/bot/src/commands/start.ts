@@ -6,6 +6,7 @@ import {
   createUniversalSettingsKeyboard,
 } from '@scope/shared';
 import { createTelegramKeyboard } from '@scope/tg-bot-core';
+import { escapeMarkdownV2 } from '../utils/markdown';
 
 export async function startCommand(
   ctx: UniversalContext,
@@ -32,5 +33,5 @@ export async function startCommand(
     replyOptions.vkKeyboard = createVKKeyboard(universalKeyboard);
   }
 
-  await ctx.reply(message, replyOptions);
+  await ctx.reply(escapeMarkdownV2(message), replyOptions);
 }

@@ -1,3 +1,4 @@
+// universal-vercel-bot/apps/bot/src/index.ts
 import { InputFile } from 'grammy';
 import { createBot, createTelegramKeyboard, dbMiddleware } from '@scope/tg-bot-core';
 import { createVKBot, VKContext } from '@scope/vk-bot-core';
@@ -24,7 +25,14 @@ import {
   listUsersCommand,
   linkBotCommand,
 } from './commands';
-import { TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_ID, VK_TOKEN, VK_GROUP_ID } from './env';
+import {
+  TELEGRAM_BOT_TOKEN,
+  TELEGRAM_ADMIN_ID,
+  VK_TOKEN,
+  VK_GROUP_ID,
+  VK_ADMIN_ID,
+  VK_SECRET,
+} from './env';
 import { escapeMarkdownV2 } from './utils/markdown';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
@@ -33,7 +41,7 @@ export const vkBot =
     ? createVKBot({
         token: VK_TOKEN,
         groupId: Number(VK_GROUP_ID),
-        secret: process.env.VK_SECRET,
+        secret: VK_SECRET,
       })
     : null;
 
@@ -243,10 +251,16 @@ if (vkBot) {
         userId: ctx.userId,
         peerId: ctx.peerId,
         text,
-        isAdmin: false,
+        isAdmin: ctx.userId === Number(VK_ADMIN_ID),
         db,
         reply: async (msg, extra) => {
-          await vkBot.sendMessage(ctx.peerId, msg, extra?.vkKeyboard);
+          let vkKeyboardJson: string | undefined;
+          if (extra?.remove_keyboard) {
+            vkKeyboardJson = JSON.stringify({ buttons: [] }); // Явно убираем клавиатуру для VK
+          } else if (extra?.vkKeyboard) {
+            vkKeyboardJson = extra.vkKeyboard;
+          }
+          await vkBot.sendMessage(ctx.peerId, msg, vkKeyboardJson);
         },
         replyWithPhoto: async (photoUrl: string, caption?: string) => {
           try {

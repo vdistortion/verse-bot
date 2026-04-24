@@ -20,14 +20,24 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
 `;
 
     users.forEach((user) => {
+      // Форматируем дату без информации о часовом поясе, чтобы избежать скобок
+      const formattedDate = new Date(user.created_at).toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false, // Используем 24-часовой формат
+      });
       message += `
-- ID: \`${escapeMarkdownV2(String(user.platform_user_id))}\`
-  Платформа: \`${escapeMarkdownV2(user.platform)}\`
-  Зарегистрирован: \`${escapeMarkdownV2(new Date(user.created_at).toLocaleString())}\`
+- ID: \`${String(user.platform_user_id)}\`
+  Платформа: \`${user.platform}\`
+  Зарегистрирован: \`${formattedDate}\`
 `;
     });
 
-    await ctx.reply(message);
+    await ctx.reply(escapeMarkdownV2(message));
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении списка пользователей:', err);

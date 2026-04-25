@@ -6,7 +6,6 @@ import {
   createUniversalSettingsKeyboard,
 } from '@scope/shared';
 import { createTelegramKeyboard } from '@scope/tg-bot-core';
-import { escapeMarkdownV2 } from '../utils/markdown';
 
 export async function startCommand(
   ctx: UniversalContext,
@@ -16,13 +15,14 @@ export async function startCommand(
   await addUser(ctx.platform, ctx.userId); // Добавляем/обновляем пользователя
 
   let universalKeyboard;
-  let message = `👋 Привет! Я работаю на платформе: ${ctx.platform}`;
+  let message: string;
 
   if (isSettingsMenu) {
     universalKeyboard = createUniversalSettingsKeyboard(ctx.platform, ctx.isAdmin);
     message = '⚙️ Меню настроек:';
   } else {
     universalKeyboard = createUniversalKeyboard(ctx.platform, fullMenu);
+    message = fullMenu ? '*🌟 Расширенное меню*' : '*🐾 Главное меню*';
   }
 
   const replyOptions: UniversalReplyOptions = {};
@@ -33,5 +33,5 @@ export async function startCommand(
     replyOptions.vkKeyboard = createVKKeyboard(universalKeyboard);
   }
 
-  await ctx.reply(escapeMarkdownV2(message), replyOptions);
+  await ctx.reply(message, replyOptions);
 }

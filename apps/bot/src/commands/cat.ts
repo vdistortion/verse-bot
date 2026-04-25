@@ -8,24 +8,19 @@ export async function catCommand(ctx: UniversalContext): Promise<void> {
 
     if (catImageUrl) {
       if (ctx.replyWithPhoto) {
-        const caption = ctx.platform === 'telegram' ? escapeMarkdownV2('Мяу! 🐾') : 'Мяу! 🐾';
+        const caption = 'Мяу\\! 🐾';
         await ctx.replyWithPhoto(catImageUrl, caption);
         return;
       } else {
-        const label = ctx.platform === 'telegram' ? escapeMarkdownV2('Мяу! 🐾') : 'Мяу! 🐾';
-        await ctx.reply(`${label}\n\n[📷 Смотреть изображение](${catImageUrl})`);
+        await ctx.reply(`Мяу\\! 🐾\n\n[Смотреть](${catImageUrl})`);
         return;
       }
     }
 
-    await ctx.reply('Не удалось получить картинку котика. Попробуйте ещё раз!');
+    await ctx.reply('Не удалось получить котика.');
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении котика:', err);
-    const errText =
-      ctx.platform === 'telegram'
-        ? `❌ Произошла ошибка при получении котика: ${escapeMarkdownV2(msg)}`
-        : `❌ Произошла ошибка при получении котика: ${msg}`;
-    await ctx.reply(errText);
+    await ctx.reply(`❌ Ошибка при получении котика: ${escapeMarkdownV2(msg)}`);
   }
 }

@@ -6,6 +6,7 @@
   "scripts": {
     "prepare": "cp -n .env.example .env",
     "build": "tsc --build",
+    "dev": "dotenv -- env tsx apps/bot/src/index.ts",
     "dev:tg": "dotenv -- env VK_TOKEN='' VK_GROUP_ID='' tsx apps/bot/src/index.ts",
     "dev:vk": "dotenv -- env TELEGRAM_BOT_TOKEN='' tsx apps/bot/src/index.ts",
     "clean": "rm -rf dist && find . -name \"*.tsbuildinfo\" -delete",

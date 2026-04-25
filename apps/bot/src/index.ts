@@ -129,13 +129,11 @@ if (tgBot) {
 
     tgBot.command('content', async (ctx) => {
       const itemNumber = parseInt(ctx.match, 10);
+      const uctx = (ctx as any).uctx;
       if (!isNaN(itemNumber)) {
-        await contentCommand((ctx as any).uctx, itemNumber);
+        await contentCommand(uctx, itemNumber);
       } else {
-        await ctx.reply(
-          escapeMarkdownV2('Пожалуйста, укажите номер контента. Например: /content 1'),
-          { parse_mode: 'MarkdownV2' },
-        );
+        await uctx.reply('Пожалуйста, укажите номер контента. Например: /content 1');
       }
     });
 

@@ -5,9 +5,9 @@ export async function getCat(): Promise<string> {
   return url;
 }
 
-export async function getQuote(): Promise<string> {
+export async function getQuote(): Promise<{ quoteText: string; quoteAuthor: string }> {
   const { quoteText, quoteAuthor } = await getApiQuote();
-  return quoteAuthor ? `${quoteText}\n\n*${quoteAuthor}*` : quoteText;
+  return { quoteText, quoteAuthor };
 }
 
 export async function getAdvice(): Promise<string> {

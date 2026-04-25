@@ -16,10 +16,9 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
       return;
     }
 
-    let message = `👥 *Список активных пользователей (${users.length})*:
-`;
+    let message = `👥 *Список активных пользователей \\(${users.length}\\):*\n\n`;
 
-    users.forEach((user) => {
+    for (const user of users) {
       // Форматируем дату без информации о часовом поясе, чтобы избежать скобок
       const formattedDate = new Date(user.created_at).toLocaleDateString('ru-RU', {
         year: 'numeric',
@@ -30,14 +29,18 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
         second: '2-digit',
         hour12: false, // Используем 24-часовой формат
       });
-      message += `
-- ID: \`${String(user.platform_user_id)}\`
-  Платформа: \`${user.platform}\`
-  Зарегистрирован: \`${formattedDate}\`
-`;
-    });
 
-    await ctx.reply(escapeMarkdownV2(message));
+      let userLink = '';
+      if (user.platform === 'telegram') {
+        userLink = `[${user.platform_user_id}]\\(tg://user?id\\=${user.platform_user_id}\\)`;
+      } else if (user.platform === 'vk') {
+        userLink = `[${user.platform_user_id}]\\(https://vk\\.com/id${user.platform_user_id}\\)`;
+      }
+
+      message += `• ID: ${userLink}\n  Платформа: \`${user.platform}\`\n  Зарегистрирован: \`${formattedDate}\`\n\n`;
+    }
+
+    await ctx.reply(message);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении списка пользователей:', err);

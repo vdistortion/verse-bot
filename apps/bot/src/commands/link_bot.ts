@@ -1,5 +1,4 @@
 import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '../utils/markdown';
 import { TELEGRAM_BOT_TOKEN, VK_TOKEN } from '../env';
 
 export async function linkBotCommand(ctx: UniversalContext): Promise<void> {

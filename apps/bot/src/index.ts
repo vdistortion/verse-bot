@@ -33,7 +33,6 @@ import {
   VK_ADMIN_ID,
   VK_SECRET,
 } from './env';
-import { escapeMarkdownV2 } from './utils/markdown';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
 export const vkBot =

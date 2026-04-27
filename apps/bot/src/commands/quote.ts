@@ -1,6 +1,6 @@
 import type { UniversalContext } from '@scope/shared';
 import { getQuote } from '../data-sources';
-import { escapeMarkdownV2 } from '../utils/markdown';
+import { escapeMarkdownV2 } from '@scope/tg-bot-core';
 
 export async function quoteCommand(ctx: UniversalContext): Promise<void> {
   try {

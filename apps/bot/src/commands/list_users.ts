@@ -1,6 +1,6 @@
 import type { UniversalContext } from '@scope/shared';
 import { getAllUsers } from '@scope/shared';
-import { escapeMarkdownV2 } from '../utils/markdown';
+import { escapeMarkdownV2 } from '@scope/tg-bot-core';
 
 export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
   if (!ctx.isAdmin) {

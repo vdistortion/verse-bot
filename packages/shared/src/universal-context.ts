@@ -1,20 +1,17 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types'; // Исправлено: ReplyKeyboardRemove
+import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
 
 export type Platform = 'telegram' | 'vk';
 
 export interface UniversalReplyOptions {
-  // Telegram-специфичная разметка клавиатуры
   telegramReplyMarkup?: ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove;
-  // VK-специфичная клавиатура (JSON строка)
   vkKeyboard?: string;
-  // Другие универсальные опции могут быть добавлены здесь, если нужны
   remove_keyboard?: boolean;
 }
 
 export interface UniversalContext {
   platform: Platform;
-  userId: number;
+  userId: string;
   peerId: number; // chatId в TG, peerId в VK
   text: string;
   isAdmin: boolean;

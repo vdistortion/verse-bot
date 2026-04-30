@@ -14,7 +14,11 @@ function getImageUrl(filename: string): string {
 
 export async function randomCommand(ctx: UniversalContext): Promise<void> {
   if (!ctx.db) {
-    await ctx.reply('❌ База данных недоступна.');
+    await ctx.reply(
+      ctx.platform === 'telegram'
+        ? escapeMarkdownV2('❌ База данных недоступна.')
+        : '❌ База данных недоступна.',
+    );
     return;
   }
 
@@ -27,7 +31,11 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
     if (fetchError) throw fetchError;
 
     if (!allContent || allContent.length === 0) {
-      await ctx.reply('В базе данных нет контента.');
+      await ctx.reply(
+        ctx.platform === 'telegram'
+          ? escapeMarkdownV2('В базе данных нет контента.')
+          : 'В базе данных нет контента.',
+      );
       return;
     }
 
@@ -68,6 +76,8 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении случайного контента:', err);
-    await ctx.reply(`❌ Ошибка при получении случайного контента: ${escapeMarkdownV2(msg)}`);
+    await ctx.reply(
+      `❌ Ошибка при получении случайного контента: ${ctx.platform === 'telegram' ? escapeMarkdownV2(msg) : msg}`,
+    );
   }
 }

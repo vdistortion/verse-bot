@@ -1,9 +1,10 @@
-import type { UniversalContext, UniversalReplyOptions } from '@scope/shared';
 import {
   addUser,
   createUniversalKeyboard,
   createVKKeyboard,
   createUniversalSettingsKeyboard,
+  type UniversalContext,
+  type UniversalReplyOptions,
 } from '@scope/shared';
 import { createTelegramKeyboard } from '@scope/tg-bot-core';
 
@@ -12,17 +13,24 @@ export async function startCommand(
   fullMenu: boolean = false,
   isSettingsMenu: boolean = false,
 ): Promise<void> {
-  await addUser(ctx.platform, ctx.userId); // Добавляем/обновляем пользователя
+  await addUser(ctx.platform, ctx.userId);
 
   let universalKeyboard;
   let message: string;
 
   if (isSettingsMenu) {
     universalKeyboard = createUniversalSettingsKeyboard(ctx.platform, ctx.isAdmin);
-    message = '⚙️ Меню настроек:';
+    message = ctx.platform === 'telegram' ? '⚙️ *Меню настроек*\\:' : '⚙️ Меню настроек:';
   } else {
     universalKeyboard = createUniversalKeyboard(ctx.platform, fullMenu);
-    message = fullMenu ? '*🌟 Расширенное меню*' : '*🐾 Главное меню*';
+    message =
+      ctx.platform === 'telegram'
+        ? fullMenu
+          ? '🌟 *Расширенное меню*'
+          : '🐾 *Главное меню*'
+        : fullMenu
+          ? '🌟 Расширенное меню'
+          : '🐾 Главное меню';
   }
 
   const replyOptions: UniversalReplyOptions = {};

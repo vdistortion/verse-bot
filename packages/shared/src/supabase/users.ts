@@ -1,6 +1,6 @@
 import { getSupabaseClient } from './client.js';
 
-export async function addUser(platform: 'telegram' | 'vk', platformUserId: number): Promise<void> {
+export async function addUser(platform: 'telegram' | 'vk', platformUserId: string): Promise<void> {
   const db = getSupabaseClient();
 
   const { error } = await db.from('users').upsert(
@@ -18,7 +18,7 @@ export async function addUser(platform: 'telegram' | 'vk', platformUserId: numbe
 
 export async function removeUser(
   platform: 'telegram' | 'vk',
-  platformUserId: number,
+  platformUserId: string,
 ): Promise<void> {
   const db = getSupabaseClient();
 
@@ -35,7 +35,7 @@ export async function removeUser(
 
 export async function userExists(
   platform: 'telegram' | 'vk',
-  platformUserId: number,
+  platformUserId: string,
 ): Promise<boolean> {
   const db = getSupabaseClient();
 
@@ -50,7 +50,7 @@ export async function userExists(
 }
 
 export async function getAllUsers(): Promise<
-  { platform: string; platform_user_id: number; created_at: string }[]
+  { platform: string; platform_user_id: string; created_at: string }[]
 > {
   const db = getSupabaseClient();
 

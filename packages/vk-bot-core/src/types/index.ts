@@ -1,5 +1,3 @@
-// VK Bot API types
-
 export interface VKMessage {
   id: number;
   date: number;

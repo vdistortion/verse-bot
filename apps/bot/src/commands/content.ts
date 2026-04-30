@@ -14,12 +14,20 @@ function getImageUrl(filename: string): string {
 
 export async function contentCommand(ctx: UniversalContext, itemNumber: number): Promise<void> {
   if (!ctx.db) {
-    await ctx.reply('❌ База данных недоступна.');
+    await ctx.reply(
+      ctx.platform === 'telegram'
+        ? escapeMarkdownV2('❌ База данных недоступна.')
+        : '❌ База данных недоступна.',
+    );
     return;
   }
 
   if (isNaN(itemNumber) || itemNumber < 1) {
-    await ctx.reply('Пожалуйста, укажите корректный номер контента (начиная с 1).');
+    await ctx.reply(
+      ctx.platform === 'telegram'
+        ? escapeMarkdownV2('Пожалуйста, укажите корректный номер контента (начиная с 1).')
+        : 'Пожалуйста, укажите корректный номер контента (начиная с 1).',
+    );
     return;
   }
 
@@ -32,7 +40,11 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     if (fetchError) throw fetchError;
 
     if (!allContent || allContent.length === 0) {
-      await ctx.reply('В базе данных нет контента.');
+      await ctx.reply(
+        ctx.platform === 'telegram'
+          ? escapeMarkdownV2('В базе данных нет контента.')
+          : 'В базе данных нет контента.',
+      );
       return;
     }
 
@@ -40,7 +52,11 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
 
     if (itemIndex < 0 || itemIndex >= allContent.length) {
       await ctx.reply(
-        `Контент с номером ${itemNumber} не найден. Всего элементов: ${allContent.length}. Введите число от 1 до ${allContent.length}.`,
+        ctx.platform === 'telegram'
+          ? escapeMarkdownV2(
+              `Контент с номером ${itemNumber} не найден. Всего элементов: ${allContent.length}. Введите число от 1 до ${allContent.length}.`,
+            )
+          : `Контент с номером ${itemNumber} не найден. Всего элементов: ${allContent.length}. Введите число от 1 до ${allContent.length}.`,
       );
       return;
     }
@@ -50,7 +66,6 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     const isTg = ctx.platform === 'telegram';
     const counter = `${itemNumber}/${allContent.length}`;
 
-    // Если есть картинка и есть метод replyWithPhoto - отправляем фото
     if (imageUrl && ctx.replyWithPhoto) {
       let caption = '';
       if (requestedItem.text_content) {
@@ -61,7 +76,6 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
       return;
     }
 
-    // Иначе - просто текст
     let message = '';
     if (requestedItem.text_content) {
       message += isTg ? escapeMarkdownV2(requestedItem.text_content) : requestedItem.text_content;
@@ -77,7 +91,7 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении контента по номеру:', err);
     await ctx.reply(
-      `❌ Произошла ошибка при получении контента по номеру: ${escapeMarkdownV2(msg)}`,
+      `❌ Произошла ошибка при получении контента по номеру: ${ctx.platform === 'telegram' ? escapeMarkdownV2(msg) : msg}`,
     );
   }
 }

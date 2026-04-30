@@ -1,6 +1,6 @@
 import type { UniversalContext } from '@scope/shared';
-import { getAdvice } from '../data-sources';
 import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { getAdvice } from '../data-sources';
 
 export async function adviceCommand(ctx: UniversalContext): Promise<void> {
   try {
@@ -10,6 +10,8 @@ export async function adviceCommand(ctx: UniversalContext): Promise<void> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении совета:', err);
-    await ctx.reply(`❌ Ошибка при получении совета: ${escapeMarkdownV2(msg)}`);
+    await ctx.reply(
+      `❌ Ошибка при получении совета: ${ctx.platform === 'telegram' ? escapeMarkdownV2(msg) : msg}`,
+    );
   }
 }

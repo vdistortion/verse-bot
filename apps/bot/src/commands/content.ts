@@ -2,6 +2,12 @@ import type { UniversalContext } from '@scope/shared';
 import { escapeMarkdownV2 } from '@scope/tg-bot-core';
 import { VERCEL_PROJECT_PRODUCTION_URL } from '../env';
 
+interface BotContentItem {
+  id: number;
+  image_url?: string;
+  text_content?: string;
+}
+
 function getImageUrl(filename: string): string {
   const encodedFilename = encodeURIComponent(filename);
 
@@ -12,21 +18,49 @@ function getImageUrl(filename: string): string {
   return `/content-images/${encodedFilename}`;
 }
 
+export async function sendContentItem(
+  ctx: UniversalContext,
+  item: BotContentItem,
+  itemNumber: number,
+): Promise<void> {
+  const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
+  const isTg = ctx.platform === 'telegram';
+  const contentCommandText = `/content_${itemNumber}`;
+
+  if (imageUrl && ctx.replyWithPhoto) {
+    let caption = '';
+    if (item.text_content) {
+      caption += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
+    }
+
+    caption += isTg
+      ? `\n\n\`${escapeMarkdownV2(contentCommandText)}\``
+      : `\n\n${contentCommandText}`;
+    await ctx.replyWithPhoto(imageUrl, caption);
+    return;
+  }
+
+  let message = '';
+  if (item.text_content) {
+    message += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
+  }
+
+  if (imageUrl) {
+    message += `\n\n[📷 Смотреть изображение](${imageUrl})`;
+  }
+  message += isTg
+    ? `\n\n\`${escapeMarkdownV2(contentCommandText)}\``
+    : `\n\n${contentCommandText}`;
+
+  await ctx.reply(message);
+}
+
 export async function contentCommand(ctx: UniversalContext, itemNumber: number): Promise<void> {
   if (!ctx.db) {
     await ctx.reply(
       ctx.platform === 'telegram'
         ? escapeMarkdownV2('❌ База данных недоступна.')
         : '❌ База данных недоступна.',
-    );
-    return;
-  }
-
-  if (isNaN(itemNumber) || itemNumber < 1) {
-    await ctx.reply(
-      ctx.platform === 'telegram'
-        ? escapeMarkdownV2('Пожалуйста, укажите корректный номер контента (начиная с 1).')
-        : 'Пожалуйста, укажите корректный номер контента (начиная с 1).',
     );
     return;
   }
@@ -62,31 +96,7 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     }
 
     const requestedItem = allContent[itemIndex];
-    const imageUrl = requestedItem.image_url ? getImageUrl(requestedItem.image_url) : null;
-    const isTg = ctx.platform === 'telegram';
-    const counter = `${itemNumber}/${allContent.length}`;
-
-    if (imageUrl && ctx.replyWithPhoto) {
-      let caption = '';
-      if (requestedItem.text_content) {
-        caption += isTg ? escapeMarkdownV2(requestedItem.text_content) : requestedItem.text_content;
-      }
-      caption += `\n\n${counter}`;
-      await ctx.replyWithPhoto(imageUrl, caption);
-      return;
-    }
-
-    let message = '';
-    if (requestedItem.text_content) {
-      message += isTg ? escapeMarkdownV2(requestedItem.text_content) : requestedItem.text_content;
-    }
-
-    if (imageUrl) {
-      message += `\n\n[📷 Смотреть изображение](${imageUrl})`;
-    }
-    message += `\n\n${counter}`;
-
-    await ctx.reply(message);
+    await sendContentItem(ctx, requestedItem, itemNumber);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка при получении контента по номеру:', err);

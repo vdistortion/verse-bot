@@ -2,13 +2,13 @@ import type { Platform } from './universal-context';
 
 export interface UniversalKeyboard {
   label: string;
-  command?: string; // Для команд, которые отправляются как текст
-  callbackData?: string; // Для inline-кнопок или payload в VK
+  command?: string;
 }
 
 export function createUniversalKeyboard(
   platform: Platform,
   fullMenu: boolean,
+  isAdmin: boolean,
 ): UniversalKeyboard[][] {
   const keyboard: UniversalKeyboard[][] = [];
 
@@ -18,7 +18,6 @@ export function createUniversalKeyboard(
     { label: 'Цитаты 💬', command: '/quote' },
   ]);
 
-  // Дополнительные кнопки для полного меню
   if (fullMenu) {
     keyboard.push([
       { label: 'Советы 💡', command: '/advice' },
@@ -26,32 +25,11 @@ export function createUniversalKeyboard(
     ]);
   }
 
-  // Кнопка настроек
-  keyboard.push([{ label: 'Настройки ⚙️', command: '/settings' }]);
-
-  return keyboard;
-}
-
-export function createUniversalSettingsKeyboard(
-  platform: Platform,
-  isAdmin: boolean,
-): UniversalKeyboard[][] {
-  const keyboard: UniversalKeyboard[][] = [
-    [{ label: 'Мой ID 🆔', command: '/id' }],
-    [{ label: 'Справка ❓', command: '/help' }],
-    [{ label: 'Другой бот 🔗', command: '/link_bot' }],
-    [{ label: 'Стоп 🛑', command: '/stop' }],
-  ];
-
+  const helpRow: UniversalKeyboard[] = [{ label: 'Справка ❓', command: '/help' }];
   if (isAdmin) {
-    if (platform === 'telegram') {
-      keyboard.push([{ label: 'Бэкап БД 💾', command: '/backupdb' }]);
-    }
-    keyboard.push([{ label: 'Список пользователей 👥', command: '/list_users' }]);
+    helpRow.push({ label: 'Админ 👑', command: '/admin' });
   }
-
-  // Кнопка "Назад"
-  keyboard.push([{ label: '◀️ Назад', command: '/start' }]);
+  keyboard.push(helpRow);
 
   return keyboard;
 }

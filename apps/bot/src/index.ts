@@ -3,14 +3,12 @@ import {
   getSupabaseClient,
   createUniversalKeyboard,
   createVKKeyboard,
-  createUniversalSettingsKeyboard,
   findOrCreateUser,
   logCommand,
   type UniversalContext,
 } from '@scope/shared';
 import {
   createBot,
-  createTelegramKeyboard,
   dbMiddleware,
   escapeMarkdownV2,
 } from '@scope/tg-bot-core';
@@ -28,7 +26,7 @@ import {
   stopCommand,
   helpCommand,
   listUsersCommand,
-  linkBotCommand,
+  adminCommand,
 } from './commands';
 import {
   TELEGRAM_BOT_TOKEN,
@@ -161,13 +159,15 @@ if (tgBot) {
       await randomCommand((ctx as any).uctx);
     });
 
-    tgBot.command('content', async (ctx) => {
-      const itemNumber = parseInt(ctx.match, 10);
+    tgBot.hears(/^\/content_(\d+)$/i, async (ctx) => {
+      const itemNumber = parseInt(ctx.match[1], 10); // ctx.match[1] будет захваченным числом
       const uctx = (ctx as any).uctx;
-      if (!isNaN(itemNumber)) {
+      if (!isNaN(itemNumber) && itemNumber > 0) {
         await contentCommand(uctx, itemNumber);
       } else {
-        await uctx.reply('Пожалуйста, укажите номер контента. Например: /content 1');
+        await uctx.reply(
+          escapeMarkdownV2('Пожалуйста, укажите корректный номер контента. Например: /content_1'),
+        );
       }
     });
 
@@ -191,19 +191,8 @@ if (tgBot) {
       await listUsersCommand((ctx as any).uctx);
     });
 
-    tgBot.command('link_bot', async (ctx) => {
-      await linkBotCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('settings', async (ctx) => {
-      const uctx = (ctx as any).uctx;
-      const universalKeyboard = createUniversalSettingsKeyboard(uctx.platform, uctx.isAdmin);
-      await uctx.reply(
-        uctx.platform === 'telegram' ? escapeMarkdownV2('⚙️ Меню настроек:') : '⚙️ Меню настроек:',
-        {
-          telegramReplyMarkup: createTelegramKeyboard(universalKeyboard),
-        },
-      );
+    tgBot.command('admin', async (ctx) => {
+      await adminCommand((ctx as any).uctx);
     });
 
     // Обработка текстовых кнопок Telegram
@@ -219,24 +208,14 @@ if (tgBot) {
     tgBot.hears('Рандом 🎲', async (ctx) => {
       await randomCommand((ctx as any).uctx);
     });
-    tgBot.hears('Настройки ⚙️', async (ctx) => {
-      const uctx = (ctx as any).uctx;
-      const universalKeyboard = createUniversalSettingsKeyboard(uctx.platform, uctx.isAdmin);
-      await uctx.reply(
-        uctx.platform === 'telegram' ? escapeMarkdownV2('⚙️ Меню настроек:') : '⚙️ Меню настроек:',
-        {
-          telegramReplyMarkup: createTelegramKeyboard(universalKeyboard),
-        },
-      );
-    });
     tgBot.hears('Мой ID 🆔', async (ctx) => {
       await idCommand((ctx as any).uctx);
     });
     tgBot.hears('Справка ❓', async (ctx) => {
       await helpCommand((ctx as any).uctx);
     });
-    tgBot.hears('Другой бот 🔗', async (ctx) => {
-      await linkBotCommand((ctx as any).uctx);
+    tgBot.hears('Админ 👑', async (ctx) => {
+      await adminCommand((ctx as any).uctx);
     });
     tgBot.hears('Стоп 🛑', async (ctx) => {
       await stopCommand((ctx as any).uctx);
@@ -394,12 +373,13 @@ if (vkBot) {
         await randomCommand(uctx);
         return;
       }
-      if (commandToExecute.startsWith('/content ')) {
-        const itemNumber = parseInt(commandToExecute.replace('/content ', ''), 10);
-        if (!isNaN(itemNumber)) {
+      const contentMatch = commandToExecute.match(/^\/content_(\d+)$/i);
+      if (contentMatch) {
+        const itemNumber = parseInt(contentMatch[1], 10);
+        if (!isNaN(itemNumber) && itemNumber > 0) {
           await contentCommand(uctx, itemNumber);
         } else {
-          await uctx.reply('Пожалуйста, укажите номер контента. Например: /content 1');
+          await uctx.reply('Пожалуйста, укажите корректный номер контента. Например: /content_1');
         }
         return;
       }
@@ -423,20 +403,8 @@ if (vkBot) {
         await listUsersCommand(uctx);
         return;
       }
-      if (commandToExecute === '/link_bot' || commandToExecute === 'Другой бот 🔗') {
-        await linkBotCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/settings' || commandToExecute === 'Настройки ⚙️') {
-        const universalKeyboard = createUniversalSettingsKeyboard(uctx.platform, uctx.isAdmin);
-        await uctx.reply(
-          uctx.platform === 'telegram'
-            ? escapeMarkdownV2('⚙️ Меню настроек:')
-            : '⚙️ Меню настроек:',
-          {
-            vkKeyboard: createVKKeyboard(universalKeyboard),
-          },
-        );
+      if (commandToExecute === '/admin' || commandToExecute === 'Админ 👑') {
+        await adminCommand(uctx);
         return;
       }
       if (commandToExecute === '◀️ Назад') {
@@ -446,7 +414,7 @@ if (vkBot) {
 
       // Если команда не распознана, показываем базовую клавиатуру
       await uctx.reply('❓ Неизвестная команда', {
-        vkKeyboard: createVKKeyboard(createUniversalKeyboard('vk', false)),
+        vkKeyboard: createVKKeyboard(createUniversalKeyboard('vk', false, uctx.isAdmin)),
       });
     });
 

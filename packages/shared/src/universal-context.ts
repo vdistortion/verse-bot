@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
+import type { FormatToken } from './format/tokens';
 
 export type Platform = 'telegram' | 'vk';
 
@@ -22,6 +23,7 @@ export interface UniversalContext {
   firstName?: string;
   lastName?: string;
   username?: string;
+  format: (strings: TemplateStringsArray, ...values: (string | FormatToken)[]) => string;
   reply: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
   replyWithFile?: (buffer: Buffer, filename: string, caption?: string) => Promise<void>;
   replyWithPhoto?: (photoUrl: string, caption?: string) => Promise<void>;

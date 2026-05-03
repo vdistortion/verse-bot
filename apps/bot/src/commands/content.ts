@@ -25,27 +25,29 @@ export async function sendContentItem(
   itemNumber: number,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const isTg = ctx.platform === 'telegram';
-  const hint = phrases.content.commandHint(itemNumber);
+  const hint = phrases.content.commandHint(ctx.platform, itemNumber);
 
   if (imageUrl && ctx.replyWithPhoto) {
     let caption = '';
     if (item.text_content) {
-      caption += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
+      caption += ctx.format`${item.text_content}`;
     }
-    caption += isTg ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+    caption += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
     await ctx.replyWithPhoto(imageUrl, caption);
     return;
   }
 
   let message = '';
   if (item.text_content) {
-    message += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
+    message += ctx.format`${item.text_content}`;
   }
   if (imageUrl) {
-    message += isTg ? `\n\n[📷 Смотреть изображение](${imageUrl})` : `\n\n${imageUrl}`;
+    message +=
+      ctx.platform === 'telegram'
+        ? `\n\n[📷 Смотреть изображение](${imageUrl})`
+        : `\n\n${imageUrl}`;
   }
-  message += isTg ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+  message += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
   await ctx.reply(message, ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {});
 }
 
@@ -78,9 +80,7 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
 
     if (itemIndex < 0 || itemIndex >= allContent.length) {
       await ctx.reply(
-        ctx.platform === 'telegram'
-          ? phrases.content.notFound(itemNumber, allContent.length)
-          : phrases.content.notFound(itemNumber, allContent.length),
+        phrases.content.notFound(ctx.platform, itemNumber, allContent.length),
         ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
       );
       return;

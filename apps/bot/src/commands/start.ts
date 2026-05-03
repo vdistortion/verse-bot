@@ -8,14 +8,9 @@ export async function startCommand(
 ): Promise<void> {
   const isPrivate = ctx.chatType === 'private';
   const universalKeyboard = createUniversalKeyboard(ctx.platform, fullMenu, ctx.isAdmin, isPrivate);
-  const message =
-    ctx.platform === 'telegram'
-      ? fullMenu
-        ? phrases.start.fullMenuTg
-        : phrases.start.mainMenuTg
-      : fullMenu
-        ? phrases.start.fullMenu
-        : phrases.start.mainMenu;
+  const message = fullMenu
+    ? phrases.start.fullMenu(ctx.platform)
+    : phrases.start.mainMenu(ctx.platform);
 
   const replyOptions =
     ctx.platform === 'telegram'

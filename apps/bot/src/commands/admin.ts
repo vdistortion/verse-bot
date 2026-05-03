@@ -8,14 +8,13 @@ export async function adminCommand(ctx: UniversalContext): Promise<void> {
 
   if (!ctx.isAdmin) {
     await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.admin.notAdmin : phrases.admin.notAdmin,
+      phrases.admin.notAdmin,
       ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
     return;
   }
-
   await ctx.reply(
-    phrases.admin.message(ctx.platform === 'telegram'),
+    phrases.admin.message(ctx.platform),
     ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
   );
 }

@@ -23,7 +23,7 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
 
   if (!ctx.isAdmin) {
     await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.listUsers.notAdmin : phrases.listUsers.notAdmin,
+      phrases.listUsers.notAdmin,
       ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
     return;
@@ -33,14 +33,14 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
 
   try {
     await ctx.reply(
-      isTg ? escapeMarkdownV2(phrases.listUsers.loading) : phrases.listUsers.loading,
+      phrases.listUsers.loading,
       isTg ? { parse_mode: 'MarkdownV2' } : {},
     );
     const users: DbUser[] = await getAllUsers();
 
     if (users.length === 0) {
       await ctx.reply(
-        isTg ? phrases.listUsers.empty : phrases.listUsers.empty,
+        phrases.listUsers.empty,
         isTg ? { parse_mode: 'MarkdownV2' } : {},
       );
       return;

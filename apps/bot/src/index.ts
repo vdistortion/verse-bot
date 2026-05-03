@@ -4,6 +4,7 @@ import {
   createUniversalKeyboard,
   createVKKeyboard,
   findOrCreateUser,
+  format,
   logCommand,
   type UniversalContext,
   userExists,
@@ -62,6 +63,7 @@ if (tgBot) {
         lastName: ctx.from?.last_name,
         username: ctx.from?.username,
         chatType: ctx.chat?.type ?? 'unknown', // 'private', 'group', 'supergroup', 'channel'
+        format: format('telegram'),
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
           await ctx.api.sendMessage(uctx.peerId, text, {
@@ -323,6 +325,7 @@ if (vkBot) {
         lastName: vkLastName,
         username: vkUsername,
         chatType: ctx.peerId > 2000000000 ? 'group' : 'private', // 2e9 – порог ID беседы
+        format: format('vk'),
         reply: async (msg, extra) => {
           let vkKeyboardJson: string | undefined;
           if (extra?.remove_keyboard) {

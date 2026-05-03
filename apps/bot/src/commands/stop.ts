@@ -1,15 +1,10 @@
 import { removeUser, type UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { phrases } from '../locales/ru';
 
 export async function stopCommand(ctx: UniversalContext): Promise<void> {
   await removeUser(ctx.platform, ctx.userId);
-
-  const messageToSend =
-    ctx.platform === 'telegram'
-      ? escapeMarkdownV2('👋 Пока! Если что — /start чтобы вернуться.')
-      : '👋 Пока! Если что — /start чтобы вернуться.';
-
-  await ctx.reply(messageToSend, {
+  await ctx.reply(ctx.platform === 'telegram' ? phrases.stopMessage : phrases.stop, {
     remove_keyboard: true,
+    ...(ctx.platform === 'telegram' && { parse_mode: 'MarkdownV2' }),
   });
 }

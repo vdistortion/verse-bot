@@ -60,10 +60,11 @@ export async function removeUser(platform: Platform, platformUserId: string): Pr
     return;
   }
 
-  const { error } = await query;
-
+  const { data, error } = await query.select();
   if (error) {
     console.error('Error removing user:', error);
+  } else {
+    console.log(`Removed user: ${platform} ${platformUserId}`, data);
   }
 }
 

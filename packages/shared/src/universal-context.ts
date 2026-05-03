@@ -4,6 +4,7 @@ import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } f
 export type Platform = 'telegram' | 'vk';
 
 export interface UniversalReplyOptions {
+  parse_mode?: 'MarkdownV2';
   telegramReplyMarkup?: ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove;
   vkKeyboard?: string;
   remove_keyboard?: boolean;
@@ -24,4 +25,5 @@ export interface UniversalContext {
   reply: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
   replyWithFile?: (buffer: Buffer, filename: string, caption?: string) => Promise<void>;
   replyWithPhoto?: (photoUrl: string, caption?: string) => Promise<void>;
+  chatType: 'channel' | 'private' | 'group' | 'supergroup' | 'unknown';
 }

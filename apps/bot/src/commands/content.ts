@@ -1,5 +1,6 @@
 import type { UniversalContext } from '@scope/shared';
 import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { phrases } from '../locales/ru';
 import { VERCEL_PROJECT_PRODUCTION_URL } from '../env';
 
 interface BotContentItem {
@@ -25,17 +26,14 @@ export async function sendContentItem(
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
   const isTg = ctx.platform === 'telegram';
-  const contentCommandText = `/content_${itemNumber}`;
+  const hint = phrases.content.commandHint(itemNumber);
 
   if (imageUrl && ctx.replyWithPhoto) {
     let caption = '';
     if (item.text_content) {
       caption += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
     }
-
-    caption += isTg
-      ? `\n\n\`${escapeMarkdownV2(contentCommandText)}\``
-      : `\n\n${contentCommandText}`;
+    caption += isTg ? `\n\n\`${hint}\`` : `\n\n${hint}`;
     await ctx.replyWithPhoto(imageUrl, caption);
     return;
   }
@@ -44,23 +42,18 @@ export async function sendContentItem(
   if (item.text_content) {
     message += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
   }
-
   if (imageUrl) {
-    message += `\n\n[📷 Смотреть изображение](${imageUrl})`;
+    message += isTg ? `\n\n[📷 Смотреть изображение](${imageUrl})` : `\n\n${imageUrl}`;
   }
-  message += isTg
-    ? `\n\n\`${escapeMarkdownV2(contentCommandText)}\``
-    : `\n\n${contentCommandText}`;
-
-  await ctx.reply(message);
+  message += isTg ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+  await ctx.reply(message, ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {});
 }
 
 export async function contentCommand(ctx: UniversalContext, itemNumber: number): Promise<void> {
   if (!ctx.db) {
     await ctx.reply(
-      ctx.platform === 'telegram'
-        ? escapeMarkdownV2('❌ База данных недоступна.')
-        : '❌ База данных недоступна.',
+      ctx.platform === 'telegram' ? phrases.content.dbUnavailable : phrases.content.dbUnavailable,
+      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
     return;
   }
@@ -75,9 +68,8 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
 
     if (!allContent || allContent.length === 0) {
       await ctx.reply(
-        ctx.platform === 'telegram'
-          ? escapeMarkdownV2('В базе данных нет контента.')
-          : 'В базе данных нет контента.',
+        ctx.platform === 'telegram' ? phrases.content.emptyDb : phrases.content.emptyDb,
+        ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
       );
       return;
     }
@@ -87,10 +79,9 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     if (itemIndex < 0 || itemIndex >= allContent.length) {
       await ctx.reply(
         ctx.platform === 'telegram'
-          ? escapeMarkdownV2(
-              `Контент с номером ${itemNumber} не найден. Всего элементов: ${allContent.length}. Введите число от 1 до ${allContent.length}.`,
-            )
-          : `Контент с номером ${itemNumber} не найден. Всего элементов: ${allContent.length}. Введите число от 1 до ${allContent.length}.`,
+          ? phrases.content.notFound(itemNumber, allContent.length)
+          : phrases.content.notFound(itemNumber, allContent.length),
+        ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
       );
       return;
     }
@@ -98,10 +89,10 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     const requestedItem = allContent[itemIndex];
     await sendContentItem(ctx, requestedItem, itemNumber);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
-    console.error('Ошибка при получении контента по номеру:', err);
+    console.error('Content error:', err);
     await ctx.reply(
-      `❌ Произошла ошибка при получении контента по номеру: ${ctx.platform === 'telegram' ? escapeMarkdownV2(msg) : msg}`,
+      ctx.platform === 'telegram' ? phrases.content.error : phrases.content.error,
+      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
   }
 }

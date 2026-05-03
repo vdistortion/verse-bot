@@ -1,5 +1,6 @@
 import type { UniversalContext } from '@scope/shared';
 import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { phrases } from '../locales/ru';
 import { getCat } from '../data-sources';
 
 export async function catCommand(ctx: UniversalContext): Promise<void> {
@@ -8,29 +9,30 @@ export async function catCommand(ctx: UniversalContext): Promise<void> {
 
     if (catImageUrl) {
       if (ctx.replyWithPhoto) {
-        const caption = ctx.platform === 'telegram' ? escapeMarkdownV2('Мяу! 🐾') : 'Мяу! 🐾';
-        await ctx.replyWithPhoto(catImageUrl, caption);
+        await ctx.replyWithPhoto(
+          catImageUrl,
+          ctx.platform === 'telegram' ? escapeMarkdownV2(phrases.cat.caption) : phrases.cat.caption,
+        );
         return;
       } else {
         await ctx.reply(
           ctx.platform === 'telegram'
-            ? escapeMarkdownV2(`Мяууу! 🐾\n\n[Смотреть](${catImageUrl})`)
-            : `Мяу! 🐾\n\n[Смотреть](${catImageUrl})`,
+            ? escapeMarkdownV2(`${phrases.cat.caption}\n${catImageUrl}`)
+            : `${phrases.cat.caption}\n${catImageUrl}`,
+          ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
         );
         return;
       }
     }
-
     await ctx.reply(
-      ctx.platform === 'telegram'
-        ? escapeMarkdownV2('Не удалось получить котика.')
-        : 'Не удалось получить котика.',
+      ctx.platform === 'telegram' ? phrases.cat.notFound : phrases.cat.notFound,
+      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
-    console.error('Ошибка при получении котика:', err);
+    console.error('Cat error:', err);
     await ctx.reply(
-      `❌ Ошибка при получении котика: ${ctx.platform === 'telegram' ? escapeMarkdownV2(msg) : msg}`,
+      ctx.platform === 'telegram' ? phrases.cat.notFound : phrases.cat.notFound,
+      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
   }
 }

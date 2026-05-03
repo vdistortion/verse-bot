@@ -1,6 +1,6 @@
-import { getAllUsers, type UniversalContext } from '@scope/shared';
+import { getAllUsers, type DbUser, type UniversalContext } from '@scope/shared';
 import { escapeMarkdownV2 } from '@scope/tg-bot-core';
-import type { DbUser } from '@scope/shared';
+import { phrases } from '../locales/ru';
 import { tgBot, vkBot } from '../';
 
 function formatDate(dateStr: string): string {
@@ -12,16 +12,19 @@ function formatDate(dateStr: string): string {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: true,
+    hour12: false,
   });
 }
 
 export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
+  if (ctx.chatType !== 'private') {
+    return;
+  }
+
   if (!ctx.isAdmin) {
     await ctx.reply(
-      ctx.platform === 'telegram'
-        ? escapeMarkdownV2('⛔ У вас нет прав для выполнения этой команды.')
-        : '⛔ У вас нет прав для выполнения этой команды.',
+      ctx.platform === 'telegram' ? phrases.listUsers.notAdmin : phrases.listUsers.notAdmin,
+      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
     return;
   }
@@ -30,25 +33,22 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
 
   try {
     await ctx.reply(
-      ctx.platform === 'telegram'
-        ? escapeMarkdownV2('⏳ Загружаю список пользователей...')
-        : '⏳ Загружаю список пользователей...',
+      isTg ? escapeMarkdownV2(phrases.listUsers.loading) : phrases.listUsers.loading,
+      isTg ? { parse_mode: 'MarkdownV2' } : {},
     );
-
     const users: DbUser[] = await getAllUsers();
 
     if (users.length === 0) {
       await ctx.reply(
-        ctx.platform === 'telegram'
-          ? escapeMarkdownV2('В базе данных нет активных пользователей.')
-          : 'В базе данных нет активных пользователей.',
+        isTg ? phrases.listUsers.empty : phrases.listUsers.empty,
+        isTg ? { parse_mode: 'MarkdownV2' } : {},
       );
       return;
     }
 
     let message = isTg
-      ? `👥 *${escapeMarkdownV2(`Список активных пользователей (${users.length}):`)}*\n\n`
-      : `👥 Список активных пользователей (${users.length}):\n\n`;
+      ? `*${escapeMarkdownV2(phrases.listUsers.header(users.length))}*\n\n`
+      : `${phrases.listUsers.header(users.length)}\n\n`;
 
     for (const user of users) {
       let firstName: string | undefined;
@@ -61,9 +61,7 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
           firstName = tgChat.first_name;
           lastName = tgChat.last_name;
           username = tgChat.username;
-        } catch {
-          // getChat недоступен — данных нет, продолжаем без них
-        }
+        } catch {}
       } else if (user.vk_id && vkBot) {
         try {
           const result = await vkBot.request('users.get', {
@@ -80,9 +78,7 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
             lastName = vkUser.last_name;
             username = vkUser.screen_name;
           }
-        } catch {
-          // users.get недоступен — данных нет, продолжаем без них
-        }
+        } catch {}
       }
 
       const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Межзвёздный скиталец ✨';
@@ -95,12 +91,12 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
 
         if (user.tg_id) {
           nameDisplay = username
-            ? `[${escapeMarkdownV2(fullName)}](https://t.me/${escapeMarkdownV2(username)})`
+            ? `[${escapeMarkdownV2(fullName)}](https://t.me/${username})`
             : escapeMarkdownV2(fullName);
         } else {
           const profileLink = username
-            ? `https://vk\\.com/${escapeMarkdownV2(username)}`
-            : `https://vk\\.com/id${escapeMarkdownV2(user.vk_id!)}`;
+            ? `https://vk.com/${username}`
+            : `https://vk.com/id${user.vk_id}`;
           nameDisplay = `[${escapeMarkdownV2(fullName)}](${profileLink})`;
         }
 
@@ -116,8 +112,10 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
         let profileLink: string;
         if (user.vk_id) {
           profileLink = username ? `https://vk.com/${username}` : `https://vk.com/id${user.vk_id}`;
+        } else if (username) {
+          profileLink = `https://t.me/${username}`;
         } else {
-          profileLink = username ? `https://t.me/${username}` : '';
+          profileLink = '';
         }
 
         const platform = user.tg_id ? 'Telegram' : 'ВКонтакте';
@@ -130,15 +128,15 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
       }
     }
 
-    await ctx.reply(message,
-    {
+    await ctx.reply(message, {
+      parse_mode: 'MarkdownV2',
       link_preview_options: { is_disabled: true },
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
-    console.error('Ошибка при получении списка пользователей:', err);
+    console.error('List users error:', err);
     await ctx.reply(
-      `❌ Произошла ошибка при получении списка пользователей: ${isTg ? escapeMarkdownV2(msg) : msg}`,
+      isTg ? phrases.listUsers.error : phrases.listUsers.error,
+      isTg ? { parse_mode: 'MarkdownV2' } : {},
     );
   }
 }

@@ -6,12 +6,9 @@ import {
   findOrCreateUser,
   logCommand,
   type UniversalContext,
+  userExists,
 } from '@scope/shared';
-import {
-  createBot,
-  dbMiddleware,
-  escapeMarkdownV2,
-} from '@scope/tg-bot-core';
+import { createBot, dbMiddleware } from '@scope/tg-bot-core';
 import { createVKBot, VKContext } from '@scope/vk-bot-core';
 import {
   startCommand,
@@ -36,6 +33,7 @@ import {
   VK_ADMIN_ID,
   VK_SECRET,
 } from './env';
+import { phrases } from './locales/ru';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
 export const vkBot =
@@ -63,10 +61,11 @@ if (tgBot) {
         firstName: ctx.from?.first_name,
         lastName: ctx.from?.last_name,
         username: ctx.from?.username,
+        chatType: ctx.chat?.type ?? 'unknown', // 'private', 'group', 'supergroup', 'channel'
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
           await ctx.reply(text, {
-            parse_mode: 'MarkdownV2',
+            ...(extra?.parse_mode && { parse_mode: extra.parse_mode }),
             ...(extra?.telegramReplyMarkup && { reply_markup: extra.telegramReplyMarkup }),
             ...(extra?.remove_keyboard && { reply_markup: { remove_keyboard: true } }),
             ...(extra?.link_preview_options && {
@@ -82,7 +81,7 @@ if (tgBot) {
         },
         replyWithPhoto: async (photoUrl, caption) => {
           await ctx.replyWithPhoto(photoUrl, {
-            caption: caption ?? undefined,
+            caption: caption ? caption : undefined,
             parse_mode: 'MarkdownV2',
           });
         },
@@ -97,39 +96,38 @@ if (tgBot) {
       const isStart = text === '/start' || text.startsWith('/start ');
 
       const uctx: UniversalContext = (ctx as any).uctx;
-      if (!uctx) {
-        console.error(`[TG Guard] uctx is undefined for user ${ctx.from?.id}. Skipping guard.`);
-        return next();
-      }
+      if (!uctx) return next();
 
-      const dbUser = await findOrCreateUser(uctx.platform, uctx.userId);
+      const exists = await userExists(uctx.platform, uctx.userId);
 
-      if (!dbUser) {
-        console.error(`[TG Guard] Failed to find or create user ${uctx.userId}. Blocking.`);
+      if (!exists) {
+        if (isStart) {
+          const dbUser = await findOrCreateUser(uctx.platform, uctx.userId);
+          if (!dbUser) {
+            console.error(`Failed to create user ${uctx.userId}`);
+            return;
+          }
+          uctx.dbUserId = dbUser.id;
+          await logCommand(dbUser.id, uctx.platform, '/start');
+          return next();
+        }
+
         return;
       }
 
-      // Прикрепляем внутренний ID пользователя к контексту для логирования
-      uctx.dbUserId = dbUser.id;
+      const dbUser = await findOrCreateUser(uctx.platform, uctx.userId); // вернёт существующего пользователя
+      uctx.dbUserId = dbUser!.id;
 
       if (isStart) {
-        console.log(`[TG Guard] User ${uctx.userId} is calling /start. Proceeding.`);
-        await logCommand(dbUser.id, uctx.platform, '/start');
+        await logCommand(dbUser!.id, uctx.platform, '/start');
         return next();
       }
 
-      // Если пользователь не найден/создан (что не должно произойти, если findOrCreateUser отработал)
-      if (!dbUser) {
-        console.log(`[TG Guard] User ${uctx.userId} does not exist. Blocking command: ${text}`);
-        return;
-      }
-
-      console.log(`[TG Guard] User ${uctx.userId} exists. Command: ${text}`);
       const command = text.split(' ')[0];
       if (command.startsWith('/')) {
-        await logCommand(dbUser.id, uctx.platform, command);
+        await logCommand(dbUser!.id, uctx.platform, command);
       } else {
-        await logCommand(dbUser.id, uctx.platform, text);
+        await logCommand(dbUser!.id, uctx.platform, text);
       }
 
       return next();
@@ -165,9 +163,7 @@ if (tgBot) {
       if (!isNaN(itemNumber) && itemNumber > 0) {
         await contentCommand(uctx, itemNumber);
       } else {
-        await uctx.reply(
-          escapeMarkdownV2('Пожалуйста, укажите корректный номер контента. Например: /content_1'),
-        );
+        await uctx.reply(phrases.content.invalidNumber, { parse_mode: 'MarkdownV2' });
       }
     });
 
@@ -262,7 +258,36 @@ if (vkBot) {
         }
       }
 
-      // --- VK: Получаем данные пользователя ---
+      const commandToExecute = payloadCommand || text;
+      const isStart =
+        commandToExecute === '/start' ||
+        commandToExecute === '🚀 Запустить бота и показать основное меню';
+
+      // Проверка существования пользователя
+      const exists = await userExists('vk', String(ctx.userId));
+
+      if (!exists) {
+        // Разрешаем только /start
+        if (isStart) {
+          // Создаём пользователя
+          const dbUser = await findOrCreateUser('vk', String(ctx.userId));
+          if (!dbUser) {
+            console.error(`Failed to create VK user ${ctx.userId}`);
+            return; // можно ответить ошибкой, но пока просто молчим
+          }
+          // Логируем команду
+          await logCommand(dbUser.id, 'vk', '/start');
+          // Показываем стартовое меню
+          // (здесь будет вызов startCommand после получения данных пользователя)
+          // Для этого код ниже выполнится внутри isStart
+        } else {
+          // Игнорируем
+          return;
+        }
+      }
+
+      // Если мы здесь, то либо пользователь существовал, либо только что создан
+      // Получаем данные пользователя (фото, имя и т.д.) — оставим как было
       let vkFirstName: string | undefined;
       let vkLastName: string | undefined;
       let vkUsername: string | undefined;
@@ -285,18 +310,19 @@ if (vkBot) {
       } catch (vkErr) {
         console.error(`[VK Bot] Error fetching user details for ${ctx.userId}:`, vkErr);
       }
-      // --- Конец VK: Получаем данные пользователя ---
 
+      // Формируем UniversalContext
       const uctx: UniversalContext = {
         platform: 'vk',
         userId: String(ctx.userId),
         peerId: ctx.peerId,
-        text,
+        text: commandToExecute,
         isAdmin: ctx.userId === Number(VK_ADMIN_ID),
-        db,
+        db: getSupabaseClient(),
         firstName: vkFirstName,
         lastName: vkLastName,
         username: vkUsername,
+        chatType: ctx.peerId > 2000000000 ? 'group' : 'private', // 2e9 – порог ID беседы
         reply: async (msg, extra) => {
           let vkKeyboardJson: string | undefined;
           if (extra?.remove_keyboard) {
@@ -319,35 +345,13 @@ if (vkBot) {
         },
       };
 
-      const commandToExecute = payloadCommand || text;
+      // Получаем dbUserId (если пользователь новосозданный, он уже есть в findOrCreateUser, но здесь перестрахуемся)
+      const dbUser = await findOrCreateUser('vk', String(ctx.userId));
+      uctx.dbUserId = dbUser?.id;
 
-      const isStart =
-        commandToExecute === '/start' ||
-        commandToExecute === '🚀 Запустить бота и показать основное меню';
-
-      const dbUser = await findOrCreateUser(uctx.platform, uctx.userId);
-
-      if (!dbUser) {
-        console.error(`[VK Guard] Failed to find or create user ${uctx.userId}. Blocking.`);
-        return;
+      if (exists && !isStart) {
+        await logCommand(dbUser!.id, 'vk', commandToExecute);
       }
-
-      uctx.dbUserId = dbUser.id;
-
-      if (!isStart) {
-        if (!dbUser) {
-          console.log(
-            `[VK Guard] User ${uctx.userId} does not exist. Blocking command: ${commandToExecute}`,
-          );
-          return;
-        }
-      }
-
-      console.log(
-        `[VK Guard] User ${uctx.userId} exists: ${!!dbUser}. Command: ${commandToExecute}`,
-      );
-
-      await logCommand(dbUser.id, uctx.platform, commandToExecute);
 
       if (isStart) {
         await startCommand(uctx);
@@ -379,7 +383,7 @@ if (vkBot) {
         if (!isNaN(itemNumber) && itemNumber > 0) {
           await contentCommand(uctx, itemNumber);
         } else {
-          await uctx.reply('Пожалуйста, укажите корректный номер контента. Например: /content_1');
+          await uctx.reply(phrases.content.invalidNumber);
         }
         return;
       }
@@ -389,10 +393,6 @@ if (vkBot) {
       }
       if (commandToExecute === '/id' || commandToExecute === 'Мой ID 🆔') {
         await idCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/backupdb') {
-        await uctx.reply('❌ Команда /backupdb доступна только в Telegram.');
         return;
       }
       if (commandToExecute === '/help' || commandToExecute === 'Справка ❓') {
@@ -407,14 +407,11 @@ if (vkBot) {
         await adminCommand(uctx);
         return;
       }
-      if (commandToExecute === '◀️ Назад') {
-        await startCommand(uctx);
-        return;
-      }
-
       // Если команда не распознана, показываем базовую клавиатуру
-      await uctx.reply('❓ Неизвестная команда', {
-        vkKeyboard: createVKKeyboard(createUniversalKeyboard('vk', false, uctx.isAdmin)),
+      await uctx.reply(phrases.unknownCommand, {
+        vkKeyboard: createVKKeyboard(
+          createUniversalKeyboard('vk', false, uctx.isAdmin, uctx.chatType === 'private'),
+        ),
       });
     });
 

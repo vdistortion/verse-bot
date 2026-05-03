@@ -1,13 +1,12 @@
 import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { phrases } from '../locales/ru';
 import { sendContentItem } from './content';
 
 export async function randomCommand(ctx: UniversalContext): Promise<void> {
   if (!ctx.db) {
     await ctx.reply(
-      ctx.platform === 'telegram'
-        ? escapeMarkdownV2('❌ База данных недоступна.')
-        : '❌ База данных недоступна.',
+      ctx.platform === 'telegram' ? phrases.random.dbUnavailable : phrases.random.dbUnavailable,
+      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
     return;
   }
@@ -22,9 +21,8 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
 
     if (!allContent || allContent.length === 0) {
       await ctx.reply(
-        ctx.platform === 'telegram'
-          ? escapeMarkdownV2('В базе данных нет контента.')
-          : 'В базе данных нет контента.',
+        ctx.platform === 'telegram' ? phrases.random.emptyDb : phrases.random.emptyDb,
+        ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
       );
       return;
     }
@@ -35,10 +33,10 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
 
     await sendContentItem(ctx, randomItem, itemNumber);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
-    console.error('Ошибка при получении случайного контента:', err);
+    console.error('Random error:', err);
     await ctx.reply(
-      `❌ Ошибка при получении случайного контента: ${ctx.platform === 'telegram' ? escapeMarkdownV2(msg) : msg}`,
+      ctx.platform === 'telegram' ? phrases.random.error : phrases.random.error,
+      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
     );
   }
 }

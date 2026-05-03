@@ -64,7 +64,7 @@ if (tgBot) {
         chatType: ctx.chat?.type ?? 'unknown', // 'private', 'group', 'supergroup', 'channel'
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
-          await ctx.reply(text, {
+          await ctx.api.sendMessage(uctx.peerId, text, {
             ...(extra?.parse_mode && { parse_mode: extra.parse_mode }),
             ...(extra?.telegramReplyMarkup && { reply_markup: extra.telegramReplyMarkup }),
             ...(extra?.remove_keyboard && { reply_markup: { remove_keyboard: true } }),

@@ -17,6 +17,10 @@ function formatDate(dateStr: string): string {
 }
 
 export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
+  if (ctx.chatType !== 'private') {
+    return;
+  }
+
   if (!ctx.isAdmin) {
     await ctx.reply(
       ctx.platform === 'telegram'

@@ -38,12 +38,12 @@ ${escapeMarkdownV2('/help — Эта справка.')}`
 /stop — Остановить бота.
 /help — Эта справка.`;
 
-  if (isTg && ctx.isAdmin) {
-    message += escapeMarkdownV2(
-      `\n/admin — Административные команды.\n/backupdb — Бэкап БД\n/list_users — Список активных пользователей.`,
-    );
-  } else if (ctx.platform === 'vk' && ctx.isAdmin) {
-    message += `\n/admin — Административные команды.\n/list_users — Список активных пользователей.`;
+  if (ctx.isAdmin && ctx.chatType === 'private') {
+    message += isTg
+      ? escapeMarkdownV2(
+          `\n/admin — Административные команды.\n/backupdb — Бэкап БД\n/list_users — Список активных пользователей.`,
+        )
+      : `\n/admin — Административные команды.\n/list_users — Список активных пользователей.`;
   }
 
   message += isTg ? `\n\n🔗 *Ссылки:*\n` : `\n\n🔗 Ссылки:\n`;

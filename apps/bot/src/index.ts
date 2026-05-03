@@ -64,6 +64,7 @@ if (tgBot) {
         firstName: ctx.from?.first_name,
         lastName: ctx.from?.last_name,
         username: ctx.from?.username,
+        chatType: ctx.chat?.type ?? 'unknown', // 'private', 'group', 'supergroup', 'channel'
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
           await ctx.reply(text, {
@@ -326,6 +327,7 @@ if (vkBot) {
         firstName: vkFirstName,
         lastName: vkLastName,
         username: vkUsername,
+        chatType: ctx.peerId > 2000000000 ? 'group' : 'private', // 2e9 – порог ID беседы
         reply: async (msg, extra) => {
           let vkKeyboardJson: string | undefined;
           if (extra?.remove_keyboard) {
@@ -412,7 +414,9 @@ if (vkBot) {
       }
       // Если команда не распознана, показываем базовую клавиатуру
       await uctx.reply('❓ Неизвестная команда', {
-        vkKeyboard: createVKKeyboard(createUniversalKeyboard('vk', false, uctx.isAdmin)),
+        vkKeyboard: createVKKeyboard(
+          createUniversalKeyboard('vk', false, uctx.isAdmin, uctx.chatType === 'private'),
+        ),
       });
     });
 

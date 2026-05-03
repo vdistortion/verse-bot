@@ -24,4 +24,5 @@ export interface UniversalContext {
   reply: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
   replyWithFile?: (buffer: Buffer, filename: string, caption?: string) => Promise<void>;
   replyWithPhoto?: (photoUrl: string, caption?: string) => Promise<void>;
+  chatType: 'channel' | 'private' | 'group' | 'supergroup' | 'unknown';
 }

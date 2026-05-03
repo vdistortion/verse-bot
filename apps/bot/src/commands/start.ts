@@ -5,7 +5,8 @@ export async function startCommand(
   ctx: UniversalContext,
   fullMenu: boolean = false,
 ): Promise<void> {
-  const universalKeyboard = createUniversalKeyboard(ctx.platform, fullMenu, ctx.isAdmin);
+  const isPrivate = ctx.chatType === 'private';
+  const universalKeyboard = createUniversalKeyboard(ctx.platform, fullMenu, ctx.isAdmin, isPrivate);
   const message =
     ctx.platform === 'telegram'
       ? fullMenu

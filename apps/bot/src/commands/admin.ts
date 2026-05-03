@@ -2,6 +2,10 @@ import type { UniversalContext } from '@scope/shared';
 import { escapeMarkdownV2 } from '@scope/tg-bot-core';
 
 export async function adminCommand(ctx: UniversalContext): Promise<void> {
+  if (ctx.chatType !== 'private') {
+    return;
+  }
+
   if (!ctx.isAdmin) {
     await ctx.reply(
       ctx.platform === 'telegram'

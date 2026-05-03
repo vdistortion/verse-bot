@@ -9,10 +9,10 @@ export function createUniversalKeyboard(
   platform: Platform,
   fullMenu: boolean,
   isAdmin: boolean,
+  isPrivate: boolean,
 ): UniversalKeyboard[][] {
   const keyboard: UniversalKeyboard[][] = [];
 
-  // Основные кнопки
   keyboard.push([
     { label: 'Котики 🐾', command: '/cat' },
     { label: 'Цитаты 💬', command: '/quote' },
@@ -26,7 +26,7 @@ export function createUniversalKeyboard(
   }
 
   const helpRow: UniversalKeyboard[] = [{ label: 'Справка ❓', command: '/help' }];
-  if (isAdmin) {
+  if (isAdmin && isPrivate) {
     helpRow.push({ label: 'Админ 👑', command: '/admin' });
   }
   keyboard.push(helpRow);

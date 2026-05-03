@@ -1,5 +1,4 @@
-import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 import { getCat } from '../data-sources';
 
@@ -12,22 +11,13 @@ export async function catCommand(ctx: UniversalContext): Promise<void> {
         await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption);
         return;
       } else {
-        await ctx.reply(
-          ctx.format`${phrases.cat.caption}\n${catImageUrl}`,
-          ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-        );
+        await ctx.replySafe(ctx.format`${phrases.cat.caption}\n${catImageUrl}`);
         return;
       }
     }
-    await ctx.reply(
-      phrases.cat.notFound,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.cat.notFound);
   } catch (err) {
     console.error('Cat error:', err);
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.cat.notFound : phrases.cat.notFound,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.cat.notFound);
   }
 }

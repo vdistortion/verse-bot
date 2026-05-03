@@ -12,13 +12,9 @@ export async function startCommand(
     ? phrases.start.fullMenu(ctx.platform)
     : phrases.start.mainMenu(ctx.platform);
 
-  const replyOptions =
-    ctx.platform === 'telegram'
-      ? {
-          parse_mode: 'MarkdownV2' as const,
-          telegramReplyMarkup: createTelegramKeyboard(universalKeyboard),
-        }
-      : { vkKeyboard: createVKKeyboard(universalKeyboard) };
-
-  await ctx.reply(message, replyOptions);
+  await ctx.replySafe(message, {
+    ...(ctx.platform === 'telegram'
+      ? { telegramReplyMarkup: createTelegramKeyboard(universalKeyboard) }
+      : { vkKeyboard: createVKKeyboard(universalKeyboard) }),
+  });
 }

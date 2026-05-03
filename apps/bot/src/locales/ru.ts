@@ -1,4 +1,4 @@
-import { format, bold, link, raw, spoiler, type Platform } from '@scope/shared';
+import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@scope/shared';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_TOKEN } from '../env';
 import { homepage } from '../../../../package.json';
 
@@ -80,7 +80,10 @@ export const phrases = {
       } else if (platform !== 'telegram' && tgUsername) {
         links.push(`Бот в Telegram: https://t.me/${tgUsername}`);
       }
-      const linksSection = links.length ? f`🔗 ${bold('Ссылки')}:\n${links.join('\n')}` : '';
+      const renderedLinks = links.map((l) => (l instanceof FormatToken ? l.render(platform) : l));
+      const linksSection = renderedLinks.length
+        ? f`🔗 ${bold('Ссылки')}:\n${renderedLinks.join('\n')}`
+        : '';
 
       const footer = f`\n${link('Исходный код', repoUrl)}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
@@ -89,14 +92,17 @@ export const phrases = {
   },
 
   admin: {
-    message: (platform: Platform) =>
-      platform === 'telegram'
-        ? format(
-            platform,
-          )`👑 ${bold('Административные команды:')}\n/backupdb – 💾 Сделать бэкап базы данных\n/list\\_users – 👥 Список активных пользователей`
-        : format(
-            platform,
-          )`👑 Административные команды:\n/list_users – 👥 Список активных пользователей`,
+    message: (platform: Platform) => {
+      if (platform === 'telegram') {
+        const tgCmds =
+          '/backupdb – 💾 Сделать бэкап базы данных\n/list\\_users – 👥 Список активных пользователей';
+        return format(platform)`👑 ${bold('Административные команды:')}\n${raw(tgCmds)}`;
+      } else {
+        return format(
+          platform,
+        )`👑 Административные команды:\n/list_users – 👥 Список активных пользователей`;
+      }
+    },
     notAdmin: '⛔ У вас нет прав для выполнения этой команды.',
     notPrivate: 'Команда доступна только в личных сообщениях с ботом.',
   },
@@ -123,8 +129,11 @@ export const phrases = {
 
   content: {
     notFound: (platform: Platform, number: number, total: number) =>
-      format(platform)`Контент с номером ${String(number)} не найден. Всего элементов: ${String(total)}.`,
-    commandHint: (platform: Platform, number: number) => format(platform)`/content_${String(number)}`,
+      format(
+        platform,
+      )`Контент с номером ${String(number)} не найден. Всего элементов: ${String(total)}.`,
+    commandHint: (platform: Platform, number: number) =>
+      format(platform)`/content_${String(number)}`,
     dbUnavailable: '❌ База данных недоступна.',
     emptyDb: 'В базе данных нет контента.',
     error: '❌ Произошла ошибка при получении контента.',
@@ -144,7 +153,7 @@ export const phrases = {
     loading: 'Загружаю список пользователей...',
     empty: 'В базе данных нет активных пользователей.',
     header: (platform: Platform, count: number) =>
-      format(platform)`👥 Список активных пользователей (${String(count)}):`,
+      format(platform)`${bold(`👥 Список активных пользователей (${count}):`)}`,
     error: '❌ Произошла ошибка при получении списка пользователей.',
     notAdmin: '⛔ У вас нет прав для выполнения этой команды.',
     notPrivate: 'Команда доступна только в личных сообщениях с ботом.',

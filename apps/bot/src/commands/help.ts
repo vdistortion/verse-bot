@@ -1,4 +1,4 @@
-import type { UniversalContext } from '@scope/shared';
+import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 
 export async function helpCommand(ctx: UniversalContext): Promise<void> {
@@ -8,8 +8,7 @@ export async function helpCommand(ctx: UniversalContext): Promise<void> {
     chatType: ctx.chatType,
   });
 
-  await ctx.reply(message, {
-    parse_mode: ctx.platform === 'telegram' ? 'MarkdownV2' : undefined,
+  await ctx.replySafe(message, {
     link_preview_options: ctx.platform === 'telegram' ? { is_disabled: true } : undefined,
   });
 }

@@ -8,6 +8,7 @@ import {
   logCommand,
   type UniversalContext,
   userExists,
+  mdOpts,
 } from '@scope/shared';
 import { createBot, dbMiddleware } from '@scope/tg-bot-core';
 import { createVKBot, VKContext } from '@scope/vk-bot-core';
@@ -64,6 +65,9 @@ if (tgBot) {
         username: ctx.from?.username,
         chatType: ctx.chat?.type ?? 'unknown', // 'private', 'group', 'supergroup', 'channel'
         format: format('telegram'),
+        replySafe: async (text, extra) => {
+          return uctx.reply(text, { ...mdOpts('telegram'), ...extra });
+        },
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
           await ctx.api.sendMessage(uctx.peerId, text, {
@@ -165,7 +169,9 @@ if (tgBot) {
       if (!isNaN(itemNumber) && itemNumber > 0) {
         await contentCommand(uctx, itemNumber);
       } else {
-        await uctx.reply(phrases.content.invalidNumber, { parse_mode: 'MarkdownV2' });
+        await uctx.reply(uctx.format`${phrases.content.invalidNumber}`, {
+          parse_mode: 'MarkdownV2',
+        });
       }
     });
 
@@ -326,6 +332,9 @@ if (vkBot) {
         username: vkUsername,
         chatType: ctx.peerId > 2000000000 ? 'group' : 'private', // 2e9 – порог ID беседы
         format: format('vk'),
+        replySafe: async (text, extra) => {
+          return uctx.reply(text, { ...mdOpts('vk'), ...extra });
+        },
         reply: async (msg, extra) => {
           let vkKeyboardJson: string | undefined;
           if (extra?.remove_keyboard) {

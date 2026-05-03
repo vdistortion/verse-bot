@@ -1,4 +1,4 @@
-import type { UniversalContext } from '@scope/shared';
+import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 
 export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
@@ -7,34 +7,22 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
   }
 
   if (!ctx.isAdmin) {
-    await ctx.reply(
-      phrases.backupDb.notAdmin,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.notAdmin);
     return;
   }
 
   if (!ctx.replyWithFile) {
-    await ctx.reply(
-      phrases.backupDb.unsupported,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.unsupported);
     return;
   }
 
   if (!ctx.db) {
-    await ctx.reply(
-      phrases.content.dbUnavailable,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.content.dbUnavailable);
     return;
   }
 
   try {
-    await ctx.reply(
-      phrases.backupDb.start,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.start);
     const backupData: Record<string, any[]> = {};
     const tablesToBackup = ['bot_content', 'users'];
 
@@ -49,9 +37,6 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
     await ctx.replyWithFile(buffer, filename, phrases.backupDb.success);
   } catch (err) {
     console.error('Backup error:', err);
-    await ctx.reply(
-      phrases.backupDb.error,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.error);
   }
 }

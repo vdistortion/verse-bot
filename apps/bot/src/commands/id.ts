@@ -1,4 +1,4 @@
-import type { UniversalContext } from '@scope/shared';
+import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 
 export async function idCommand(ctx: UniversalContext): Promise<void> {
@@ -6,14 +6,8 @@ export async function idCommand(ctx: UniversalContext): Promise<void> {
   const platform = ctx.platform;
 
   if (ctx.chatType === 'private') {
-    await ctx.reply(
-      phrases.id.message(platform, String(id)),
-      platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.id.message(platform, String(id)));
   } else {
-    await ctx.reply(
-      phrases.id.chatId(platform, id),
-      platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.id.chatId(platform, id));
   }
 }

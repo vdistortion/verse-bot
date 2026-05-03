@@ -8,11 +8,7 @@ import {
   type UniversalContext,
   userExists,
 } from '@scope/shared';
-import {
-  createBot,
-  dbMiddleware,
-  escapeMarkdownV2,
-} from '@scope/tg-bot-core';
+import { createBot, dbMiddleware } from '@scope/tg-bot-core';
 import { createVKBot, VKContext } from '@scope/vk-bot-core';
 import {
   startCommand,
@@ -37,6 +33,7 @@ import {
   VK_ADMIN_ID,
   VK_SECRET,
 } from './env';
+import { phrases } from './locales/ru';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
 export const vkBot =
@@ -68,7 +65,7 @@ if (tgBot) {
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
           await ctx.reply(text, {
-            parse_mode: 'MarkdownV2',
+            ...(extra?.parse_mode && { parse_mode: extra.parse_mode }),
             ...(extra?.telegramReplyMarkup && { reply_markup: extra.telegramReplyMarkup }),
             ...(extra?.remove_keyboard && { reply_markup: { remove_keyboard: true } }),
             ...(extra?.link_preview_options && {
@@ -84,7 +81,7 @@ if (tgBot) {
         },
         replyWithPhoto: async (photoUrl, caption) => {
           await ctx.replyWithPhoto(photoUrl, {
-            caption: caption ?? undefined,
+            caption: caption ? caption : undefined,
             parse_mode: 'MarkdownV2',
           });
         },
@@ -166,9 +163,7 @@ if (tgBot) {
       if (!isNaN(itemNumber) && itemNumber > 0) {
         await contentCommand(uctx, itemNumber);
       } else {
-        await uctx.reply(
-          escapeMarkdownV2('Пожалуйста, укажите корректный номер контента. Например: /content_1'),
-        );
+        await uctx.reply(phrases.content.invalidNumber, { parse_mode: 'MarkdownV2' });
       }
     });
 
@@ -322,7 +317,7 @@ if (vkBot) {
         userId: String(ctx.userId),
         peerId: ctx.peerId,
         text: commandToExecute,
-        isAdmin: ctx.userId === Number(process.env.VK_ADMIN_ID),
+        isAdmin: ctx.userId === Number(VK_ADMIN_ID),
         db: getSupabaseClient(),
         firstName: vkFirstName,
         lastName: vkLastName,
@@ -388,7 +383,7 @@ if (vkBot) {
         if (!isNaN(itemNumber) && itemNumber > 0) {
           await contentCommand(uctx, itemNumber);
         } else {
-          await uctx.reply('Пожалуйста, укажите корректный номер контента. Например: /content_1');
+          await uctx.reply(phrases.content.invalidNumber);
         }
         return;
       }
@@ -413,7 +408,7 @@ if (vkBot) {
         return;
       }
       // Если команда не распознана, показываем базовую клавиатуру
-      await uctx.reply('❓ Неизвестная команда', {
+      await uctx.reply(phrases.unknownCommand, {
         vkKeyboard: createVKKeyboard(
           createUniversalKeyboard('vk', false, uctx.isAdmin, uctx.chatType === 'private'),
         ),

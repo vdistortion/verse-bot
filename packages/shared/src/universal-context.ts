@@ -4,6 +4,7 @@ import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } f
 export type Platform = 'telegram' | 'vk';
 
 export interface UniversalReplyOptions {
+  parse_mode?: 'MarkdownV2';
   telegramReplyMarkup?: ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove;
   vkKeyboard?: string;
   remove_keyboard?: boolean;

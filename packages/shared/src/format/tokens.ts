@@ -1,3 +1,4 @@
+import { escapeMarkdownV2 } from './markdown';
 import type { Platform } from '../universal-context';
 
 // Базовый класс токена
@@ -10,7 +11,12 @@ export class BoldToken extends FormatToken {
     super();
   }
   render(platform: Platform): string {
-    const inner = this.text instanceof FormatToken ? this.text.render(platform) : String(this.text);
+    const inner =
+      this.text instanceof FormatToken
+        ? this.text.render(platform)
+        : platform === 'telegram'
+          ? escapeMarkdownV2(this.text)
+          : this.text;
     return platform === 'telegram' ? `*${inner}*` : inner;
   }
 }
@@ -24,7 +30,11 @@ export class LinkToken extends FormatToken {
   }
   render(platform: Platform): string {
     const labelStr =
-      this.label instanceof FormatToken ? this.label.render(platform) : String(this.label);
+      this.label instanceof FormatToken
+        ? this.label.render(platform)
+        : platform === 'telegram'
+          ? escapeMarkdownV2(this.label)
+          : this.label;
     if (platform === 'telegram') {
       // url считаем валидным
       return `[${labelStr}](${this.url})`;
@@ -48,7 +58,12 @@ export class SpoilerToken extends FormatToken {
     super();
   }
   render(platform: Platform): string {
-    const inner = this.text instanceof FormatToken ? this.text.render(platform) : String(this.text);
+    const inner =
+      this.text instanceof FormatToken
+        ? this.text.render(platform)
+        : platform === 'telegram'
+          ? escapeMarkdownV2(this.text)
+          : this.text;
     return platform === 'telegram' ? `||${inner}||` : inner;
   }
 }

@@ -7,22 +7,22 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
   }
 
   if (!ctx.isAdmin) {
-    await ctx.replySafe(phrases.backupDb.notAdmin);
+    await ctx.replySafe(phrases.backupDb.notAdmin(ctx.platform));
     return;
   }
 
   if (!ctx.replyWithFile) {
-    await ctx.replySafe(phrases.backupDb.unsupported);
+    await ctx.replySafe(phrases.backupDb.unsupported(ctx.platform));
     return;
   }
 
   if (!ctx.db) {
-    await ctx.replySafe(phrases.content.dbUnavailable);
+    await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
     return;
   }
 
   try {
-    await ctx.replySafe(phrases.backupDb.start);
+    await ctx.replySafe(phrases.backupDb.start(ctx.platform));
     const backupData: Record<string, any[]> = {};
     const tablesToBackup = ['bot_content', 'users'];
 
@@ -34,9 +34,9 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
 
     const filename = `full_db_backup_${new Date().toISOString()}.json`;
     const buffer = Buffer.from(JSON.stringify(backupData, null, 2), 'utf-8');
-    await ctx.replyWithFile(buffer, filename, phrases.backupDb.success);
+    await ctx.replyWithFile(buffer, filename, phrases.backupDb.success(ctx.platform));
   } catch (err) {
     console.error('Backup error:', err);
-    await ctx.replySafe(phrases.backupDb.error);
+    await ctx.replySafe(phrases.backupDb.error(ctx.platform));
   }
 }

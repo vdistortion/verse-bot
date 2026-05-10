@@ -7,7 +7,7 @@ export async function adminCommand(ctx: UniversalContext): Promise<void> {
   }
 
   if (!ctx.isAdmin) {
-    await ctx.replySafe(phrases.admin.notAdmin);
+    await ctx.replySafe(phrases.admin.notAdmin(ctx.platform));
     return;
   }
   await ctx.replySafe(phrases.admin.message(ctx.platform));

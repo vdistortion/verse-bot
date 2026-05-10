@@ -1,4 +1,4 @@
-import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { escapeMarkdownV2 } from './markdown';
 import { FormatToken } from './tokens';
 import type { Platform } from '../universal-context';
 
@@ -6,7 +6,7 @@ export function format(platform: Platform) {
   return (strings: TemplateStringsArray, ...values: (string | FormatToken)[]): string => {
     let result = '';
     strings.forEach((str, i) => {
-      result += str;
+      result += platform === 'telegram' ? escapeMarkdownV2(str) : str;
       if (i < values.length) {
         const val = values[i];
         if (val instanceof FormatToken) {

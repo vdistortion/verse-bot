@@ -11,6 +11,6 @@ export async function quoteCommand(ctx: UniversalContext): Promise<void> {
     await ctx.replySafe(text);
   } catch (err) {
     console.error('Quote error:', err);
-    await ctx.replySafe(phrases.errorDefault);
+    await ctx.replySafe(phrases.errorDefault(ctx.platform));
   }
 }

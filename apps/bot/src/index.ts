@@ -28,6 +28,7 @@ import {
   adminCommand,
   statsCommand,
   userLogCommand,
+  myLogCommand,
 } from './commands';
 import {
   TELEGRAM_BOT_TOKEN,
@@ -205,6 +206,11 @@ if (tgBot) {
       await statsCommand((ctx as any).uctx);
     });
 
+    tgBot.command('mylog', async (ctx) => {
+      const uctx = (ctx as any).uctx;
+      await myLogCommand(uctx);
+    });
+
     // Обработка текстовых кнопок Telegram
     tgBot.hears('Котики 🐾', async (ctx) => {
       await catCommand((ctx as any).uctx);
@@ -218,29 +224,11 @@ if (tgBot) {
     tgBot.hears('Рандом 🎲', async (ctx) => {
       await randomCommand((ctx as any).uctx);
     });
-    tgBot.hears('Мой ID 🆔', async (ctx) => {
-      await idCommand((ctx as any).uctx);
-    });
     tgBot.hears('Справка ❓', async (ctx) => {
       await helpCommand((ctx as any).uctx);
     });
     tgBot.hears('Админ 👑', async (ctx) => {
       await adminCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Стоп 🛑', async (ctx) => {
-      await stopCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Бэкап БД 💾', async (ctx) => {
-      await backupDbCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Список пользователей 👥', async (ctx) => {
-      await listUsersCommand((ctx as any).uctx);
-    });
-    tgBot.hears('◀️ Назад', async (ctx) => {
-      await startCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Статистика 📊', async (ctx) => {
-      await statsCommand((ctx as any).uctx);
     });
     tgBot.hears(/^\/userlog_(\d+)$/i, async (ctx) => {
       const userId = parseInt(ctx.match[1], 10);
@@ -414,11 +402,11 @@ if (vkBot) {
         }
         return;
       }
-      if (commandToExecute === '/stop' || commandToExecute === 'Стоп 🛑') {
+      if (commandToExecute === '/stop') {
         await stopCommand(uctx);
         return;
       }
-      if (commandToExecute === '/id' || commandToExecute === 'Мой ID 🆔') {
+      if (commandToExecute === '/id') {
         await idCommand(uctx);
         return;
       }
@@ -426,7 +414,7 @@ if (vkBot) {
         await helpCommand(uctx);
         return;
       }
-      if (commandToExecute === '/list_users' || commandToExecute === 'Список пользователей 👥') {
+      if (commandToExecute === '/list_users') {
         await listUsersCommand(uctx);
         return;
       }
@@ -434,7 +422,11 @@ if (vkBot) {
         await adminCommand(uctx);
         return;
       }
-      if (commandToExecute === '/stats' || commandToExecute === 'Статистика 📊') {
+      if (commandToExecute === '/mylog') {
+        await myLogCommand(uctx);
+        return;
+      }
+      if (commandToExecute === '/stats') {
         await statsCommand(uctx);
         return;
       }

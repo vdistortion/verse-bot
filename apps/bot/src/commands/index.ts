@@ -13,3 +13,4 @@ export { listUsersCommand } from './list_users.js';
 export { adminCommand } from './admin.js';
 export { statsCommand } from './stats.js';
 export { userLogCommand } from './user_log.js';
+export { myLogCommand } from './mylog.js';

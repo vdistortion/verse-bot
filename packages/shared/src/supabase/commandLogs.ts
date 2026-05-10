@@ -58,3 +58,19 @@ export async function logCommand(
     console.error('Error logging command:', error);
   }
 }
+
+export async function getUserOwnCommandLogs(
+  userId: number,
+  limit = 20,
+): Promise<CommandLogEntry[]> {
+  const db = getSupabaseClient();
+  const { data, error } = await db
+    .from('command_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .order('id', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return (data || []) as CommandLogEntry[];
+}

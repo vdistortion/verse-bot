@@ -12,6 +12,7 @@ function commandsList(platform: Platform): string {
     '/random — Получить случайный контент',
     '/content\\_1 — Получить контент по номеру',
     '/id — Показать ваш ID',
+    '/mylog — Мои последние действия',
     '/stop — Остановить бота',
     '/help — Эта справка',
   ];
@@ -19,17 +20,6 @@ function commandsList(platform: Platform): string {
     ? cmds.join('\n')
     : cmds.map((c) => c.replace(/\\_/g, '_')).join('\n');
 }
-
-const adminCommandsTg = [
-  '/admin — Административные команды',
-  '/backupdb — Бэкап БД',
-  '/list_users — Список активных пользователей',
-].join('\n');
-
-const adminCommandsVk = [
-  '/admin — Административные команды',
-  '/list_users — Список активных пользователей',
-].join('\n');
 
 export const phrases = {
   start: {
@@ -67,9 +57,7 @@ export const phrases = {
       const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Доступные команды')}:\n${raw(commandsList(platform))}`;
 
       const adminBlock =
-        isAdmin && chatType === 'private'
-          ? f`\n${raw(platform === 'telegram' ? adminCommandsTg : adminCommandsVk)}`
-          : '';
+        isAdmin && chatType === 'private' ? f`\n${raw('/admin — Административные команды')}` : '';
 
       const links = [];
       if (platform === 'telegram' && vkGroupLink) {
@@ -89,15 +77,23 @@ export const phrases = {
   },
 
   admin: {
-    message: (platform: Platform) => {
+    message: (platform: Platform, dbUserId?: number) => {
+      const userIdPlaceholder = dbUserId !== undefined ? String(dbUserId) : '<id>';
       if (platform === 'telegram') {
         const tgCmds =
-          '/backupdb – 💾 Сделать бэкап базы данных\n/list\\_users – 👥 Список активных пользователей';
+          `/backupdb – 💾 Сделать бэкап базы данных\n` +
+          `/list\\_users – 👥 Список активных пользователей\n` +
+          `/stats – 📊 Статистика команд\n` +
+          `/userlog\\_${userIdPlaceholder} – 📋 Логи пользователя`;
         return format(platform)`👑 ${bold('Административные команды:')}\n${raw(tgCmds)}`;
       } else {
-        return format(
-          platform,
-        )`👑 Административные команды:\n/list_users – 👥 Список активных пользователей`;
+        // VK
+        return (
+          format(platform)`👑 Административные команды:\n` +
+          `/list_users – 👥 Список активных пользователей\n` +
+          `/stats – 📊 Статистика команд\n` +
+          `/userlog_${userIdPlaceholder} – 📋 Логи пользователя`
+        );
       }
     },
     notAdmin: (platform: Platform) =>

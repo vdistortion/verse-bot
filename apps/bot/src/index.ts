@@ -4,9 +4,11 @@ import {
   createUniversalKeyboard,
   createVKKeyboard,
   findOrCreateUser,
+  format,
   logCommand,
   type UniversalContext,
   userExists,
+  mdOpts,
 } from '@scope/shared';
 import { createBot, dbMiddleware } from '@scope/tg-bot-core';
 import { createVKBot, VKContext } from '@scope/vk-bot-core';
@@ -24,6 +26,9 @@ import {
   helpCommand,
   listUsersCommand,
   adminCommand,
+  statsCommand,
+  userLogCommand,
+  myLogCommand,
 } from './commands';
 import {
   TELEGRAM_BOT_TOKEN,
@@ -62,6 +67,10 @@ if (tgBot) {
         lastName: ctx.from?.last_name,
         username: ctx.from?.username,
         chatType: ctx.chat?.type ?? 'unknown', // 'private', 'group', 'supergroup', 'channel'
+        format: format('telegram'),
+        replySafe: async (text, extra) => {
+          return uctx.reply(text, { ...mdOpts('telegram'), ...extra });
+        },
         reply: async (text, extra) => {
           // Для Telegram, extra.telegramReplyMarkup должен быть объектом
           await ctx.api.sendMessage(uctx.peerId, text, {
@@ -163,7 +172,9 @@ if (tgBot) {
       if (!isNaN(itemNumber) && itemNumber > 0) {
         await contentCommand(uctx, itemNumber);
       } else {
-        await uctx.reply(phrases.content.invalidNumber, { parse_mode: 'MarkdownV2' });
+        await uctx.reply(phrases.content.invalidNumber(uctx.platform), {
+          parse_mode: 'MarkdownV2',
+        });
       }
     });
 
@@ -191,6 +202,15 @@ if (tgBot) {
       await adminCommand((ctx as any).uctx);
     });
 
+    tgBot.command('stats', async (ctx) => {
+      await statsCommand((ctx as any).uctx);
+    });
+
+    tgBot.command('mylog', async (ctx) => {
+      const uctx = (ctx as any).uctx;
+      await myLogCommand(uctx);
+    });
+
     // Обработка текстовых кнопок Telegram
     tgBot.hears('Котики 🐾', async (ctx) => {
       await catCommand((ctx as any).uctx);
@@ -204,26 +224,17 @@ if (tgBot) {
     tgBot.hears('Рандом 🎲', async (ctx) => {
       await randomCommand((ctx as any).uctx);
     });
-    tgBot.hears('Мой ID 🆔', async (ctx) => {
-      await idCommand((ctx as any).uctx);
-    });
     tgBot.hears('Справка ❓', async (ctx) => {
       await helpCommand((ctx as any).uctx);
     });
     tgBot.hears('Админ 👑', async (ctx) => {
       await adminCommand((ctx as any).uctx);
     });
-    tgBot.hears('Стоп 🛑', async (ctx) => {
-      await stopCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Бэкап БД 💾', async (ctx) => {
-      await backupDbCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Список пользователей 👥', async (ctx) => {
-      await listUsersCommand((ctx as any).uctx);
-    });
-    tgBot.hears('◀️ Назад', async (ctx) => {
-      await startCommand((ctx as any).uctx);
+    tgBot.hears(/^\/userlog_(\d+)$/i, async (ctx) => {
+      const userId = parseInt(ctx.match[1], 10);
+      if (!isNaN(userId)) {
+        await userLogCommand((ctx as any).uctx, userId);
+      }
     });
 
     if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
@@ -323,6 +334,10 @@ if (vkBot) {
         lastName: vkLastName,
         username: vkUsername,
         chatType: ctx.peerId > 2000000000 ? 'group' : 'private', // 2e9 – порог ID беседы
+        format: format('vk'),
+        replySafe: async (text, extra) => {
+          return uctx.reply(text, { ...mdOpts('vk'), ...extra });
+        },
         reply: async (msg, extra) => {
           let vkKeyboardJson: string | undefined;
           if (extra?.remove_keyboard) {
@@ -383,15 +398,15 @@ if (vkBot) {
         if (!isNaN(itemNumber) && itemNumber > 0) {
           await contentCommand(uctx, itemNumber);
         } else {
-          await uctx.reply(phrases.content.invalidNumber);
+          await uctx.reply(phrases.content.invalidNumber(uctx.platform));
         }
         return;
       }
-      if (commandToExecute === '/stop' || commandToExecute === 'Стоп 🛑') {
+      if (commandToExecute === '/stop') {
         await stopCommand(uctx);
         return;
       }
-      if (commandToExecute === '/id' || commandToExecute === 'Мой ID 🆔') {
+      if (commandToExecute === '/id') {
         await idCommand(uctx);
         return;
       }
@@ -399,7 +414,7 @@ if (vkBot) {
         await helpCommand(uctx);
         return;
       }
-      if (commandToExecute === '/list_users' || commandToExecute === 'Список пользователей 👥') {
+      if (commandToExecute === '/list_users') {
         await listUsersCommand(uctx);
         return;
       }
@@ -407,8 +422,24 @@ if (vkBot) {
         await adminCommand(uctx);
         return;
       }
+      if (commandToExecute === '/mylog') {
+        await myLogCommand(uctx);
+        return;
+      }
+      if (commandToExecute === '/stats') {
+        await statsCommand(uctx);
+        return;
+      }
+      const userLogMatch = commandToExecute.match(/^\/userlog_(\d+)$/i);
+      if (userLogMatch) {
+        const userId = parseInt(userLogMatch[1], 10);
+        if (!isNaN(userId)) {
+          await userLogCommand(uctx, userId);
+          return;
+        }
+      }
       // Если команда не распознана, показываем базовую клавиатуру
-      await uctx.reply(phrases.unknownCommand, {
+      await uctx.reply(phrases.unknownCommand(uctx.platform), {
         vkKeyboard: createVKKeyboard(
           createUniversalKeyboard('vk', false, uctx.isAdmin, uctx.chatType === 'private'),
         ),

@@ -1,5 +1,4 @@
-import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 
 export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
@@ -8,36 +7,24 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
   }
 
   if (!ctx.isAdmin) {
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.backupDb.notAdmin : phrases.backupDb.notAdmin,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.notAdmin(ctx.platform));
     return;
   }
 
   if (!ctx.replyWithFile) {
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.backupDb.unsupported : phrases.backupDb.unsupported,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.unsupported(ctx.platform));
     return;
   }
 
   if (!ctx.db) {
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.content.dbUnavailable : phrases.content.dbUnavailable,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
     return;
   }
 
   try {
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.backupDb.start : phrases.backupDb.start,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.start(ctx.platform));
     const backupData: Record<string, any[]> = {};
-    const tablesToBackup = ['bot_content', 'users'];
+    const tablesToBackup = ['bot_content', 'users', 'command_logs'];
 
     for (const tableName of tablesToBackup) {
       const { data, error } = await ctx.db.from(tableName).select('*');
@@ -47,18 +34,9 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
 
     const filename = `full_db_backup_${new Date().toISOString()}.json`;
     const buffer = Buffer.from(JSON.stringify(backupData, null, 2), 'utf-8');
-    await ctx.replyWithFile(
-      buffer,
-      filename,
-      ctx.platform === 'telegram'
-        ? escapeMarkdownV2(phrases.backupDb.success)
-        : phrases.backupDb.success,
-    );
+    await ctx.replyWithFile(buffer, filename, phrases.backupDb.success(ctx.platform));
   } catch (err) {
     console.error('Backup error:', err);
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.backupDb.error : phrases.backupDb.error,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.backupDb.error(ctx.platform));
   }
 }

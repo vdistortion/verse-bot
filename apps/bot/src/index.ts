@@ -26,6 +26,8 @@ import {
   helpCommand,
   listUsersCommand,
   adminCommand,
+  statsCommand,
+  userLogCommand,
 } from './commands';
 import {
   TELEGRAM_BOT_TOKEN,
@@ -199,6 +201,10 @@ if (tgBot) {
       await adminCommand((ctx as any).uctx);
     });
 
+    tgBot.command('stats', async (ctx) => {
+      await statsCommand((ctx as any).uctx);
+    });
+
     // Обработка текстовых кнопок Telegram
     tgBot.hears('Котики 🐾', async (ctx) => {
       await catCommand((ctx as any).uctx);
@@ -232,6 +238,15 @@ if (tgBot) {
     });
     tgBot.hears('◀️ Назад', async (ctx) => {
       await startCommand((ctx as any).uctx);
+    });
+    tgBot.hears('Статистика 📊', async (ctx) => {
+      await statsCommand((ctx as any).uctx);
+    });
+    tgBot.hears(/^\/userlog_(\d+)$/i, async (ctx) => {
+      const userId = parseInt(ctx.match[1], 10);
+      if (!isNaN(userId)) {
+        await userLogCommand((ctx as any).uctx, userId);
+      }
     });
 
     if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
@@ -418,6 +433,18 @@ if (vkBot) {
       if (commandToExecute === '/admin' || commandToExecute === 'Админ 👑') {
         await adminCommand(uctx);
         return;
+      }
+      if (commandToExecute === '/stats' || commandToExecute === 'Статистика 📊') {
+        await statsCommand(uctx);
+        return;
+      }
+      const userLogMatch = commandToExecute.match(/^\/userlog_(\d+)$/i);
+      if (userLogMatch) {
+        const userId = parseInt(userLogMatch[1], 10);
+        if (!isNaN(userId)) {
+          await userLogCommand(uctx, userId);
+          return;
+        }
       }
       // Если команда не распознана, показываем базовую клавиатуру
       await uctx.reply(phrases.unknownCommand(uctx.platform), {

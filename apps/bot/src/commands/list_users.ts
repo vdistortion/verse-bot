@@ -84,7 +84,7 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
       }
 
       const namePart = profileUrl ? link(fullName, profileUrl) : isTg ? bold(fullName) : fullName;
-      message += ctx.format`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n\n`;
+      message += ctx.format`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`;
     }
 
     await ctx.replySafe(message, { link_preview_options: { is_disabled: true } });

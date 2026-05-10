@@ -24,7 +24,7 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
   try {
     await ctx.replySafe(phrases.backupDb.start(ctx.platform));
     const backupData: Record<string, any[]> = {};
-    const tablesToBackup = ['bot_content', 'users'];
+    const tablesToBackup = ['bot_content', 'users', 'command_logs'];
 
     for (const tableName of tablesToBackup) {
       const { data, error } = await ctx.db.from(tableName).select('*');

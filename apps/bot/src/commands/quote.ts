@@ -1,22 +1,16 @@
-import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { bold, type UniversalContext } from '@scope/shared';
 import { getQuote } from '../data-sources';
 import { phrases } from '../locales/ru';
 
 export async function quoteCommand(ctx: UniversalContext): Promise<void> {
   try {
     const { quoteText, quoteAuthor } = await getQuote();
-    const textTg = quoteAuthor
-      ? `${escapeMarkdownV2(quoteText)}\n\n*${escapeMarkdownV2(quoteAuthor)}*`
-      : escapeMarkdownV2(quoteText);
-    const textVk = quoteAuthor ? `${quoteText}\n\n${quoteAuthor}` : quoteText;
-    const text = ctx.platform === 'telegram' ? textTg : textVk;
-    await ctx.reply(text, ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {});
+    const text = quoteAuthor
+      ? ctx.format`${quoteText}\n\n${bold(quoteAuthor)}`
+      : ctx.format`${quoteText}`;
+    await ctx.replySafe(text);
   } catch (err) {
     console.error('Quote error:', err);
-    await ctx.reply(
-      phrases.errorDefault,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.errorDefault(ctx.platform));
   }
 }

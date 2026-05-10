@@ -1,5 +1,4 @@
-import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '@scope/tg-bot-core';
+import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 import { VERCEL_PROJECT_PRODUCTION_URL } from '../env';
 
@@ -25,36 +24,35 @@ export async function sendContentItem(
   itemNumber: number,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const isTg = ctx.platform === 'telegram';
-  const hint = phrases.content.commandHint(itemNumber);
+  const hint = phrases.content.commandHint(ctx.platform, itemNumber);
 
   if (imageUrl && ctx.replyWithPhoto) {
     let caption = '';
     if (item.text_content) {
-      caption += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
+      caption += ctx.format`${item.text_content}`;
     }
-    caption += isTg ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+    caption += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
     await ctx.replyWithPhoto(imageUrl, caption);
     return;
   }
 
   let message = '';
   if (item.text_content) {
-    message += isTg ? escapeMarkdownV2(item.text_content) : item.text_content;
+    message += ctx.format`${item.text_content}`;
   }
   if (imageUrl) {
-    message += isTg ? `\n\n[📷 Смотреть изображение](${imageUrl})` : `\n\n${imageUrl}`;
+    message +=
+      ctx.platform === 'telegram'
+        ? `\n\n[📷 Смотреть изображение](${imageUrl})`
+        : `\n\n${imageUrl}`;
   }
-  message += isTg ? `\n\n\`${hint}\`` : `\n\n${hint}`;
-  await ctx.reply(message, ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {});
+  message += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+  await ctx.replySafe(message);
 }
 
 export async function contentCommand(ctx: UniversalContext, itemNumber: number): Promise<void> {
   if (!ctx.db) {
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.content.dbUnavailable : phrases.content.dbUnavailable,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
     return;
   }
 
@@ -67,22 +65,14 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     if (fetchError) throw fetchError;
 
     if (!allContent || allContent.length === 0) {
-      await ctx.reply(
-        ctx.platform === 'telegram' ? phrases.content.emptyDb : phrases.content.emptyDb,
-        ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-      );
+      await ctx.replySafe(phrases.content.emptyDb(ctx.platform));
       return;
     }
 
     const itemIndex = itemNumber - 1;
 
     if (itemIndex < 0 || itemIndex >= allContent.length) {
-      await ctx.reply(
-        ctx.platform === 'telegram'
-          ? phrases.content.notFound(itemNumber, allContent.length)
-          : phrases.content.notFound(itemNumber, allContent.length),
-        ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-      );
+      await ctx.replySafe(phrases.content.notFound(ctx.platform, itemNumber, allContent.length));
       return;
     }
 
@@ -90,9 +80,6 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     await sendContentItem(ctx, requestedItem, itemNumber);
   } catch (err) {
     console.error('Content error:', err);
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.content.error : phrases.content.error,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.content.error(ctx.platform));
   }
 }

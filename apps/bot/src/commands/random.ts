@@ -1,13 +1,10 @@
-import type { UniversalContext } from '@scope/shared';
-import { phrases } from '../locales/ru';
+import { type UniversalContext } from '@scope/shared';
 import { sendContentItem } from './content';
+import { phrases } from '../locales/ru';
 
 export async function randomCommand(ctx: UniversalContext): Promise<void> {
   if (!ctx.db) {
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.random.dbUnavailable : phrases.random.dbUnavailable,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.random.dbUnavailable(ctx.platform));
     return;
   }
 
@@ -20,10 +17,7 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
     if (fetchError) throw fetchError;
 
     if (!allContent || allContent.length === 0) {
-      await ctx.reply(
-        ctx.platform === 'telegram' ? phrases.random.emptyDb : phrases.random.emptyDb,
-        ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-      );
+      await ctx.replySafe(phrases.random.emptyDb(ctx.platform));
       return;
     }
 
@@ -34,9 +28,6 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
     await sendContentItem(ctx, randomItem, itemNumber);
   } catch (err) {
     console.error('Random error:', err);
-    await ctx.reply(
-      ctx.platform === 'telegram' ? phrases.random.error : phrases.random.error,
-      ctx.platform === 'telegram' ? { parse_mode: 'MarkdownV2' } : {},
-    );
+    await ctx.replySafe(phrases.random.error(ctx.platform));
   }
 }

@@ -4,7 +4,7 @@ import { phrases } from '../locales/ru';
 
 export async function randomCommand(ctx: UniversalContext): Promise<void> {
   if (!ctx.db) {
-    await ctx.replySafe(phrases.random.dbUnavailable);
+    await ctx.replySafe(phrases.random.dbUnavailable(ctx.platform));
     return;
   }
 
@@ -17,7 +17,7 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
     if (fetchError) throw fetchError;
 
     if (!allContent || allContent.length === 0) {
-      await ctx.replySafe(phrases.random.emptyDb);
+      await ctx.replySafe(phrases.random.emptyDb(ctx.platform));
       return;
     }
 
@@ -28,6 +28,6 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
     await sendContentItem(ctx, randomItem, itemNumber);
   } catch (err) {
     console.error('Random error:', err);
-    await ctx.replySafe(phrases.random.error);
+    await ctx.replySafe(phrases.random.error(ctx.platform));
   }
 }

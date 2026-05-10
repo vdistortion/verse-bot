@@ -8,6 +8,6 @@ export async function adviceCommand(ctx: UniversalContext): Promise<void> {
     await ctx.replySafe(ctx.format`${adviceText}`);
   } catch (err) {
     console.error('Advice error:', err);
-    await ctx.replySafe(phrases.errorDefault);
+    await ctx.replySafe(phrases.errorDefault(ctx.platform));
   }
 }

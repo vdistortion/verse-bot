@@ -8,16 +8,16 @@ export async function catCommand(ctx: UniversalContext): Promise<void> {
 
     if (catImageUrl) {
       if (ctx.replyWithPhoto) {
-        await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption);
+        await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(ctx.platform));
         return;
       } else {
-        await ctx.replySafe(ctx.format`${phrases.cat.caption}\n${catImageUrl}`);
+        await ctx.replySafe(`${phrases.cat.caption(ctx.platform)}\n${catImageUrl}`);
         return;
       }
     }
-    await ctx.replySafe(phrases.cat.notFound);
+    await ctx.replySafe(phrases.cat.notFound(ctx.platform));
   } catch (err) {
     console.error('Cat error:', err);
-    await ctx.replySafe(phrases.cat.notFound);
+    await ctx.replySafe(phrases.cat.notFound(ctx.platform));
   }
 }

@@ -2,7 +2,6 @@ import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@s
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_TOKEN } from '../env';
 import { homepage } from '../../../../package.json';
 
-// Вспомогательная: список команд (статический, экранирование подчёркиваний уже учтено)
 function commandsList(platform: Platform): string {
   const cmds = [
     '/start — Запустить бота и показать основное меню',
@@ -24,7 +23,7 @@ function commandsList(platform: Platform): string {
 const adminCommandsTg = [
   '/admin — Административные команды',
   '/backupdb — Бэкап БД',
-  '/list\\_users — Список активных пользователей',
+  '/list_users — Список активных пользователей',
 ].join('\n');
 
 const adminCommandsVk = [
@@ -65,13 +64,11 @@ export const phrases = {
       const repoUrl = homepage;
       const vkGroupLink = VK_TOKEN ? VK_GROUP_ID : undefined;
       const tgUsername = TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_USERNAME : undefined;
-
-      // Заголовок с bold и spoiler
       const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Доступные команды')}:\n${raw(commandsList(platform))}`;
 
       const adminBlock =
         isAdmin && chatType === 'private'
-          ? f`\n\n${raw(platform === 'telegram' ? adminCommandsTg : adminCommandsVk)}`
+          ? f`\n${raw(platform === 'telegram' ? adminCommandsTg : adminCommandsVk)}`
           : '';
 
       const links = [];
@@ -82,7 +79,7 @@ export const phrases = {
       }
       const renderedLinks = links.map((l) => (l instanceof FormatToken ? l.render(platform) : l));
       const linksSection = renderedLinks.length
-        ? f`🔗 ${bold('Ссылки')}:\n${renderedLinks.join('\n')}`
+        ? f`\n\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
         : '';
 
       const footer = f`\n${link('Исходный код', repoUrl)}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
@@ -103,8 +100,10 @@ export const phrases = {
         )`👑 Административные команды:\n/list_users – 👥 Список активных пользователей`;
       }
     },
-    notAdmin: '⛔ У вас нет прав для выполнения этой команды.',
-    notPrivate: 'Команда доступна только в личных сообщениях с ботом.',
+    notAdmin: (platform: Platform) =>
+      format(platform)`⛔ У вас нет прав для выполнения этой команды.`,
+    notPrivate: (platform: Platform) =>
+      format(platform)`Команда доступна только в личных сообщениях с ботом.`,
   },
 
   id: {
@@ -113,18 +112,19 @@ export const phrases = {
     chatId: (platform: Platform, chatId: number | string) =>
       platform === 'telegram'
         ? format(platform)`🆔 ${bold('ID чата:')} \`${String(chatId)}\``
-        : `🆔 ID чата: ${chatId}`,
+        : format(platform)`🆔 ID чата: ${String(chatId)}`,
   },
 
   cat: {
-    caption: 'Мяу! 🐾',
-    notFound: 'Кот убежал в сервера. Попробуй позже 🐾',
+    caption: (platform: Platform) => format(platform)`Мяу! 🐾`,
+    notFound: (platform: Platform) => format(platform)`Кот убежал в сервера. Попробуй позже 🐾`,
   },
 
   random: {
-    emptyDb: 'В базе данных нет контента.',
-    error: '❌ Произошла ошибка при получении случайного контента.',
-    dbUnavailable: '❌ База данных недоступна.',
+    emptyDb: (platform: Platform) => format(platform)`В базе данных нет контента.`,
+    error: (platform: Platform) =>
+      format(platform)`❌ Произошла ошибка при получении случайного контента.`,
+    dbUnavailable: (platform: Platform) => format(platform)`❌ База данных недоступна.`,
   },
 
   content: {
@@ -134,31 +134,38 @@ export const phrases = {
       )`Контент с номером ${String(number)} не найден. Всего элементов: ${String(total)}.`,
     commandHint: (platform: Platform, number: number) =>
       format(platform)`/content_${String(number)}`,
-    dbUnavailable: '❌ База данных недоступна.',
-    emptyDb: 'В базе данных нет контента.',
-    error: '❌ Произошла ошибка при получении контента.',
-    invalidNumber: 'Пожалуйста, укажите корректный номер контента. Например: /content_1',
+    dbUnavailable: (platform: Platform) => format(platform)`❌ База данных недоступна.`,
+    emptyDb: (platform: Platform) => format(platform)`В базе данных нет контента.`,
+    error: (platform: Platform) => format(platform)`❌ Произошла ошибка при получении контента.`,
+    invalidNumber: (platform: Platform) =>
+      format(platform)`Пожалуйста, укажите корректный номер контента. Например: /content_1`,
   },
 
   backupDb: {
-    start: '⏳ Запускаю создание бэкапа...',
-    success: 'Вот ваш полный бэкап базы данных 💾',
-    error: '❌ Произошла ошибка при создании бэкапа.',
-    notAdmin: '⛔ У вас нет прав для выполнения этой команды.',
-    notPrivate: 'Команда доступна только в личных сообщениях с ботом.',
-    unsupported: '❌ Отправка файлов бэкапа не поддерживается на этой платформе.',
+    start: (platform: Platform) => format(platform)`⏳ Запускаю создание бэкапа...`,
+    success: (platform: Platform) => format(platform)`Вот ваш полный бэкап базы данных 💾`,
+    error: (platform: Platform) => format(platform)`❌ Произошла ошибка при создании бэкапа.`,
+    notAdmin: (platform: Platform) =>
+      format(platform)`⛔ У вас нет прав для выполнения этой команды.`,
+    notPrivate: (platform: Platform) =>
+      format(platform)`Команда доступна только в личных сообщениях с ботом.`,
+    unsupported: (platform: Platform) =>
+      format(platform)`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`,
   },
 
   listUsers: {
-    loading: 'Загружаю список пользователей...',
-    empty: 'В базе данных нет активных пользователей.',
+    loading: (platform: Platform) => format(platform)`Загружаю список пользователей...`,
+    empty: (platform: Platform) => format(platform)`В базе данных нет активных пользователей.`,
     header: (platform: Platform, count: number) =>
       format(platform)`${bold(`👥 Список активных пользователей (${count}):`)}`,
-    error: '❌ Произошла ошибка при получении списка пользователей.',
-    notAdmin: '⛔ У вас нет прав для выполнения этой команды.',
-    notPrivate: 'Команда доступна только в личных сообщениях с ботом.',
+    error: (platform: Platform) =>
+      format(platform)`❌ Произошла ошибка при получении списка пользователей.`,
+    notAdmin: (platform: Platform) =>
+      format(platform)`⛔ У вас нет прав для выполнения этой команды.`,
+    notPrivate: (platform: Platform) =>
+      format(platform)`Команда доступна только в личных сообщениях с ботом.`,
   },
 
-  unknownCommand: '❓ Неизвестная команда',
-  errorDefault: '❌ Произошла ошибка.',
+  unknownCommand: (platform: Platform) => format(platform)`❓ Неизвестная команда`,
+  errorDefault: (platform: Platform) => format(platform)`❌ Произошла ошибка.`,
 };

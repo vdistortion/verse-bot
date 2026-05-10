@@ -21,19 +21,19 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
   }
 
   if (!ctx.isAdmin) {
-    await ctx.replySafe(phrases.listUsers.notAdmin);
+    await ctx.replySafe(phrases.listUsers.notAdmin(ctx.platform));
     return;
   }
 
   const isTg = ctx.platform === 'telegram';
 
   try {
-    await ctx.replySafe(phrases.listUsers.loading);
+    await ctx.replySafe(phrases.listUsers.loading(ctx.platform));
 
     const users: DbUser[] = await getAllUsers();
 
     if (users.length === 0) {
-      await ctx.replySafe(phrases.listUsers.empty);
+      await ctx.replySafe(phrases.listUsers.empty(ctx.platform));
       return;
     }
 
@@ -90,6 +90,6 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
     await ctx.replySafe(message, { link_preview_options: { is_disabled: true } });
   } catch (err) {
     console.error('List users error:', err);
-    await ctx.replySafe(phrases.listUsers.error);
+    await ctx.replySafe(phrases.listUsers.error(ctx.platform));
   }
 }

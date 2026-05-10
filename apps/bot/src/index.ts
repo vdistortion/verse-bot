@@ -169,7 +169,7 @@ if (tgBot) {
       if (!isNaN(itemNumber) && itemNumber > 0) {
         await contentCommand(uctx, itemNumber);
       } else {
-        await uctx.reply(uctx.format`${phrases.content.invalidNumber}`, {
+        await uctx.reply(phrases.content.invalidNumber(uctx.platform), {
           parse_mode: 'MarkdownV2',
         });
       }
@@ -395,7 +395,7 @@ if (vkBot) {
         if (!isNaN(itemNumber) && itemNumber > 0) {
           await contentCommand(uctx, itemNumber);
         } else {
-          await uctx.reply(phrases.content.invalidNumber);
+          await uctx.reply(phrases.content.invalidNumber(uctx.platform));
         }
         return;
       }
@@ -420,7 +420,7 @@ if (vkBot) {
         return;
       }
       // Если команда не распознана, показываем базовую клавиатуру
-      await uctx.reply(phrases.unknownCommand, {
+      await uctx.reply(phrases.unknownCommand(uctx.platform), {
         vkKeyboard: createVKKeyboard(
           createUniversalKeyboard('vk', false, uctx.isAdmin, uctx.chatType === 'private'),
         ),

@@ -52,7 +52,7 @@ export async function sendContentItem(
 
 export async function contentCommand(ctx: UniversalContext, itemNumber: number): Promise<void> {
   if (!ctx.db) {
-    await ctx.replySafe(phrases.content.dbUnavailable);
+    await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
     return;
   }
 
@@ -65,7 +65,7 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     if (fetchError) throw fetchError;
 
     if (!allContent || allContent.length === 0) {
-      await ctx.replySafe(phrases.content.emptyDb);
+      await ctx.replySafe(phrases.content.emptyDb(ctx.platform));
       return;
     }
 
@@ -80,6 +80,6 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
     await sendContentItem(ctx, requestedItem, itemNumber);
   } catch (err) {
     console.error('Content error:', err);
-    await ctx.replySafe(phrases.content.error);
+    await ctx.replySafe(phrases.content.error(ctx.platform));
   }
 }

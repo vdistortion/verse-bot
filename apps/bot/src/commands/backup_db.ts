@@ -27,9 +27,8 @@ export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
     const tablesToBackup = ['bot_content', 'users', 'command_logs'];
 
     for (const tableName of tablesToBackup) {
-      const { data, error } = await ctx.db.from(tableName).select('*');
-      if (error) throw error;
-      backupData[tableName] = data || [];
+      const { rows } = await ctx.db.query(`SELECT * FROM ${tableName}`);
+      backupData[tableName] = rows;
     }
 
     const filename = `full_db_backup_${new Date().toISOString()}.json`;

@@ -1,6 +1,6 @@
 import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
-import { VERCEL_PROJECT_PRODUCTION_URL } from '../env';
+import { PUBLIC_URL } from '../env';
 
 interface BotContentItem {
   id: number;
@@ -10,12 +10,7 @@ interface BotContentItem {
 
 function getImageUrl(filename: string): string {
   const encodedFilename = encodeURIComponent(filename);
-
-  if (VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${VERCEL_PROJECT_PRODUCTION_URL}/content-images/${encodedFilename}`;
-  }
-
-  return `/content-images/${encodedFilename}`;
+  return `${PUBLIC_URL}/content-images/${encodedFilename}`;
 }
 
 export async function sendContentItem(
@@ -57,12 +52,7 @@ export async function contentCommand(ctx: UniversalContext, itemNumber: number):
   }
 
   try {
-    const { data: allContent, error: fetchError } = await ctx.db
-      .from('bot_content')
-      .select('*')
-      .order('id', { ascending: true });
-
-    if (fetchError) throw fetchError;
+    const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
     if (!allContent || allContent.length === 0) {
       await ctx.replySafe(phrases.content.emptyDb(ctx.platform));

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Pool } from 'pg';
 import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
 import type { FormatToken } from './format/tokens';
 
@@ -19,7 +19,7 @@ export interface UniversalContext {
   peerId: number; // chatId в TG, peerId в VK
   text: string;
   isAdmin: boolean;
-  db?: SupabaseClient;
+  db?: Pool;
   firstName?: string;
   lastName?: string;
   username?: string;

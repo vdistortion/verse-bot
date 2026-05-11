@@ -1,7 +1,6 @@
 import { InputFile } from 'grammy';
 import {
-  getSupabaseClient,
-  createUniversalKeyboard,
+  db,
   createVKKeyboard,
   findOrCreateUser,
   format,
@@ -33,20 +32,18 @@ import {
 import {
   TELEGRAM_BOT_TOKEN,
   TELEGRAM_ADMIN_ID,
-  VK_TOKEN,
+  VK_GROUP_TOKEN,
   VK_GROUP_ID,
   VK_ADMIN_ID,
-  VK_SECRET,
 } from './env';
-import { phrases } from './locales/ru';
+import { getTgCommands, getButtons, phrases } from './locales/ru';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
 export const vkBot =
-  VK_TOKEN && VK_GROUP_ID
+  VK_GROUP_TOKEN && VK_GROUP_ID
     ? createVKBot({
-        token: VK_TOKEN,
+        token: VK_GROUP_TOKEN,
         groupId: Number(VK_GROUP_ID),
-        secret: VK_SECRET,
       })
     : null;
 
@@ -142,30 +139,45 @@ if (tgBot) {
       return next();
     });
 
-    tgBot.command('start', async (ctx) => {
-      await startCommand((ctx as any).uctx);
-    });
+    // Сопоставление команда -> обработчик
+    const commandHandlers: Record<string, (uctx: UniversalContext) => Promise<void>> = {
+      start: startCommand,
+      full: fullCommand,
+      cat: catCommand,
+      quote: quoteCommand,
+      advice: adviceCommand,
+      random: randomCommand,
+      help: helpCommand,
+      stop: stopCommand,
+      id: idCommand,
+      mylog: myLogCommand,
+      admin: adminCommand,
+      backupdb: backupDbCommand,
+      list_users: listUsersCommand,
+      stats: statsCommand,
+    };
 
-    tgBot.command('full', async (ctx) => {
-      await fullCommand((ctx as any).uctx);
-    });
+    // Регистрируем команды и кнопки из phrases.commands
+    for (const cmd of Object.values(phrases.commands)) {
+      if (cmd.command === 'content' || cmd.command === 'userlog') continue;
 
-    tgBot.command('cat', async (ctx) => {
-      await catCommand((ctx as any).uctx);
-    });
+      const handler = commandHandlers[cmd.command];
+      if (handler) {
+        tgBot.command(cmd.command, async (ctx) => {
+          const uctx = (ctx as any).uctx;
+          await handler(uctx);
+        });
+      }
 
-    tgBot.command('quote', async (ctx) => {
-      await quoteCommand((ctx as any).uctx);
-    });
+      if (cmd.button) {
+        tgBot.hears(cmd.button, async (ctx) => {
+          const uctx = (ctx as any).uctx;
+          await handler?.(uctx);
+        });
+      }
+    }
 
-    tgBot.command('advice', async (ctx) => {
-      await adviceCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('random', async (ctx) => {
-      await randomCommand((ctx as any).uctx);
-    });
-
+    // Динамические команды
     tgBot.hears(/^\/content_(\d+)$/i, async (ctx) => {
       const itemNumber = parseInt(ctx.match[1], 10); // ctx.match[1] будет захваченным числом
       const uctx = (ctx as any).uctx;
@@ -178,69 +190,19 @@ if (tgBot) {
       }
     });
 
-    tgBot.command('stop', async (ctx) => {
-      await stopCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('id', async (ctx) => {
-      await idCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('backupdb', async (ctx) => {
-      await backupDbCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('help', async (ctx) => {
-      await helpCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('list_users', async (ctx) => {
-      await listUsersCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('admin', async (ctx) => {
-      await adminCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('stats', async (ctx) => {
-      await statsCommand((ctx as any).uctx);
-    });
-
-    tgBot.command('mylog', async (ctx) => {
-      const uctx = (ctx as any).uctx;
-      await myLogCommand(uctx);
-    });
-
-    // Обработка текстовых кнопок Telegram
-    tgBot.hears('Котики 🐾', async (ctx) => {
-      await catCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Цитаты 💬', async (ctx) => {
-      await quoteCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Советы 💡', async (ctx) => {
-      await adviceCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Рандом 🎲', async (ctx) => {
-      await randomCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Справка ❓', async (ctx) => {
-      await helpCommand((ctx as any).uctx);
-    });
-    tgBot.hears('Админ 👑', async (ctx) => {
-      await adminCommand((ctx as any).uctx);
-    });
     tgBot.hears(/^\/userlog_(\d+)$/i, async (ctx) => {
       const userId = parseInt(ctx.match[1], 10);
+      const uctx = (ctx as any).uctx;
       if (!isNaN(userId)) {
-        await userLogCommand((ctx as any).uctx, userId);
+        await userLogCommand(uctx, userId);
       }
     });
 
-    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-      tgBot.start();
-      console.log('🚀 Telegram bot started with long polling');
-    }
+    // Установка команд бота (Telegram меню)
+    tgBot.api.setMyCommands(getTgCommands());
+
+    tgBot.start();
+    console.log('🚀 Telegram bot started with long polling');
   } catch (error) {
     console.error('❌ Failed to start Telegram bot:', error);
     console.log('⚠️ Telegram is unavailable, continuing without it...');
@@ -252,24 +214,52 @@ if (tgBot) {
 // ─── VK Bot ──────────────────────────────────────────────────────────────────
 if (vkBot) {
   try {
-    const db = getSupabaseClient();
+    // Сопоставление команда -> обработчик для VK
+    const vkCommandHandlers: Record<string, (uctx: UniversalContext) => Promise<void>> = {
+      '/start': startCommand,
+      '/full': fullCommand,
+      '/cat': catCommand,
+      '/quote': quoteCommand,
+      '/advice': adviceCommand,
+      '/random': randomCommand,
+      '/help': helpCommand,
+      '/stop': stopCommand,
+      '/id': idCommand,
+      '/mylog': myLogCommand,
+      '/admin': adminCommand,
+      '/list_users': listUsersCommand,
+      '/stats': statsCommand,
+    };
+
+    // Карта кнопок -> команды
+    const buttonToCommand: Record<string, string> = {};
+    for (const cmd of Object.values(phrases.commands)) {
+      if (cmd.button) {
+        buttonToCommand[cmd.button] = '/' + cmd.command;
+      }
+    }
 
     vkBot.on('message_new', async (ctx: VKContext) => {
       const text = ctx.text?.trim() ?? '';
-      let payloadCommand: string | undefined;
+      let commandToExecute = text;
 
+      // Извлечение команды из payload кнопки
       if (ctx.payload) {
         try {
           const parsedPayload = JSON.parse(ctx.payload);
           if (parsedPayload.command) {
-            payloadCommand = parsedPayload.command;
+            commandToExecute = parsedPayload.command;
           }
         } catch (e) {
           console.warn('Failed to parse VK payload:', e);
         }
       }
 
-      const commandToExecute = payloadCommand || text;
+      // Если текст – это кнопка, преобразуем в команду
+      if (!commandToExecute.startsWith('/') && buttonToCommand[commandToExecute]) {
+        commandToExecute = buttonToCommand[commandToExecute];
+      }
+
       const isStart =
         commandToExecute === '/start' ||
         commandToExecute === '🚀 Запустить бота и показать основное меню';
@@ -286,19 +276,13 @@ if (vkBot) {
             console.error(`Failed to create VK user ${ctx.userId}`);
             return; // можно ответить ошибкой, но пока просто молчим
           }
-          // Логируем команду
           await logCommand(dbUser.id, 'vk', '/start');
-          // Показываем стартовое меню
-          // (здесь будет вызов startCommand после получения данных пользователя)
-          // Для этого код ниже выполнится внутри isStart
         } else {
-          // Игнорируем
-          return;
+          return; // Игнорируем сообщения несуществующих пользователей
         }
       }
 
       // Если мы здесь, то либо пользователь существовал, либо только что создан
-      // Получаем данные пользователя (фото, имя и т.д.) — оставим как было
       let vkFirstName: string | undefined;
       let vkLastName: string | undefined;
       let vkUsername: string | undefined;
@@ -329,7 +313,7 @@ if (vkBot) {
         peerId: ctx.peerId,
         text: commandToExecute,
         isAdmin: ctx.userId === Number(VK_ADMIN_ID),
-        db: getSupabaseClient(),
+        db: db(),
         firstName: vkFirstName,
         lastName: vkLastName,
         username: vkUsername,
@@ -364,98 +348,51 @@ if (vkBot) {
       const dbUser = await findOrCreateUser('vk', String(ctx.userId));
       uctx.dbUserId = dbUser?.id;
 
+      // Логируем команду (если не /start, т.к. он уже залогирован выше)
       if (exists && !isStart) {
         await logCommand(dbUser!.id, 'vk', commandToExecute);
       }
 
-      if (isStart) {
-        await startCommand(uctx);
+      // Выполняем команду
+      const handler = vkCommandHandlers[commandToExecute];
+      if (handler) {
+        await handler(uctx);
         return;
       }
-      if (commandToExecute === '/full') {
-        await fullCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/cat' || commandToExecute === 'Котики 🐾') {
-        await catCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/quote' || commandToExecute === 'Цитаты 💬') {
-        await quoteCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/advice' || commandToExecute === 'Советы 💡') {
-        await adviceCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/random' || commandToExecute === 'Рандом 🎲') {
-        await randomCommand(uctx);
-        return;
-      }
+
+      // Динамические команды /content_ и /userlog_
       const contentMatch = commandToExecute.match(/^\/content_(\d+)$/i);
       if (contentMatch) {
         const itemNumber = parseInt(contentMatch[1], 10);
         if (!isNaN(itemNumber) && itemNumber > 0) {
           await contentCommand(uctx, itemNumber);
-        } else {
-          await uctx.reply(phrases.content.invalidNumber(uctx.platform));
+          return;
         }
-        return;
       }
-      if (commandToExecute === '/stop') {
-        await stopCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/id') {
-        await idCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/help' || commandToExecute === 'Справка ❓') {
-        await helpCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/list_users') {
-        await listUsersCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/admin' || commandToExecute === 'Админ 👑') {
-        await adminCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/mylog') {
-        await myLogCommand(uctx);
-        return;
-      }
-      if (commandToExecute === '/stats') {
-        await statsCommand(uctx);
-        return;
-      }
-      const userLogMatch = commandToExecute.match(/^\/userlog_(\d+)$/i);
-      if (userLogMatch) {
-        const userId = parseInt(userLogMatch[1], 10);
+
+      const userlogMatch = commandToExecute.match(/^\/userlog_(\d+)$/i);
+      if (userlogMatch) {
+        const userId = parseInt(userlogMatch[1], 10);
         if (!isNaN(userId)) {
           await userLogCommand(uctx, userId);
           return;
         }
       }
       // Если команда не распознана, показываем базовую клавиатуру
-      await uctx.reply(phrases.unknownCommand(uctx.platform), {
-        vkKeyboard: createVKKeyboard(
-          createUniversalKeyboard('vk', false, uctx.isAdmin, uctx.chatType === 'private'),
-        ),
-      });
+      const buttons = getButtons(false);
+      const rows = [];
+      for (let i = 0; i < buttons.length; i += 2) {
+        rows.push(buttons.slice(i, i + 2).map((b) => ({ label: b.label, command: b.command })));
+      }
+      await vkBot.sendMessage(ctx.peerId, phrases.unknownCommand('vk'), createVKKeyboard(rows));
     });
 
-    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-      vkBot.start();
-      console.log('🚀 VK bot started with long polling');
-    } else {
-      console.log('🚀 VK bot initialized (webhook mode)');
-    }
+    vkBot.start();
+    console.log('🚀 VK bot started with long polling');
   } catch (error) {
     console.error('❌ Failed to start VK bot:', error);
     console.log('⚠️ VK is unavailable, continuing without it...');
   }
 } else {
-  console.log('⚠️ VK_TOKEN or VK_GROUP_ID not set, skipping VK bot');
+  console.log('⚠️ VK_GROUP_TOKEN or VK_GROUP_ID not set, skipping VK bot');
 }

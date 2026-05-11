@@ -1,8 +1,13 @@
-import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '../utils/markdown';
+import { type UniversalContext } from '@scope/shared';
+import { phrases } from '../locales/ru';
 
 export async function idCommand(ctx: UniversalContext): Promise<void> {
-  await ctx.reply(
-    `🆔 Твой ID: \`${escapeMarkdownV2(String(ctx.userId))}\`\n📍 Платформа: \`${escapeMarkdownV2(ctx.platform)}\``,
-  );
+  const id = ctx.chatType === 'private' ? ctx.userId : ctx.peerId;
+  const platform = ctx.platform;
+
+  if (ctx.chatType === 'private') {
+    await ctx.replySafe(phrases.id.message(platform, String(id)));
+  } else {
+    await ctx.replySafe(phrases.id.chatId(platform, id));
+  }
 }

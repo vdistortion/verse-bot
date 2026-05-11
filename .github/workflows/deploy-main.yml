@@ -1,0 +1,44 @@
+name: Deploy Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      REPO_NAME: ${{ github.event.repository.name }}
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: REPO_NAME
+          script: |
+            PROJECT_PATH=~/projects/${REPO_NAME}_main
+            if [ ! -d "$PROJECT_PATH" ]; then
+              mkdir -p ~/projects
+              git clone git@github.com:${{ github.repository }}.git "$PROJECT_PATH"
+            fi
+            cd "$PROJECT_PATH" # Переходим в новую папку
+
+            mkdir -p ./data/main_db
+
+            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN_MAIN }}" > .env.main
+            echo "TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME_MAIN }}" >> .env.main
+            echo "TELEGRAM_ADMIN_ID=${{ secrets.TELEGRAM_ADMIN_ID_MAIN }}" >> .env.main
+            echo "VK_GROUP_TOKEN=${{ secrets.VK_GROUP_TOKEN_MAIN }}" >> .env.main
+            echo "VK_GROUP_ID=${{ secrets.VK_GROUP_ID_MAIN }}" >> .env.main
+            echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID_MAIN }}" >> .env.main
+            echo "PUBLIC_URL=${{ secrets.PUBLIC_URL_MAIN }}" >> .env.main
+            echo "POSTGRES_DB=postgres" >> .env.main
+            echo "POSTGRES_USER=postgres" >> .env.main
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_MAIN }}" >> .env.main
+            echo "POSTGRES_HOST=db" >> .env.main
+
+            git pull origin main
+            npm run docker:main:up

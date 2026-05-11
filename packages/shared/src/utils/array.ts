@@ -18,6 +18,6 @@ export function shuffle<T = string>(array: T[]): void {
   array.sort(() => Math.random() - 0.5);
 }
 
-export function pickRandom<T>(array: T[]): number {
+export function randomIndex<T>(array: T[]): number {
   return Math.floor(Math.random() * array.length);
 }

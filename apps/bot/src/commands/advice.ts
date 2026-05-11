@@ -1,5 +1,13 @@
-import type { UniversalContext } from '@scope/shared';
+import { type UniversalContext } from '@scope/shared';
+import { getAdvice } from '../data-sources';
+import { phrases } from '../locales/ru';
 
 export async function adviceCommand(ctx: UniversalContext): Promise<void> {
-  await ctx.reply('Вот тебе совет! (Логика для советов пока не реализована)');
+  try {
+    const adviceText = await getAdvice();
+    await ctx.replySafe(ctx.format`${adviceText}`);
+  } catch (err) {
+    console.error('Advice error:', err);
+    await ctx.replySafe(phrases.errorDefault(ctx.platform));
+  }
 }

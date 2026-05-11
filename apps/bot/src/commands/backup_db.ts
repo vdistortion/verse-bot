@@ -1,53 +1,41 @@
-// imp-monorepo-bot/apps/bot/src/commands/backup_db.ts
-import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '../utils/markdown';
+import { type UniversalContext } from '@scope/shared';
+import { phrases } from '../locales/ru';
 
 export async function backupDbCommand(ctx: UniversalContext): Promise<void> {
-  if (!ctx.isAdmin) {
-    await ctx.reply('⛔ У вас нет прав для выполнения этой команды.');
+  if (ctx.chatType !== 'private') {
     return;
   }
 
-  // Если replyWithFile не поддерживается (например, VK), сообщаем об этом
+  if (!ctx.isAdmin) {
+    await ctx.replySafe(phrases.backupDb.notAdmin(ctx.platform));
+    return;
+  }
+
   if (!ctx.replyWithFile) {
-    await ctx.reply('❌ Отправка файлов бэкапа не поддерживается на этой платформе.');
+    await ctx.replySafe(phrases.backupDb.unsupported(ctx.platform));
     return;
   }
 
   if (!ctx.db) {
-    await ctx.reply('❌ База данных недоступна.');
+    await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
     return;
   }
 
   try {
-    await ctx.reply('⏳ Запускаю создание бэкапа всех таблиц...');
-
+    await ctx.replySafe(phrases.backupDb.start(ctx.platform));
     const backupData: Record<string, any[]> = {};
-    const tablesToBackup = ['bot_content', 'users']; // Список таблиц для бэкапа
+    const tablesToBackup = ['bot_content', 'users', 'command_logs'];
 
     for (const tableName of tablesToBackup) {
-      const { data, error } = await ctx.db.from(tableName).select('*');
-      if (error) {
-        console.error(`Ошибка при получении данных из таблицы ${tableName}:`, error);
-        throw new Error(`Не удалось получить данные из таблицы \`${tableName}\`: ${error.message}`);
-      }
-      backupData[tableName] = data || []; // Сохраняем данные (или пустой массив, если данных нет)
+      const { rows } = await ctx.db.query(`SELECT * FROM ${tableName}`);
+      backupData[tableName] = rows;
     }
 
     const filename = `full_db_backup_${new Date().toISOString()}.json`;
     const buffer = Buffer.from(JSON.stringify(backupData, null, 2), 'utf-8');
-
-    // Здесь мы уверены, что ctx.replyWithFile существует
-    await ctx.replyWithFile(
-      buffer,
-      filename,
-      escapeMarkdownV2('Вот ваш полный бэкап базы данных 💾'),
-    );
+    await ctx.replyWithFile(buffer, filename, phrases.backupDb.success(ctx.platform));
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
-    console.error('Ошибка при создании полного бэкапа базы данных:', err); // Логируем ошибку для отладки
-    await ctx.reply(
-      `❌ Произошла ошибка при создании полного бэкапа базы данных: ${escapeMarkdownV2(msg)}`,
-    );
+    console.error('Backup error:', err);
+    await ctx.replySafe(phrases.backupDb.error(ctx.platform));
   }
 }

@@ -1,25 +1,32 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types'; // Исправлено: ReplyKeyboardRemove
+import type { Pool } from 'pg';
+import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
+import type { FormatToken } from './format/tokens';
 
 export type Platform = 'telegram' | 'vk';
 
 export interface UniversalReplyOptions {
-  // Telegram-специфичная разметка клавиатуры
+  parse_mode?: 'MarkdownV2';
   telegramReplyMarkup?: ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove;
-  // VK-специфичная клавиатура (JSON строка)
   vkKeyboard?: string;
-  // Другие универсальные опции могут быть добавлены здесь, если нужны
   remove_keyboard?: boolean;
+  link_preview_options?: { is_disabled: boolean };
 }
 
 export interface UniversalContext {
   platform: Platform;
-  userId: number;
+  userId: string;
+  dbUserId?: number; // Внутренний ID пользователя из таблицы `users`
   peerId: number; // chatId в TG, peerId в VK
   text: string;
   isAdmin: boolean;
-  db?: SupabaseClient;
+  db?: Pool;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  format: (strings: TemplateStringsArray, ...values: (string | FormatToken)[]) => string;
+  replySafe: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
   reply: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
   replyWithFile?: (buffer: Buffer, filename: string, caption?: string) => Promise<void>;
   replyWithPhoto?: (photoUrl: string, caption?: string) => Promise<void>;
+  chatType: 'channel' | 'private' | 'group' | 'supergroup' | 'unknown';
 }

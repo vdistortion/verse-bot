@@ -1,79 +1,75 @@
-import type { UniversalContext } from '@scope/shared';
-import { escapeMarkdownV2 } from '../utils/markdown';
+import { type UniversalContext } from '@scope/shared';
+import { phrases } from '../locales/ru';
+import { PUBLIC_URL } from '../env';
+
+interface BotContentItem {
+  id: number;
+  image_url?: string;
+  text_content?: string;
+}
 
 function getImageUrl(filename: string): string {
   const encodedFilename = encodeURIComponent(filename);
+  return `${PUBLIC_URL}/content-images/${encodedFilename}`;
+}
 
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/content-images/${encodedFilename}`;
+export async function sendContentItem(
+  ctx: UniversalContext,
+  item: BotContentItem,
+  itemNumber: number,
+): Promise<void> {
+  const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
+  const hint = phrases.content.commandHint(ctx.platform, itemNumber);
+
+  if (imageUrl && ctx.replyWithPhoto) {
+    let caption = '';
+    if (item.text_content) {
+      caption += ctx.format`${item.text_content}`;
+    }
+    caption += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+    await ctx.replyWithPhoto(imageUrl, caption);
+    return;
   }
 
-  return `/content-images/${encodedFilename}`;
+  let message = '';
+  if (item.text_content) {
+    message += ctx.format`${item.text_content}`;
+  }
+  if (imageUrl) {
+    message +=
+      ctx.platform === 'telegram'
+        ? `\n\n[📷 Смотреть изображение](${imageUrl})`
+        : `\n\n${imageUrl}`;
+  }
+  message += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+  await ctx.replySafe(message);
 }
 
 export async function contentCommand(ctx: UniversalContext, itemNumber: number): Promise<void> {
   if (!ctx.db) {
-    await ctx.reply('❌ База данных недоступна.');
-    return;
-  }
-
-  if (isNaN(itemNumber) || itemNumber < 1) {
-    await ctx.reply('Пожалуйста, укажите корректный номер контента (начиная с 1).');
+    await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
     return;
   }
 
   try {
-    const { data: allContent, error: fetchError } = await ctx.db
-      .from('bot_content')
-      .select('*')
-      .order('id', { ascending: true });
-
-    if (fetchError) throw fetchError;
+    const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
     if (!allContent || allContent.length === 0) {
-      await ctx.reply('В базе данных нет контента.');
+      await ctx.replySafe(phrases.content.emptyDb(ctx.platform));
       return;
     }
 
     const itemIndex = itemNumber - 1;
 
     if (itemIndex < 0 || itemIndex >= allContent.length) {
-      await ctx.reply(
-        `Контент с номером ${itemNumber} не найден. Всего элементов: ${allContent.length}. Введите число от 1 до ${allContent.length}.`,
-      );
+      await ctx.replySafe(phrases.content.notFound(ctx.platform, itemNumber, allContent.length));
       return;
     }
 
     const requestedItem = allContent[itemIndex];
-    const imageUrl = requestedItem.image_url ? getImageUrl(requestedItem.image_url) : null;
-
-    // Если есть картинка и есть метод replyWithPhoto - отправляем фото
-    if (imageUrl && ctx.replyWithPhoto) {
-      let caption = '';
-      if (requestedItem.text_content) {
-        caption += escapeMarkdownV2(requestedItem.text_content);
-      }
-
-      await ctx.replyWithPhoto(imageUrl, caption);
-      return;
-    }
-
-    // Иначе - просто текст
-    let message = '';
-    if (requestedItem.text_content) {
-      message += escapeMarkdownV2(requestedItem.text_content);
-    }
-
-    if (imageUrl) {
-      message += `\n\n[📷 Смотреть изображение](${imageUrl})`;
-    }
-
-    await ctx.reply(message);
+    await sendContentItem(ctx, requestedItem, itemNumber);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
-    console.error('Ошибка при получении контента по номеру:', err);
-    await ctx.reply(
-      `❌ Произошла ошибка при получении контента по номеру: ${escapeMarkdownV2(msg)}`,
-    );
+    console.error('Content error:', err);
+    await ctx.replySafe(phrases.content.error(ctx.platform));
   }
 }

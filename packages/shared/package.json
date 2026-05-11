@@ -1,11 +1,12 @@
 {
   "name": "@scope/shared",
   "version": "1.0.0",
-  "description": "Shared utilities and Supabase client for bots and miniapps",
+  "description": "Shared utilities for bots and miniapps",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
@@ -17,6 +18,9 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.103.3"
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0"
   }
 }

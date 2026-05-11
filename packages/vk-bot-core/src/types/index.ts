@@ -1,5 +1,3 @@
-// VK Bot API types
-
 export interface VKMessage {
   id: number;
   date: number;
@@ -66,7 +64,12 @@ export interface VKContext {
   peerId: number;
   userId: number;
   text: string;
-  sendMessage: (peerId: number, text: string, keyboard?: string) => Promise<unknown>;
+  sendMessage: (
+    peerId: number,
+    text: string,
+    keyboard?: string,
+    attachment?: string,
+  ) => Promise<unknown>;
   payload?: string;
   eventId?: string;
 }

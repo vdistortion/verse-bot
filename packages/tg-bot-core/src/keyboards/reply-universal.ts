@@ -1,8 +1,8 @@
 import { Keyboard } from 'grammy';
-import type { UniversalKeyboard } from '@scope/shared';
+import type { UniversalKeyboardButton } from '@scope/shared';
 
 export function createTelegramKeyboard(
-  universalKeyboard: UniversalKeyboard[][],
+  universalKeyboard: UniversalKeyboardButton[][],
   resize: boolean = true,
   oneTime: boolean = false,
 ): Keyboard {
@@ -10,11 +10,7 @@ export function createTelegramKeyboard(
 
   for (const row of universalKeyboard) {
     for (const btn of row) {
-      if (btn.requestLocation) {
-        keyboard.requestLocation(btn.label);
-      } else {
-        keyboard.text(btn.label);
-      }
+      keyboard.text(btn.label);
     }
     keyboard.row();
   }

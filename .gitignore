@@ -9,14 +9,10 @@ out-tsc
 
 # IDEs and editors
 .idea/
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 .history/
 
 # OS generated files
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
+data

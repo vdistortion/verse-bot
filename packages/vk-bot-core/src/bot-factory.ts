@@ -5,7 +5,6 @@ type UpdateHandler = (ctx: VKContext) => void | Promise<void>;
 export interface VKBotFactoryOptions {
   token: string;
   groupId: number;
-  secret?: string;
   useLogger?: boolean;
   proxyUrl?: string;
 }
@@ -18,7 +17,6 @@ interface LongPollResponse {
 export class VKBot {
   private token: string;
   private groupId: number;
-  private secret?: string;
   private ts: number = 0;
   private handlers: Map<string, UpdateHandler[]> = new Map();
   private isRunning = false;
@@ -26,10 +24,9 @@ export class VKBot {
   constructor(options: VKBotFactoryOptions) {
     this.token = options.token;
     this.groupId = options.groupId;
-    this.secret = options.secret;
   }
 
-  private async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+  public async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
     const url = new URL(`https://api.vk.com/method/${method}`);
     url.searchParams.set('access_token', this.token);
     url.searchParams.set('v', '5.131');
@@ -98,13 +95,11 @@ export class VKBot {
     this.isRunning = false;
   }
 
-  private handleUpdate(update: VKUpdate): void {
-    // Проверка secret
-    if (this.secret && update.secret !== this.secret) {
-      console.warn('[VK Bot] Invalid secret');
-      return;
-    }
+  async processUpdate(update: VKUpdate): Promise<void> {
+    await this.handleUpdate(update);
+  }
 
+  private async handleUpdate(update: VKUpdate): Promise<void> {
     const ctx: VKContext = {
       update,
       message: update.object.message,
@@ -119,7 +114,7 @@ export class VKBot {
     // Обработчики
     const handlers = this.handlers.get(update.type) ?? [];
     for (const handler of handlers) {
-      handler(ctx);
+      await handler(ctx);
     }
   }
 
@@ -130,7 +125,12 @@ export class VKBot {
     return this;
   }
 
-  async sendMessage(peerId: number, text: string, keyboard?: string): Promise<number> {
+  async sendMessage(
+    peerId: number,
+    text: string,
+    keyboard?: string,
+    attachment?: string,
+  ): Promise<number> {
     const params: Record<string, unknown> = {
       peer_id: peerId,
       message: text,
@@ -139,6 +139,10 @@ export class VKBot {
 
     if (keyboard) {
       params.keyboard = keyboard;
+    }
+
+    if (attachment) {
+      params.attachment = attachment;
     }
 
     const response = await this.request('messages.send', params);

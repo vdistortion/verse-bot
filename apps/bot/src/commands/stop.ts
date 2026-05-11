@@ -1,10 +1,7 @@
-import type { UniversalContext } from '@scope/shared';
-import { removeUser } from '@scope/shared';
+import { removeUser, type UniversalContext } from '@scope/shared';
+import { phrases } from '../locales/ru';
 
 export async function stopCommand(ctx: UniversalContext): Promise<void> {
   await removeUser(ctx.platform, ctx.userId);
-
-  await ctx.reply('👋 Пока! Если что — /start чтобы вернуться.', {
-    remove_keyboard: true,
-  });
+  await ctx.replySafe(phrases.stop(ctx.platform), { remove_keyboard: true });
 }

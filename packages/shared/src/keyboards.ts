@@ -1,47 +1,23 @@
 import type { Platform } from './universal-context';
 
-export interface UniversalKeyboard {
+export interface UniversalKeyboardButton {
   label: string;
-  command?: string; // Для команд, которые отправляются как текст
-  callbackData?: string; // Для inline-кнопок или payload в VK
-  requestLocation?: boolean; // Для кнопки запроса геолокации (только TG)
-  hide?: boolean; // Скрыть кнопку
+  command?: string;
 }
 
 export function createUniversalKeyboard(
   platform: Platform,
-  fullMenu: boolean,
-): UniversalKeyboard[][] {
-  const keyboard: UniversalKeyboard[][] = [];
-
-  // Основные кнопки
-  keyboard.push([
-    { label: 'Котики 🐾', command: '/cat' },
-    { label: 'Цитаты 💬', command: '/quote' },
-  ]);
-
-  // Дополнительные кнопки для полного меню
-  if (fullMenu) {
-    keyboard.push([
-      { label: 'Советы 💡', command: '/advice' },
-      { label: 'Рандом 🎲', command: '/random' },
-    ]);
-  }
-
-  // Добавим кнопки /id и /stop, они всегда доступны
-  keyboard.push([
-    { label: 'Мой ID 🆔', command: '/id' },
-    { label: 'Стоп 🛑', command: '/stop' },
-  ]);
-
-  return keyboard;
+  buttonRows: UniversalKeyboardButton[][],
+): UniversalKeyboardButton[][] {
+  // можно что-то делать с platform (например, для VK не добавлять какие-то кнопки), но пока просто возвращаем
+  return buttonRows;
 }
 
 export function createVKKeyboard(
-  universalKeyboard: UniversalKeyboard[][],
+  buttonRows: UniversalKeyboardButton[][],
   oneTime: boolean = false,
 ): string {
-  const buttons = universalKeyboard.map((row) =>
+  const buttons = buttonRows.map((row) =>
     row.map((btn) => ({
       action: {
         type: 'text',

@@ -1,6 +1,6 @@
 {
   "name": "imp-universal-bot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Monorepo for Telegram and VK bots, and Angular MiniApp",
   "private": true,
   "scripts": {

@@ -23,6 +23,12 @@ export async function findOrCreateUser(
 
 export async function removeUser(platform: Platform, platformUserId: string): Promise<void> {
   const column = platform === 'telegram' ? 'tg_id' : 'vk_id';
+
+  await db().query(
+    `DELETE FROM command_logs WHERE user_id = (SELECT id FROM users WHERE ${column} = $1)`,
+    [platformUserId],
+  );
+
   await db().query(`DELETE FROM users WHERE ${column} = $1`, [platformUserId]);
 }
 

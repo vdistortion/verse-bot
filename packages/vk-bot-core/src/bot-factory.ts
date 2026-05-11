@@ -5,7 +5,6 @@ type UpdateHandler = (ctx: VKContext) => void | Promise<void>;
 export interface VKBotFactoryOptions {
   token: string;
   groupId: number;
-  secret?: string;
   useLogger?: boolean;
   proxyUrl?: string;
 }
@@ -18,7 +17,6 @@ interface LongPollResponse {
 export class VKBot {
   private token: string;
   private groupId: number;
-  private secret?: string;
   private ts: number = 0;
   private handlers: Map<string, UpdateHandler[]> = new Map();
   private isRunning = false;
@@ -26,7 +24,6 @@ export class VKBot {
   constructor(options: VKBotFactoryOptions) {
     this.token = options.token;
     this.groupId = options.groupId;
-    this.secret = options.secret;
   }
 
   public async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
@@ -99,11 +96,6 @@ export class VKBot {
   }
 
   async processUpdate(update: VKUpdate): Promise<void> {
-    // Проверка secret
-    if (this.secret && update.secret !== this.secret) {
-      console.warn('[VK Bot] Invalid secret');
-      return;
-    }
     await this.handleUpdate(update);
   }
 

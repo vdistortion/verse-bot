@@ -1,27 +1,143 @@
 import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@scope/shared';
-import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_TOKEN } from '../env';
+import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env';
 import { homepage } from '../../../../package.json';
 
-function commandsList(platform: Platform): string {
-  const cmds = [
-    '/start — Запустить бота и показать основное меню',
-    '/full — Открыть расширенное меню',
-    '/cat — Получить случайную картинку котика',
-    '/quote — Получить случайную цитату',
-    '/advice — Получить случайный совет',
-    '/random — Получить случайный контент',
-    '/content\\_1 — Получить контент по номеру',
-    '/id — Показать ваш ID',
-    '/mylog — Мои последние действия',
-    '/stop — Остановить бота',
-    '/help — Эта справка',
-  ];
-  return platform === 'telegram'
-    ? cmds.join('\n')
-    : cmds.map((c) => c.replace(/\\_/g, '_')).join('\n');
+// --- интерфейс команды ---
+export interface CommandDef {
+  command: string;
+  tgDescription?: string;
+  button?: string;
+  help?: string;
+  hidden?: boolean;
+  adminOnly?: boolean;
+}
+
+// --- объект команд ---
+export const commands: Record<string, CommandDef> = {
+  start: {
+    command: 'start',
+    tgDescription: '⌛ Перезапустить. Иногда помогает',
+    help: 'Запустить бота и показать основное меню',
+  },
+  cat: {
+    command: 'cat',
+    tgDescription: '🐾 Без смысла. Но мило',
+    button: '🐾 Котики',
+    help: 'Получить случайную картинку котика',
+  },
+  quote: {
+    command: 'quote',
+    tgDescription: '💬 Голос из прошлого',
+    button: '💬 Цитаты',
+    help: 'Получить случайную цитату',
+  },
+  advice: {
+    command: 'advice',
+    tgDescription: '💡 Случайный совет',
+    button: '💡 Советы',
+    help: 'Получить случайный совет',
+  },
+  random: {
+    command: 'random',
+    tgDescription: '🎲 Случайный контент',
+    button: '🎲 Рандом',
+    help: 'Получить случайный контент из базы',
+  },
+  full: {
+    command: 'full',
+    hidden: true,
+  },
+  content: {
+    command: 'content',
+    hidden: true,
+    help: 'Контент по номеру (например, /content_1)',
+  },
+  help: {
+    command: 'help',
+    tgDescription: '⚠️ Справка',
+    button: '❓ Справка',
+    help: 'Показать это сообщение',
+  },
+  stop: {
+    command: 'stop',
+    tgDescription: '📡 Забвение',
+    help: 'Удалить клавиатуру и забыть вас',
+  },
+  id: {
+    command: 'id',
+    tgDescription: '🆔 Мой ID',
+    help: 'Показать ваш ID',
+  },
+  mylog: {
+    command: 'mylog',
+    tgDescription: '📋 Мои действия',
+    help: 'Последние выполненные команды',
+  },
+  admin: {
+    command: 'admin',
+    adminOnly: true,
+    help: 'Административные команды',
+  },
+  backupdb: {
+    command: 'backupdb',
+    adminOnly: true,
+    help: 'Создать полный бэкап базы',
+  },
+  list_users: {
+    command: 'list_users',
+    adminOnly: true,
+    help: 'Список всех пользователей',
+  },
+  stats: {
+    command: 'stats',
+    adminOnly: true,
+    help: 'Статистика использования команд',
+  },
+  userlog: {
+    command: 'userlog',
+    adminOnly: true,
+    hidden: true,
+    help: 'Логи конкретного пользователя',
+  },
+};
+
+// --- вспомогательные функции ---
+export function getTgCommands() {
+  return Object.values(commands)
+    .filter((cmd) => !cmd.hidden && !cmd.adminOnly && cmd.tgDescription)
+    .map((cmd) => ({ command: cmd.command, description: cmd.tgDescription! }));
+}
+
+export function getButtons(fullMenu: boolean) {
+  const buttons: { label: string; command: string }[] = [];
+  if (commands.cat.button)
+    buttons.push({ label: commands.cat.button, command: '/' + commands.cat.command });
+  if (commands.quote.button)
+    buttons.push({ label: commands.quote.button, command: '/' + commands.quote.command });
+  if (fullMenu) {
+    if (commands.advice.button)
+      buttons.push({ label: commands.advice.button, command: '/' + commands.advice.command });
+    if (commands.random.button)
+      buttons.push({ label: commands.random.button, command: '/' + commands.random.command });
+  }
+  if (commands.help.button)
+    buttons.push({ label: commands.help.button, command: '/' + commands.help.command });
+  return buttons;
+}
+
+export function getHelpLines(isAdmin: boolean, platform: Platform): string {
+  let lines = '';
+  for (const cmd of Object.values(commands)) {
+    if (cmd.hidden || !cmd.help) continue;
+    if (cmd.adminOnly) continue;
+    const cmdText = `/${cmd.command}`;
+    lines += `${cmdText} — ${cmd.help}\n`;
+  }
+  return lines;
 }
 
 export const phrases = {
+  commands,
   start: {
     personal: (platform: Platform, firstName: string) =>
       format(platform)`Будь как дома, ${firstName}...`,
@@ -52,12 +168,9 @@ export const phrases = {
     }) => {
       const f = format(platform);
       const repoUrl = homepage;
-      const vkGroupLink = VK_TOKEN ? VK_GROUP_ID : undefined;
+      const vkGroupLink = VK_GROUP_TOKEN ? VK_GROUP_ID : undefined;
       const tgUsername = TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_USERNAME : undefined;
-      const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Доступные команды')}:\n${raw(commandsList(platform))}`;
-
-      const adminBlock =
-        isAdmin && chatType === 'private' ? f`\n${raw('/admin — Административные команды')}` : '';
+      const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Доступные команды')}:\n${raw(getHelpLines(isAdmin, platform))}`;
 
       const links = [];
       if (platform === 'telegram' && vkGroupLink) {
@@ -72,7 +185,7 @@ export const phrases = {
 
       const footer = f`\n${link('Исходный код', repoUrl)}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
-      return f`${raw(header)}${adminBlock}${raw(linksSection)}${raw(footer)}`;
+      return f`${raw(header)}${raw(linksSection)}${raw(footer)}`;
     },
   },
 

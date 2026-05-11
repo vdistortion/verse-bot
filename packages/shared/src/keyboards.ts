@@ -1,44 +1,23 @@
 import type { Platform } from './universal-context';
 
-export interface UniversalKeyboard {
+export interface UniversalKeyboardButton {
   label: string;
   command?: string;
 }
 
 export function createUniversalKeyboard(
   platform: Platform,
-  fullMenu: boolean,
-  isAdmin: boolean,
-  isPrivate: boolean,
-): UniversalKeyboard[][] {
-  const keyboard: UniversalKeyboard[][] = [];
-
-  keyboard.push([
-    { label: 'Котики 🐾', command: '/cat' },
-    { label: 'Цитаты 💬', command: '/quote' },
-  ]);
-
-  if (fullMenu) {
-    keyboard.push([
-      { label: 'Советы 💡', command: '/advice' },
-      { label: 'Рандом 🎲', command: '/random' },
-    ]);
-  }
-
-  const helpRow: UniversalKeyboard[] = [{ label: 'Справка ❓', command: '/help' }];
-  if (isAdmin && isPrivate) {
-    helpRow.push({ label: 'Админ 👑', command: '/admin' });
-  }
-  keyboard.push(helpRow);
-
-  return keyboard;
+  buttonRows: UniversalKeyboardButton[][],
+): UniversalKeyboardButton[][] {
+  // можно что-то делать с platform (например, для VK не добавлять какие-то кнопки), но пока просто возвращаем
+  return buttonRows;
 }
 
 export function createVKKeyboard(
-  universalKeyboard: UniversalKeyboard[][],
+  buttonRows: UniversalKeyboardButton[][],
   oneTime: boolean = false,
 ): string {
-  const buttons = universalKeyboard.map((row) =>
+  const buttons = buttonRows.map((row) =>
     row.map((btn) => ({
       action: {
         type: 'text',

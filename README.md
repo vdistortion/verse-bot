@@ -8,7 +8,7 @@
 
 ## Description
 
-![Bot Preview](./public/bot-preview.jpg)
+![Bot Preview](public/preview.jpg)
 
 🕳 Вы обратились к забытой системе. Она всё ещё отвечает. Причина неизвестна.
 
@@ -41,4 +41,4 @@
 /id - 🆔 Показать ID чата/пользователя
 /backupdb - 💾 Сделать бэкап базы данных (только админ TG)
 
-![Bot Avatar](./public/bot-avatar.jpg)
+![Bot Avatar](./public/avatar.jpg)

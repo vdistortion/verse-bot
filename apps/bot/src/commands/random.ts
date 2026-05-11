@@ -9,12 +9,7 @@ export async function randomCommand(ctx: UniversalContext): Promise<void> {
   }
 
   try {
-    const { data: allContent, error: fetchError } = await ctx.db
-      .from('bot_content')
-      .select('*')
-      .order('id', { ascending: true });
-
-    if (fetchError) throw fetchError;
+    const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
     if (!allContent || allContent.length === 0) {
       await ctx.replySafe(phrases.random.emptyDb(ctx.platform));

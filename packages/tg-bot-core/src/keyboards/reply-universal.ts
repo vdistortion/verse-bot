@@ -1,8 +1,8 @@
 import { Keyboard } from 'grammy';
-import type { UniversalKeyboard } from '@scope/shared';
+import type { UniversalKeyboardButton } from '@scope/shared';
 
 export function createTelegramKeyboard(
-  universalKeyboard: UniversalKeyboard[][],
+  universalKeyboard: UniversalKeyboardButton[][],
   resize: boolean = true,
   oneTime: boolean = false,
 ): Keyboard {

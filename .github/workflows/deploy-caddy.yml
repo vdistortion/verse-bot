@@ -13,45 +13,18 @@ jobs:
   deploy-caddy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Caddy config via SSH
+      - name: Deploy Caddy via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            REPO_NAME=${{ github.event.repository.name }}
-            BRANCH=${{ github.ref_name }}
-            PROJECT_PATH=~/projects/${REPO_NAME}_${BRANCH}
-
-            # Если проект не клонирован, клонируем
-            if [ ! -d "$PROJECT_PATH" ]; then
-              mkdir -p ~/projects
-              git clone git@github.com:${{ github.repository }}.git "$PROJECT_PATH"
-            fi
-
-            cd "$PROJECT_PATH"
-            git pull origin $BRANCH
-
             CADDY_PATH=~/projects/caddy-static
             mkdir -p $CADDY_PATH
 
-            CHANGED=false
+            wget -q -O $CADDY_PATH/Caddyfile https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/Caddyfile
+            wget -q -O $CADDY_PATH/docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.caddy.yml
 
-            # Проверяем и копируем Caddyfile
-            if ! diff -q ./Caddyfile $CADDY_PATH/Caddyfile > /dev/null 2>&1; then
-              cp ./Caddyfile $CADDY_PATH/Caddyfile
-              CHANGED=true
-            fi
-
-            # Проверяем и копируем docker-compose.caddy.yml
-            if ! diff -q ./docker-compose.caddy.yml $CADDY_PATH/docker-compose.caddy.yml > /dev/null 2>&1; then
-              cp ./docker-compose.caddy.yml $CADDY_PATH/docker-compose.caddy.yml
-              CHANGED=true
-            fi
-
-            # Если что-то изменилось, перезапускаем Caddy
-            if [ "$CHANGED" = true ]; then
-              cd $CADDY_PATH
-              docker compose up -d --force-recreate
-            fi
+            cd $CADDY_PATH
+            docker compose up -d --force-recreate

@@ -1,0 +1,5 @@
+services:
+  caddy:
+    volumes:
+      - /root/projects/caddy-static/content:/srv/content
+      - ./static.caddyfile:/etc/caddy/static.caddyfile:ro

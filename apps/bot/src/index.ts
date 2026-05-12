@@ -86,10 +86,26 @@ if (tgBot) {
           );
         },
         replyWithPhoto: async (photoUrl, caption) => {
-          await ctx.replyWithPhoto(photoUrl, {
-            caption: caption ? caption : undefined,
-            parse_mode: 'MarkdownV2',
-          });
+          try {
+            await ctx.replyWithPhoto(photoUrl, {
+              caption: caption ? caption : undefined,
+              parse_mode: 'MarkdownV2',
+            });
+          } catch (err) {
+            console.warn('Failed to send photo by URL, trying InputFile:', err);
+            try {
+              const response = await fetch(photoUrl);
+              const buffer = Buffer.from(await response.arrayBuffer());
+              const inputFile = new InputFile(buffer, 'image.webp');
+              await ctx.replyWithPhoto(inputFile, {
+                caption: caption ? caption : undefined,
+                parse_mode: 'MarkdownV2',
+              });
+            } catch (downloadErr) {
+              console.error('InputFile fallback failed:', downloadErr);
+              await ctx.api.sendMessage(uctx.peerId, caption ?? '');
+            }
+          }
         },
       };
       (ctx as any).uctx = uctx;

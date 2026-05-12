@@ -1,4 +1,4 @@
-static.cloud-server-99.space {
+static.cloud-server-99.space:8443 {
     handle_path /imp/* {
         root * /srv/content/imp
         file_server

@@ -34,6 +34,7 @@ jobs:
             echo "VK_GROUP_ID=${{ secrets.VK_GROUP_ID }}" >> .env.release
             echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID }}" >> .env.release
             echo "PUBLIC_URL=${{ secrets.PUBLIC_URL }}" >> .env.release
+            echo "CADDY_INTEGRATION_PATH=${{ secrets.CADDY_INTEGRATION_PATH }}" >> .env.release
             echo "POSTGRES_DB=postgres" >> .env.release
             echo "POSTGRES_USER=postgres" >> .env.release
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env.release

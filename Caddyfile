@@ -1,0 +1,6 @@
+static.zvalentin.ru:65443 {
+    handle_path /imp/* {
+        root * /srv/content/imp
+        file_server
+    }
+}

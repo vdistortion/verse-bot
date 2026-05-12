@@ -36,7 +36,7 @@ import {
   VK_GROUP_ID,
   VK_ADMIN_ID,
 } from './env';
-import { getTgCommands, getButtons, phrases } from './locales/ru';
+import { getButtons, phrases } from './locales/ru';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
 export const vkBot =
@@ -197,9 +197,6 @@ if (tgBot) {
         await userLogCommand(uctx, userId);
       }
     });
-
-    // Установка команд бота (Telegram меню)
-    tgBot.api.setMyCommands(getTgCommands());
 
     tgBot.start();
     console.log('🚀 Telegram bot started with long polling');

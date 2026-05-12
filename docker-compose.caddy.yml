@@ -1,0 +1,9 @@
+services:
+  caddy:
+    image: caddy:2.9
+    restart: always
+    ports:
+      - '65443:80'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./content:/srv/content

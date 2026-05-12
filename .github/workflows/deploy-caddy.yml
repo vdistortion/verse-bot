@@ -6,25 +6,58 @@ on:
       - main
       - release
     paths:
-      - 'Caddyfile'
-      - 'docker-compose.caddy.yml'
+      - 'caddy/**'
 
 jobs:
   deploy-caddy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Caddy via SSH
+      - name: Deploy Caddy
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: CADDY_INTEGRATION_PATH
           script: |
-            CADDY_PATH=~/projects/caddy-static
-            mkdir -p $CADDY_PATH
+            CADDY_STATIC_DIR=~/projects/caddy-static
+            CONTENT_DIR=$CADDY_STATIC_DIR/content
+            mkdir -p $CONTENT_DIR
 
-            wget -q -O $CADDY_PATH/Caddyfile https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/Caddyfile
-            wget -q -O $CADDY_PATH/docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.caddy.yml
+            if [ -z "$CADDY_INTEGRATION_PATH" ]; then
+              # === Standalone mode ===
+              echo "🚀 Starting standalone Caddy container at ${CADDY_STATIC_DIR}"
+              mkdir -p $CADDY_STATIC_DIR
 
-            cd $CADDY_PATH
-            docker compose up -d --force-recreate
+              wget -q -O $CADDY_STATIC_DIR/Caddyfile https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/caddy/Caddyfile
+              wget -q -O $CADDY_STATIC_DIR/docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/caddy/docker-compose.yml
+
+              cd $CADDY_STATIC_DIR
+              docker compose pull
+              docker compose up -d --force-recreate
+            else
+              # === Integrated mode ===
+              echo "🔗 Integrating with existing Caddy at $CADDY_INTEGRATION_PATH"
+
+              wget -q -O $CADDY_INTEGRATION_PATH/static.caddyfile https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/caddy/static.caddyfile
+              wget -q -O $CADDY_INTEGRATION_PATH/static.override.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/caddy/static.override.yml
+
+              MAIN_CADDYFILE=$CADDY_INTEGRATION_PATH/Caddyfile
+              if [ -f "$MAIN_CADDYFILE" ] && ! grep -q 'import static.caddyfile' "$MAIN_CADDYFILE"; then
+                echo -e "\nimport static.caddyfile" >> "$MAIN_CADDYFILE"
+              fi
+
+              cd $CADDY_INTEGRATION_PATH
+
+              CADDY_SERVICE_NAME=$(grep -E '^\s*caddy:' docker-compose.yml | head -1 | sed -E 's/^\s*([^:]+):.*/\1/')
+
+              if [ -z "$CADDY_SERVICE_NAME" ]; then
+                echo "❌ Не удалось определить имя сервиса Caddy ('caddy') в $CADDY_INTEGRATION_PATH/docker-compose.yml."
+                echo "   Пожалуйста, проверьте файл и убедитесь, что сервис Caddy назван 'caddy'."
+                exit 1
+              fi
+
+              echo "🔄 Перезапускаем сервис Caddy ('${CADDY_SERVICE_NAME}') с применением override-файла..."
+              docker compose -f docker-compose.yml -f static.override.yml restart $CADDY_SERVICE_NAME
+              echo "✅ Сервис Caddy ('${CADDY_SERVICE_NAME}') успешно перезапущен с новой конфигурацией."
+            fi

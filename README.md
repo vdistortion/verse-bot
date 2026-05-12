@@ -1,14 +1,12 @@
 # 😈 ImpBot 😈
 
-@ImpUniversalBot
+<img src="docs/cover.jpg" alt="Bot Preview" width="600">
 
 ## Short Description
 
 Коты и пустота. Ничего не храню. Всё временно. Память отключена. Пустота стабильна. 📡
 
 ## Description
-
-![Bot Preview](public/preview.jpg)
 
 🕳 Вы обратились к забытой системе. Она всё ещё отвечает. Причина неизвестна.
 
@@ -40,5 +38,3 @@
 /content - 📄 Получить контент по номеру
 /id - 🆔 Показать ID чата/пользователя
 /backupdb - 💾 Сделать бэкап базы данных (только админ TG)
-
-![Bot Avatar](./public/avatar.jpg)

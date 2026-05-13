@@ -1,6 +1,6 @@
 import { type UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
-import { PUBLIC_URL } from '../env';
+import { PUBLIC_URL } from '../env.js';
 
 interface BotContentItem {
   id: number;

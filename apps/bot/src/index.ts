@@ -15,6 +15,7 @@ import {
   startCommand,
   idCommand,
   backupDbCommand,
+  backupFilesCommand,
   fullCommand,
   catCommand,
   quoteCommand,
@@ -169,6 +170,7 @@ if (tgBot) {
       mylog: myLogCommand,
       admin: adminCommand,
       backupdb: backupDbCommand,
+      backupfiles: backupFilesCommand,
       list_users: listUsersCommand,
       stats: statsCommand,
     };
@@ -275,7 +277,8 @@ if (vkBot) {
 
       const isStart =
         commandToExecute === '/start' ||
-        commandToExecute === '🚀 Запустить бота и показать основное меню';
+        commandToExecute === 'Начать' ||
+        commandToExecute === 'начать';
 
       // Проверка существования пользователя
       const exists = await userExists('vk', String(ctx.userId));

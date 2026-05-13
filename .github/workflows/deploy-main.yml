@@ -25,7 +25,7 @@ jobs:
               mkdir -p ~/projects
               git clone git@github.com:${{ github.repository }}.git "$PROJECT_PATH"
             fi
-            cd "$PROJECT_PATH" # Переходим в новую папку
+            cd "$PROJECT_PATH"
 
             mkdir -p ./data/main_db
 
@@ -44,4 +44,5 @@ jobs:
             echo "POSTGRES_HOST=db" >> .env.main
 
             git pull origin main
+            export DOCKER_NETWORK_NAME="${{ secrets.DOCKER_NETWORK_NAME }}"
             npm run docker:main:up

@@ -21,7 +21,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             export CADDY_INTEGRATION_PATH="${{ secrets.CADDY_INTEGRATION_PATH }}"
-            echo "DEBUG: CADDY_INTEGRATION_PATH='$CADDY_INTEGRATION_PATH'"
             CADDY_STATIC_DIR=~/projects/caddy-static
             CONTENT_DIR=$CADDY_STATIC_DIR/content
             mkdir -p $CONTENT_DIR

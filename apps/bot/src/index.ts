@@ -36,7 +36,7 @@ import {
   VK_GROUP_ID,
   VK_ADMIN_ID,
 } from './env';
-import { getTgCommands, getButtons, phrases } from './locales/ru';
+import { getButtons, phrases } from './locales/ru';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
 export const vkBot =
@@ -86,10 +86,26 @@ if (tgBot) {
           );
         },
         replyWithPhoto: async (photoUrl, caption) => {
-          await ctx.replyWithPhoto(photoUrl, {
-            caption: caption ? caption : undefined,
-            parse_mode: 'MarkdownV2',
-          });
+          try {
+            await ctx.replyWithPhoto(photoUrl, {
+              caption: caption ? caption : undefined,
+              parse_mode: 'MarkdownV2',
+            });
+          } catch (err) {
+            console.warn('Failed to send photo by URL, trying InputFile:', err);
+            try {
+              const response = await fetch(photoUrl);
+              const buffer = Buffer.from(await response.arrayBuffer());
+              const inputFile = new InputFile(buffer, 'image.webp');
+              await ctx.replyWithPhoto(inputFile, {
+                caption: caption ? caption : undefined,
+                parse_mode: 'MarkdownV2',
+              });
+            } catch (downloadErr) {
+              console.error('InputFile fallback failed:', downloadErr);
+              await ctx.api.sendMessage(uctx.peerId, caption ?? '');
+            }
+          }
         },
       };
       (ctx as any).uctx = uctx;
@@ -197,9 +213,6 @@ if (tgBot) {
         await userLogCommand(uctx, userId);
       }
     });
-
-    // Установка команд бота (Telegram меню)
-    tgBot.api.setMyCommands(getTgCommands());
 
     tgBot.start();
     console.log('🚀 Telegram bot started with long polling');

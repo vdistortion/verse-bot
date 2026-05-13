@@ -102,7 +102,7 @@ export const commands: Record<string, CommandDef> = {
 };
 
 // --- вспомогательные функции ---
-export function getTgCommands() {
+export function setMyCommands() {
   return Object.values(commands)
     .filter((cmd) => !cmd.hidden && !cmd.adminOnly && cmd.tgDescription)
     .map((cmd) => ({ command: cmd.command, description: cmd.tgDescription! }));

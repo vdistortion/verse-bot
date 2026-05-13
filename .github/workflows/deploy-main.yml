@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -24,7 +25,7 @@ jobs:
               mkdir -p ~/projects
               git clone git@github.com:${{ github.repository }}.git "$PROJECT_PATH"
             fi
-            cd "$PROJECT_PATH" # Переходим в новую папку
+            cd "$PROJECT_PATH"
 
             mkdir -p ./data/main_db
 
@@ -34,7 +35,8 @@ jobs:
             echo "VK_GROUP_TOKEN=${{ secrets.VK_GROUP_TOKEN_MAIN }}" >> .env.main
             echo "VK_GROUP_ID=${{ secrets.VK_GROUP_ID_MAIN }}" >> .env.main
             echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID_MAIN }}" >> .env.main
-            echo "PUBLIC_URL=${{ secrets.PUBLIC_URL_MAIN }}" >> .env.main
+            echo "PUBLIC_URL=${{ secrets.PUBLIC_URL }}" >> .env.main
+            echo "CADDY_INTEGRATION_PATH=${{ secrets.CADDY_INTEGRATION_PATH }}" >> .env.main
             echo "POSTGRES_DB=postgres" >> .env.main
             echo "POSTGRES_USER=postgres" >> .env.main
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_MAIN }}" >> .env.main

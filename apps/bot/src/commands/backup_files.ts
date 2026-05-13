@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
-import archiver from 'archiver';
+// @ts-ignore ToDo
+import { ZipArchive } from 'archiver';
 import type { UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 import { CONTENT_DIR } from '../env.js';
@@ -18,25 +19,25 @@ export async function backupFilesCommand(ctx: UniversalContext): Promise<void> {
   }
 
   if (!existsSync(contentDir)) {
-    await ctx.replySafe(`⚠️ Папка с контентом не найдена: ${contentDir}`);
+    await ctx.replySafe(phrases.backupFiles.notFound(ctx.platform, contentDir));
     return;
   }
 
   try {
-    await ctx.replySafe('⏳ Упаковываю файлы...');
+    await ctx.replySafe(phrases.backupFiles.start(ctx.platform));
 
     const buffer = await zipDirectory(contentDir);
     const filename = `content_backup_${new Date().toISOString()}.zip`;
-    await ctx.replyWithFile(buffer, filename, '📦 Бэкап файлов контента');
+    await ctx.replyWithFile(buffer, filename, phrases.backupFiles.success(ctx.platform));
   } catch (err) {
     console.error('Backup files error:', err);
-    await ctx.replySafe('❌ Ошибка при создании архива.');
+    await ctx.replySafe(phrases.backupFiles.error(ctx.platform));
   }
 }
 
 function zipDirectory(sourceDir: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive('zip', { zlib: { level: 9 } });
     const chunks: Buffer[] = [];
 
     archive.on('data', (chunk: Buffer) => chunks.push(chunk));

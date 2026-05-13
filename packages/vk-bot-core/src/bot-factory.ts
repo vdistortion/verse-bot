@@ -76,7 +76,11 @@ export class VKBot {
         }
 
         for (const update of data.updates ?? []) {
-          this.handleUpdate(update);
+          try {
+            await this.handleUpdate(update);
+          } catch (err) {
+            console.error('[VK Bot] Error processing update:', err);
+          }
         }
       } catch (err) {
         console.error('[VK Bot] Long poll error:', err);
@@ -114,7 +118,11 @@ export class VKBot {
     // Обработчики
     const handlers = this.handlers.get(update.type) ?? [];
     for (const handler of handlers) {
-      await handler(ctx);
+      try {
+        await handler(ctx);
+      } catch (err) {
+        console.error('[VK Bot] Handler error:', err);
+      }
     }
   }
 

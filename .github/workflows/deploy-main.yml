@@ -37,6 +37,7 @@ jobs:
             echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID_MAIN }}" >> .env.main
             echo "PUBLIC_URL=${{ secrets.PUBLIC_URL }}" >> .env.main
             echo "CADDY_INTEGRATION_PATH=${{ secrets.CADDY_INTEGRATION_PATH }}" >> .env.main
+            echo "DOCKER_NETWORK_NAME=${{ secrets.DOCKER_NETWORK_NAME }}" >> .env.main
             echo "POSTGRES_DB=postgres" >> .env.main
             echo "POSTGRES_USER=postgres" >> .env.main
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_MAIN }}" >> .env.main

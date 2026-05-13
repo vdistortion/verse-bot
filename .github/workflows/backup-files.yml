@@ -1,4 +1,4 @@
-name: Backup Content Files
+name: Backup Files
 
 on:
   schedule:
@@ -17,7 +17,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             ARCHIVE=/tmp/content_backup_$(date +%Y%m%d_%H%M%S).tar.gz
-            tar -czf $ARCHIVE -C /srv/content/imp .
+            tar -czf $ARCHIVE -C ~/projects/caddy-static/content/imp .
 
             curl -s -F document=@"$ARCHIVE" \
               -F chat_id="${{ secrets.TELEGRAM_ADMIN_ID }}" \

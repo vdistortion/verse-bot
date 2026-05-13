@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import { InputFile } from 'grammy';
 import {
   db,
@@ -36,7 +38,8 @@ import {
   VK_GROUP_TOKEN,
   VK_GROUP_ID,
   VK_ADMIN_ID,
-} from './env';
+  CONTENT_DIR,
+} from './env.js';
 import { getButtons, phrases } from './locales/ru';
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
@@ -93,17 +96,20 @@ if (tgBot) {
               parse_mode: 'MarkdownV2',
             });
           } catch (err) {
-            console.warn('Failed to send photo by URL, trying InputFile:', err);
-            try {
-              const response = await fetch(photoUrl);
-              const buffer = Buffer.from(await response.arrayBuffer());
-              const inputFile = new InputFile(buffer, 'image.webp');
-              await ctx.replyWithPhoto(inputFile, {
+            const filename = decodeURIComponent(photoUrl.split('/').pop() ?? '');
+            const filepath = path.join(
+              CONTENT_DIR ?? '/srv/content/imp',
+              'content-images',
+              filename,
+            );
+
+            if (existsSync(filepath)) {
+              const buffer = readFileSync(filepath);
+              await ctx.replyWithPhoto(new InputFile(buffer, filename), {
                 caption: caption ? caption : undefined,
                 parse_mode: 'MarkdownV2',
               });
-            } catch (downloadErr) {
-              console.error('InputFile fallback failed:', downloadErr);
+            } else {
               await ctx.api.sendMessage(uctx.peerId, caption ?? '');
             }
           }
@@ -255,8 +261,7 @@ if (vkBot) {
     }
 
     vkBot.on('message_new', async (ctx: VKContext) => {
-      const text = ctx.text?.trim() ?? '';
-      let commandToExecute = text;
+      let commandToExecute = ctx.text?.trim() ?? '';
 
       // Извлечение команды из payload кнопки
       if (ctx.payload) {

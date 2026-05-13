@@ -43,4 +43,5 @@ jobs:
             echo "POSTGRES_HOST=db" >> .env.release
 
             git pull origin release
+            export DOCKER_NETWORK_NAME="${{ secrets.DOCKER_NETWORK_NAME }}"
             npm run docker:release:up

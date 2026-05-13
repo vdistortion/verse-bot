@@ -60,6 +60,6 @@ jobs:
               fi
 
               echo "🔄 Перезапускаем сервис Caddy ('${CADDY_SERVICE_NAME}') с применением override-файла..."
-              docker compose -f docker-compose.yml -f static.override.yml restart $CADDY_SERVICE_NAME
+              docker compose -f docker-compose.yml -f static.override.yml up -d --force-recreate $CADDY_SERVICE_NAME
               echo "✅ Сервис Caddy ('${CADDY_SERVICE_NAME}') успешно перезапущен с новой конфигурацией."
             fi

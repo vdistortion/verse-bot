@@ -13,6 +13,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - ${DOCKER_NETWORK_NAME}
 
   bot:
     build:
@@ -23,3 +25,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - ${DOCKER_NETWORK_NAME}
+
+networks:
+  ${DOCKER_NETWORK_NAME}:
+    name: ${DOCKER_NETWORK_NAME}
+    external: true

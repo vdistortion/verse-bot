@@ -268,6 +268,14 @@ export const phrases = {
       format(platform)`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`,
   },
 
+  backupFiles: {
+    notFound: (platform: Platform, dir: string) =>
+      format(platform)`⚠️ Папка с контентом не найдена: ${dir}`,
+    start: (platform: Platform) => format(platform)`⏳ Упаковываю файлы...`,
+    success: (platform: Platform) => format(platform)`📦 Бэкап файлов контента`,
+    error: (platform: Platform) => format(platform)`❌ Ошибка при создании архива.`,
+  },
+
   listUsers: {
     loading: (platform: Platform) => format(platform)`Загружаю список пользователей...`,
     empty: (platform: Platform) => format(platform)`В базе данных нет активных пользователей.`,

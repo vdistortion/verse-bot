@@ -18,19 +18,19 @@ export async function backupFilesCommand(ctx: UniversalContext): Promise<void> {
   }
 
   if (!existsSync(contentDir)) {
-    await ctx.replySafe(`⚠️ Папка с контентом не найдена: ${contentDir}`);
+    await ctx.replySafe(phrases.backupFiles.notFound(ctx.platform, contentDir));
     return;
   }
 
   try {
-    await ctx.replySafe('⏳ Упаковываю файлы...');
+    await ctx.replySafe(phrases.backupFiles.start(ctx.platform));
 
     const buffer = await zipDirectory(contentDir);
     const filename = `content_backup_${new Date().toISOString()}.zip`;
-    await ctx.replyWithFile(buffer, filename, '📦 Бэкап файлов контента');
+    await ctx.replyWithFile(buffer, filename, phrases.backupFiles.success(ctx.platform));
   } catch (err) {
     console.error('Backup files error:', err);
-    await ctx.replySafe('❌ Ошибка при создании архива.');
+    await ctx.replySafe(phrases.backupFiles.error(ctx.platform));
   }
 }
 

@@ -79,7 +79,7 @@ export class VKBot {
           try {
             await this.handleUpdate(update);
           } catch (err) {
-            console.error('[VK Bot] Handler error:', err);
+            console.error('[VK Bot] Error processing update:', err);
           }
         }
       } catch (err) {

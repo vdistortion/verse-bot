@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import archiver from 'archiver';
+import { create } from 'archiver';
 import type { UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
 import { CONTENT_DIR } from '../env.js';
@@ -36,7 +36,7 @@ export async function backupFilesCommand(ctx: UniversalContext): Promise<void> {
 
 function zipDirectory(sourceDir: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = create('zip', { zlib: { level: 9 } });
     const chunks: Buffer[] = [];
 
     archive.on('data', (chunk: Buffer) => chunks.push(chunk));

@@ -1,0 +1,27 @@
+name: Backup Files
+
+on:
+  schedule:
+    - cron: '0 3 * * 1' # каждый понедельник в 3:00 UTC
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Backup files via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            ARCHIVE=/tmp/content_backup_$(date +%Y%m%d_%H%M%S).tar.gz
+            tar -czf $ARCHIVE -C ~/projects/caddy-static/content/imp .
+
+            curl -s -F document=@"$ARCHIVE" \
+              -F chat_id="${{ secrets.TELEGRAM_ADMIN_ID }}" \
+              -F caption="📦 Автобэкап контента $(date +%Y-%m-%d)" \
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument"
+
+            rm $ARCHIVE

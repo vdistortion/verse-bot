@@ -1,5 +1,5 @@
 import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@scope/shared';
-import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env';
+import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 import { homepage } from '../../../../package.json';
 
 // --- интерфейс команды ---
@@ -82,6 +82,11 @@ export const commands: Record<string, CommandDef> = {
     command: 'backupdb',
     adminOnly: true,
     help: 'Создать полный бэкап базы',
+  },
+  backupfiles: {
+    command: 'backupfiles',
+    adminOnly: true,
+    help: 'Создать бэкап файлов контента',
   },
   list_users: {
     command: 'list_users',
@@ -195,6 +200,7 @@ export const phrases = {
       if (platform === 'telegram') {
         const tgCmds =
           `/backupdb – 💾 Сделать бэкап базы данных\n` +
+          `/backupfiles – 📦 Бэкап файлов контента\n` +
           `/list\\_users – 👥 Список активных пользователей\n` +
           `/stats – 📊 Статистика команд\n` +
           `/userlog\\_${userIdPlaceholder} – 📋 Логи пользователя`;

@@ -6,4 +6,5 @@ export const {
   VK_GROUP_ID,
   VK_ADMIN_ID,
   PUBLIC_URL,
+  CONTENT_DIR,
 } = process.env;

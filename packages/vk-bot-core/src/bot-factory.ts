@@ -11,7 +11,8 @@ export interface VKBotFactoryOptions {
 
 interface LongPollResponse {
   ts: number;
-  updates: VKUpdate[];
+  updates?: VKUpdate[];
+  failed?: number;
 }
 
 export class VKBot {
@@ -60,16 +61,45 @@ export class VKBot {
 
     console.log(`[VK Bot] Starting... Group ID: ${this.groupId}`);
 
-    let { server, key, ts } = await this.getLongPollServer();
-    this.ts = ts;
+    let server: string;
+    let key: string;
+    let ts: number;
+
+    try {
+      ({ server, key, ts } = await this.getLongPollServer());
+      this.ts = ts;
+      console.log(`[VK Bot] Initial LongPoll server obtained. TS: ${this.ts}`);
+    } catch (initErr) {
+      console.error('[VK Bot] Failed to get initial LongPoll server:', initErr);
+      this.isRunning = false;
+      return;
+    }
 
     while (this.isRunning) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
       try {
         const url = `${server}?act=a_check&key=${key}&ts=${this.ts}&wait=25&mode=2&version=10`;
 
-        const fetchOptions: RequestInit = {};
+        const fetchOptions: RequestInit = { signal: controller.signal };
         const response = await fetch(url, fetchOptions);
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = (await response.json()) as LongPollResponse;
+
+        if (data.failed) {
+          console.warn(
+            `[VK Bot] LongPoll returned 'failed': ${data.failed}. Re-fetching server...`,
+          );
+          ({ server, key, ts } = await this.getLongPollServer());
+          this.ts = ts;
+          continue; // Начинаем новый цикл с новым сервером
+        }
 
         if (data.ts) {
           this.ts = data.ts;
@@ -82,14 +112,23 @@ export class VKBot {
             console.error('[VK Bot] Error processing update:', err);
           }
         }
-      } catch (err) {
-        console.error('[VK Bot] Long poll error:', err);
-        await new Promise((r) => setTimeout(r, 1000));
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          console.warn('[VK Bot] Long poll request timed out (30s). Reconnecting...');
+        } else {
+          console.error('[VK Bot] Long poll error:', err);
+        }
+
+        await new Promise((r) => setTimeout(r, 3000));
+
         try {
           ({ server, key, ts } = await this.getLongPollServer());
           this.ts = ts;
+          console.log(`[VK Bot] Reconnected to LongPoll server. New TS: ${this.ts}`);
         } catch (reconnectErr) {
           console.error('[VK Bot] Reconnect failed:', reconnectErr);
+          await new Promise((r) => setTimeout(r, 5000));
         }
       }
     }

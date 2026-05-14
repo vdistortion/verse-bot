@@ -17,31 +17,27 @@ export const commands: Record<string, CommandDef> = {
   start: {
     command: 'start',
     tgDescription: '⌛ Перезапустить. Иногда помогает',
-    help: 'Запустить бота и показать основное меню',
+    help: '⌛ Перезапустить. Иногда помогает',
   },
   cat: {
     command: 'cat',
     tgDescription: '🐾 Без смысла. Но мило',
-    button: '🐾 Котики',
-    help: 'Получить случайную картинку котика',
+    button: '🐾 Без смысла. Но мило',
+    help: '🧶 За котиком. Не твоим. Не настоящим',
   },
   quote: {
     command: 'quote',
     tgDescription: '💬 Голос из прошлого',
-    button: '💬 Цитаты',
-    help: 'Получить случайную цитату',
+    button: '💬 Голос из прошлого',
+    help: '🗯 Вербальные фрагменты прошлых поколений',
   },
   advice: {
     command: 'advice',
-    tgDescription: '💡 Случайный совет',
-    button: '💡 Советы',
-    help: 'Получить случайный совет',
+    button: '🧨 Отмочить',
   },
   random: {
     command: 'random',
-    tgDescription: '🎲 Случайный контент',
     button: '🎲 Рандом',
-    help: 'Получить случайный контент из базы',
   },
   full: {
     command: 'full',
@@ -55,13 +51,13 @@ export const commands: Record<string, CommandDef> = {
   help: {
     command: 'help',
     tgDescription: '⚠️ Справка',
-    button: '❓ Справка',
-    help: 'Показать это сообщение',
+    button: '⚠️ Справка',
+    help: '⚠️ Справка. Для тех, кто всё ещё ищет порядок',
   },
   stop: {
     command: 'stop',
     tgDescription: '📡 Забвение',
-    help: 'Удалить клавиатуру и забыть вас',
+    help: '📡 Всё исчезает. Сигналов нет. Забвение',
   },
   id: {
     command: 'id',
@@ -136,7 +132,7 @@ export function getHelpLines(isAdmin: boolean, platform: Platform): string {
     if (cmd.hidden || !cmd.help) continue;
     if (cmd.adminOnly) continue;
     const cmdText = `/${cmd.command}`;
-    lines += `${cmdText} — ${cmd.help}\n`;
+    lines += format(platform)`${cmdText} — ${cmd.help}\n`;
   }
   return lines;
 }
@@ -150,16 +146,13 @@ export const phrases = {
       format(platform)`Группа ${title} подключена к системе.`,
     mainMenu: (platform: Platform) =>
       platform === 'telegram' ? format(platform)`🐾 ${bold('Главное меню')}` : '🐾 Главное меню',
-    fullMenu: (platform: Platform) =>
-      platform === 'telegram'
-        ? format(platform)`🌟 ${bold('Расширенное меню')}`
-        : '🌟 Расширенное меню',
+    fullMenu: (platform: Platform) => '😈',
   },
 
   stop: (platform: Platform) =>
     platform === 'telegram'
-      ? format(platform)`👋 Пока! Если что — /start чтобы вернуться.`
-      : '👋 Пока! Если что — /start чтобы вернуться.',
+      ? format(platform)`Кнопки удалены... Всё забыто...`
+      : 'Кнопки удалены... Всё забыто...',
 
   help: {
     getMessage: ({
@@ -172,10 +165,9 @@ export const phrases = {
       chatType: string;
     }) => {
       const f = format(platform);
-      const repoUrl = homepage;
       const vkGroupLink = VK_GROUP_TOKEN ? VK_GROUP_ID : undefined;
       const tgUsername = TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_USERNAME : undefined;
-      const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Доступные команды')}:\n${raw(getHelpLines(isAdmin, platform))}`;
+      const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${raw(getHelpLines(isAdmin, platform))}`;
 
       const links = [];
       if (platform === 'telegram' && vkGroupLink) {
@@ -188,7 +180,7 @@ export const phrases = {
         ? f`\n\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
         : '';
 
-      const footer = f`\n${link('Исходный код', repoUrl)}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
+      const footer = f`\n${link('Исходный код', homepage)}\nНе обязательно использовать. Не обязательно понимать.\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
       return f`${raw(header)}${raw(linksSection)}${raw(footer)}`;
     },
@@ -223,10 +215,12 @@ export const phrases = {
 
   id: {
     message: (platform: Platform, userId: string) =>
-      format(platform)`🆔 Ваш ID: ${userId}\n📍 Платформа: ${platform}`,
+      platform === 'telegram'
+        ? format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${String(userId)}`
+        : format(platform)`🆔 Ваш бесполезный ID: ${String(userId)}`,
     chatId: (platform: Platform, chatId: number | string) =>
       platform === 'telegram'
-        ? format(platform)`🆔 ${bold('ID чата:')} \`${String(chatId)}\``
+        ? format(platform)`🆔 ${bold('ID группы:')} ${String(chatId)}`
         : format(platform)`🆔 ID чата: ${String(chatId)}`,
   },
 
@@ -289,6 +283,9 @@ export const phrases = {
       format(platform)`Команда доступна только в личных сообщениях с ботом.`,
   },
 
-  unknownCommand: (platform: Platform) => format(platform)`❓ Неизвестная команда`,
-  errorDefault: (platform: Platform) => format(platform)`❌ Произошла ошибка.`,
+  unknownCommand: (platform: Platform) =>
+    format(
+      platform,
+    )`Команда потеряна, контекст утрачен.\nПопробуй /start. Или не пробуй.\nСистема всё равно одинока.`,
+  errorDefault: (platform: Platform) => format(platform)`⚠️ Настройки нестабильны`,
 };

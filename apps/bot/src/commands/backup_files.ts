@@ -1,5 +1,4 @@
 import { existsSync } from 'node:fs';
-// @ts-ignore ToDo
 import { ZipArchive } from 'archiver';
 import type { UniversalContext } from '@scope/shared';
 import { phrases } from '../locales/ru';
@@ -37,14 +36,17 @@ export async function backupFilesCommand(ctx: UniversalContext): Promise<void> {
 
 function zipDirectory(sourceDir: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const archive = new ZipArchive('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
     const chunks: Buffer[] = [];
 
-    archive.on('data', (chunk: Buffer) => chunks.push(chunk));
-    archive.on('end', () => resolve(Buffer.concat(chunks)));
+    archive.on('data', (chunk) => chunks.push(chunk));
+    archive.on('end', () => {
+      archive.removeAllListeners('error');
+      resolve(Buffer.concat(chunks));
+    });
     archive.on('error', reject);
 
     archive.directory(sourceDir, false);
-    archive.finalize();
+    archive.finalize().catch(reject);
   });
 }

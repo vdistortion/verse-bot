@@ -47,7 +47,7 @@ export const vkBot =
   VK_GROUP_TOKEN && VK_GROUP_ID
     ? createVKBot({
         token: VK_GROUP_TOKEN,
-        groupId: Number(VK_GROUP_ID),
+        groupId: VK_GROUP_ID,
       })
     : null;
 
@@ -62,7 +62,7 @@ if (tgBot) {
         userId: String(ctx.from?.id ?? 0),
         peerId: ctx.chat?.id ?? 0,
         text: ctx.message?.text ?? '',
-        isAdmin: ctx.from?.id === Number(TELEGRAM_ADMIN_ID),
+        isAdmin: ctx.from?.id === TELEGRAM_ADMIN_ID,
         db: ctx.db,
         firstName: ctx.from?.first_name,
         lastName: ctx.from?.last_name,

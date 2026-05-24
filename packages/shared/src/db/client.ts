@@ -1,16 +1,23 @@
 import { Pool } from 'pg';
 
-function getPool(): Pool {
+function createPool(): Pool {
   const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB } = process.env;
-  if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_DB || !POSTGRES_HOST) {
-    throw new Error('Критическая ошибка: Не все переменные POSTGRES_* найдены!');
+
+  const missing = ['POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_HOST', 'POSTGRES_DB'].filter(
+    (key) => !process.env[key],
+  );
+
+  if (missing.length) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
-  const url = `postgres://${POSTGRES_USER}:${encodeURIComponent(POSTGRES_PASSWORD)}@${POSTGRES_HOST}:5432/${POSTGRES_DB}`;
+
+  const url = `postgres://${POSTGRES_USER}:${encodeURIComponent(POSTGRES_PASSWORD!)}@${POSTGRES_HOST}:5432/${POSTGRES_DB}`;
   return new Pool({ connectionString: url });
 }
 
 let pool: Pool | null = null;
+
 export function db(): Pool {
-  if (!pool) pool = getPool();
+  if (!pool) pool = createPool();
   return pool;
 }

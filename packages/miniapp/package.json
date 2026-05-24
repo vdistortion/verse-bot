@@ -1,7 +1,7 @@
 {
   "name": "@scope/miniapp",
   "version": "1.0.0",
-  "description": "Telegram Mini App utilities",
+  "description": "Telegram Mini App integration utilities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -15,9 +15,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "tsc --noemit"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@scope/shared": "*"
+    "@telegram-apps/sdk": "^3.11.8"
   }
 }

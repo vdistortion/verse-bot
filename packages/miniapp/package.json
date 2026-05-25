@@ -10,12 +10,38 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./angular": {
+      "source": "./src/angular/index.ts",
+      "import": "./dist/angular/index.js",
+      "require": "./dist/angular/index.js",
+      "types": "./dist/angular/index.d.ts"
     }
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=17.0.0",
+    "@angular/core": ">=17.0.0",
+    "@angular/router": ">=17.0.0",
+    "rxjs": ">=7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/router": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@telegram-apps/sdk": "^3.11.8"

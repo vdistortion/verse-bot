@@ -6,7 +6,6 @@ export interface BotFactoryOptions {
   token: string;
   useLogger?: boolean;
   useSession?: boolean;
-  proxyUrl?: string;
 }
 
 export function createBot(options: BotFactoryOptions): Bot<BotContext> {

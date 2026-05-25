@@ -5,14 +5,6 @@ export interface UniversalKeyboardButton {
   command?: string;
 }
 
-export function createUniversalKeyboard(
-  platform: Platform,
-  buttonRows: UniversalKeyboardButton[][],
-): UniversalKeyboardButton[][] {
-  // можно что-то делать с platform (например, для VK не добавлять какие-то кнопки), но пока просто возвращаем
-  return buttonRows;
-}
-
 export function createVKKeyboard(
   buttonRows: UniversalKeyboardButton[][],
   oneTime: boolean = false,

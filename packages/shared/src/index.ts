@@ -1,6 +1,5 @@
 export * from './utils/array.js';
 export * from './utils/http.js';
-export * from './utils/i18n.js';
 export * from './db/client.js';
 export * from './db/users.js';
 export * from './db/commandLogs.js';

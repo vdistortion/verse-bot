@@ -73,8 +73,3 @@ export interface VKContext {
   payload?: string;
   eventId?: string;
 }
-
-export interface SessionData {
-  // Сессия пользователя
-  [key: string]: unknown;
-}

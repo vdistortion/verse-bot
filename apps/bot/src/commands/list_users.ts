@@ -1,4 +1,4 @@
-import { getAllUsers, type DbUser, type UniversalContext, link, bold } from '@scope/shared';
+import { getAllUsers, type DbUser, type UniversalContext, link, bold } from '@verse/shared';
 import { phrases } from '../locales/ru';
 import { tgBot, vkBot } from '../';
 

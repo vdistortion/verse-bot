@@ -1,4 +1,4 @@
-import { type UniversalContext } from '@scope/shared';
+import { type UniversalContext } from '@verse/shared';
 import { sendContentItem } from './content';
 import { phrases } from '../locales/ru';
 

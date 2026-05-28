@@ -1,4 +1,4 @@
-import { bold, type UniversalContext } from '@scope/shared';
+import { bold, type UniversalContext } from '@verse/shared';
 import { getQuote } from '../data-sources';
 import { phrases } from '../locales/ru';
 

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { ZipArchive } from 'archiver';
-import type { UniversalContext } from '@scope/shared';
+import type { UniversalContext } from '@verse/shared';
 import { phrases } from '../locales/ru';
 import { CONTENT_DIR } from '../env.js';
 

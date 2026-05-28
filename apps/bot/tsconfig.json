@@ -8,8 +8,8 @@
   },
   "references": [
     { "path": "../../packages/shared" },
-    { "path": "../../packages/tg-bot-core" },
-    { "path": "../../packages/vk-bot-core" }
+    { "path": "../../packages/tg-core" },
+    { "path": "../../packages/vk-core" }
   ],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

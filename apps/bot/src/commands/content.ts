@@ -1,4 +1,4 @@
-import { type UniversalContext } from '@scope/shared';
+import { type UniversalContext } from '@verse/shared';
 import { phrases } from '../locales/ru';
 import { PUBLIC_URL } from '../env.js';
 

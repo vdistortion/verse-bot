@@ -1,4 +1,4 @@
-import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@scope/shared';
+import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@verse/shared';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 import { homepage } from '../../../../package.json';
 

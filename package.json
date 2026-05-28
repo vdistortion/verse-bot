@@ -1,7 +1,7 @@
 {
-  "name": "imp-universal-bot",
+  "name": "verse-bot-monorepo",
   "version": "2.0.0",
-  "description": "Monorepo for Telegram and VK bots, and Angular MiniApp",
+  "description": "Universal bot framework – write commands once, run on Telegram and VK",
   "private": true,
   "scripts": {
     "docker:dev:up": "docker compose -f docker-compose.dev.yml up -d",
@@ -31,7 +31,7 @@
     "printWidth": 100
   },
   "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
-  "homepage": "https://github.com/vdistortion/imp-universal-bot",
+  "homepage": "https://github.com/vdistortion/verse-bot",
   "license": "Apache-2.0",
   "workspaces": [
     "packages/*",

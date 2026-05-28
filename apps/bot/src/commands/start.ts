@@ -1,5 +1,5 @@
-import { createVKKeyboard, type UniversalContext } from '@scope/shared';
-import { createTelegramKeyboard } from '@scope/tg-bot-core';
+import { createVKKeyboard, type UniversalContext } from '@verse/shared';
+import { createTelegramKeyboard } from '@verse/tg-core';
 import { getButtons, phrases } from '../locales/ru';
 
 export async function startCommand(

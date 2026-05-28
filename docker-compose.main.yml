@@ -1,4 +1,4 @@
-name: imp-universal-bot-main
+name: verse-bot-main
 
 services:
   db:

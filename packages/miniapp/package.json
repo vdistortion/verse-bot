@@ -1,5 +1,5 @@
 {
-  "name": "@scope/miniapp",
+  "name": "@verse/miniapp",
   "version": "1.0.0",
   "description": "Telegram Mini App integration utilities",
   "main": "dist/index.js",

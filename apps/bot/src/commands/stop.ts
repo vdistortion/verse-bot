@@ -1,4 +1,4 @@
-import { removeUser, type UniversalContext } from '@scope/shared';
+import { removeUser, type UniversalContext } from '@verse/shared';
 import { phrases } from '../locales/ru';
 
 export async function stopCommand(ctx: UniversalContext): Promise<void> {

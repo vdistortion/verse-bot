@@ -11,9 +11,9 @@ import {
   type UniversalContext,
   userExists,
   mdOpts,
-} from '@scope/shared';
-import { createBot, dbMiddleware } from '@scope/tg-bot-core';
-import { createVKBot, VKContext } from '@scope/vk-bot-core';
+} from '@verse/shared';
+import { createBot, dbMiddleware } from '@verse/tg-core';
+import { createVKBot, VKContext } from '@verse/vk-core';
 import {
   startCommand,
   idCommand,

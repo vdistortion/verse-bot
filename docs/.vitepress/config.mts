@@ -6,7 +6,7 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Packages', link: '/packages/tg-bot-core' },
+      { text: 'Packages', link: '/packages/tg-core' },
     ],
     sidebar: [
       {
@@ -19,10 +19,10 @@ export default defineConfig({
       {
         text: 'Packages',
         items: [
-          { text: '@scope/tg-bot-core', link: '/packages/tg-bot-core' },
-          { text: '@scope/vk-bot-core', link: '/packages/vk-bot-core' },
-          { text: '@scope/shared', link: '/packages/shared' },
-          { text: '@scope/miniapp', link: '/packages/miniapp' },
+          { text: '@verse/tg-core', link: '/packages/tg-core' },
+          { text: '@verse/vk-core', link: '/packages/vk-core' },
+          { text: '@verse/shared', link: '/packages/shared' },
+          { text: '@verse/miniapp', link: '/packages/miniapp' },
         ],
       },
     ],

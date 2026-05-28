@@ -5,8 +5,8 @@
 ├── apps/
 │ └── bot/ # Example bot application
 ├── packages/
-│ ├── tg-bot-core/ # Telegram adapter (GrammY)
-│ ├── vk-bot-core/ # VK adapter (custom fetch client)
+│ ├── tg-core/ # Telegram adapter (GrammY)
+│ ├── vk-core/ # VK adapter (custom fetch client)
 │ ├── shared/ # UniversalContext, DB, formatting
 │ └── miniapp/ # Telegram Mini App utilities
 └── docs/

@@ -1,6 +1,6 @@
 export * from './utils/array.js';
 export * from './utils/http.js';
-export * from './db/client.js';
+export { createPool, initPool, getPool } from './db/client.js';
 export * from './db/users.js';
 export * from './db/commandLogs.js';
 export * from './format/format.js';

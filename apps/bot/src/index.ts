@@ -2,7 +2,8 @@ import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { InputFile } from 'grammy';
 import {
-  db,
+  initPool,
+  getPool,
   createVKKeyboard,
   findOrCreateUser,
   format,
@@ -41,6 +42,15 @@ import {
   CONTENT_DIR,
 } from './env.js';
 import { getButtons, phrases } from './locales/ru';
+
+const poolConfig = {
+  user: process.env.POSTGRES_USER!,
+  password: process.env.POSTGRES_PASSWORD!,
+  host: process.env.POSTGRES_HOST || 'localhost',
+  database: process.env.POSTGRES_DB!,
+  port: 5432,
+};
+initPool(poolConfig);
 
 export const tgBot = TELEGRAM_BOT_TOKEN ? createBot({ token: TELEGRAM_BOT_TOKEN }) : null;
 export const vkBot =
@@ -334,7 +344,7 @@ if (vkBot) {
         peerId: ctx.peerId,
         text: commandToExecute,
         isAdmin: ctx.userId === Number(VK_ADMIN_ID),
-        db: db(),
+        db: getPool(),
         firstName: vkFirstName,
         lastName: vkLastName,
         username: vkUsername,

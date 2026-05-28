@@ -1,0 +1,11 @@
+{
+  "name": "verse-bot-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "cp -n .env.example .env",
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  }
+}

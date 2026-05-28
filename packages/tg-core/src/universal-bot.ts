@@ -136,7 +136,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
   for (const { command, label } of config.buttons) {
     const handler = config.commands[command];
     if (handler) {
-      // Команда вида /cat
+      // Команда вида /start
       bot.command(command, async (ctx) => {
         const uctx = (ctx as any).uctx;
         await handler(uctx);

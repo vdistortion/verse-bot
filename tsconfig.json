@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "./packages/create-verse-bot" },
     { "path": "./packages/shared" },
     { "path": "./packages/miniapp" },
     { "path": "./packages/tg-core" },

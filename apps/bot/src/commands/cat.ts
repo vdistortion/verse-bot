@@ -1,4 +1,4 @@
-import { type UniversalContext } from '@scope/shared';
+import { type UniversalContext } from '@verse/shared';
 import { phrases } from '../locales/ru';
 import { getCat } from '../data-sources';
 

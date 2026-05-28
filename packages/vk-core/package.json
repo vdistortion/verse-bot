@@ -1,7 +1,7 @@
 {
-  "name": "@scope/tg-bot-core",
+  "name": "@verse/vk-core",
   "version": "1.0.0",
-  "description": "Core library for building Telegram bots",
+  "description": "Core library for building VK bots",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -18,7 +18,6 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@scope/shared": "*",
-    "grammy": "^1.42.0"
+    "@verse/shared": "*"
   }
 }

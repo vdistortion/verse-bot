@@ -1,6 +1,5 @@
-import { getAllUsers, type DbUser, type UniversalContext, link, bold } from '@scope/shared';
+import { getAllUsers, type DbUser, type UniversalContext, link, bold } from '@verse/shared';
 import { phrases } from '../locales/ru';
-import { tgBot, vkBot } from '../';
 
 function formatDate(dateStr: string): string {
   // Форматируем дату без информации о часовом поясе, чтобы избежать скобок
@@ -44,16 +43,16 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
       let lastName: string | undefined;
       let username: string | undefined;
 
-      if (user.tg_id && tgBot) {
+      if (user.tg_id && ctx.tgApi) {
         try {
-          const tgChat = await tgBot.api.getChat(Number(user.tg_id));
+          const tgChat = await ctx.tgApi.api.getChat(Number(user.tg_id));
           firstName = tgChat.first_name;
           lastName = tgChat.last_name;
           username = tgChat.username;
         } catch {}
-      } else if (user.vk_id && vkBot) {
+      } else if (user.vk_id && ctx.vkApi) {
         try {
-          const result = await vkBot.request('users.get', {
+          const result = await ctx.vkApi.request('users.get', {
             user_ids: user.vk_id,
             fields: 'first_name,last_name,screen_name',
           });

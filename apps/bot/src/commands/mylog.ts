@@ -1,4 +1,4 @@
-import { bold, getUserOwnCommandLogs, UniversalContext } from '@scope/shared';
+import { bold, getUserOwnCommandLogs, UniversalContext } from '@verse/shared';
 import { phrases } from '../locales/ru';
 
 export async function myLogCommand(ctx: UniversalContext): Promise<void> {

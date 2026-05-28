@@ -16,3 +16,7 @@ out-tsc
 Thumbs.db
 *.tsbuildinfo
 data
+
+# VitePress
+/docs/.vitepress/cache
+/docs/.vitepress/dist

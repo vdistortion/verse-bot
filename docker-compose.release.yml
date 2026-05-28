@@ -1,4 +1,4 @@
-name: imp-universal-bot-release
+name: verse-bot-release
 
 services:
   db:

@@ -1,7 +1,7 @@
 {
-  "name": "@scope/miniapp",
+  "name": "@verse/miniapp",
   "version": "1.0.0",
-  "description": "Telegram Mini App utilities",
+  "description": "Telegram Mini App integration utilities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -10,14 +10,38 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./angular": {
+      "source": "./src/angular/index.ts",
+      "types": "./src/angular/index.ts"
     }
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "tsc --noemit"
+    "lint": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=17.0.0",
+    "@angular/core": ">=17.0.0",
+    "@angular/router": ">=17.0.0",
+    "rxjs": ">=7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/router": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    }
   },
   "dependencies": {
-    "@scope/shared": "*"
+    "@telegram-apps/sdk": "^3.11.8"
   }
 }

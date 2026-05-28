@@ -1,4 +1,4 @@
-import { http } from '@scope/shared';
+import { http } from '@verse/shared';
 import type { IApiAdviceData, IApiCatData, IApiQuoteData, IApiQuoteParams } from './types';
 
 /**

@@ -1,2 +1,1 @@
-export * from './types';
-export * from './utils';
+export { TelegramApi, type TelegramApiOptions, telegramApi } from './lib/telegram-api.service.js';

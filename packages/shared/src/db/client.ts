@@ -1,16 +1,31 @@
-import { Pool } from 'pg';
+import { Pool, type PoolConfig } from 'pg';
 
-function getPool(): Pool {
-  const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB } = process.env;
-  if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_DB || !POSTGRES_HOST) {
-    throw new Error('Критическая ошибка: Не все переменные POSTGRES_* найдены!');
-  }
-  const url = `postgres://${POSTGRES_USER}:${encodeURIComponent(POSTGRES_PASSWORD)}@${POSTGRES_HOST}:5432/${POSTGRES_DB}`;
-  return new Pool({ connectionString: url });
-}
+export type DbConfig = PoolConfig;
 
 let pool: Pool | null = null;
-export function db(): Pool {
-  if (!pool) pool = getPool();
+
+/**
+ * Создать новый пул с указанной конфигурацией.
+ */
+export function createPool(config: DbConfig): Pool {
+  return new Pool(config);
+}
+
+/**
+ * Инициализировать глобальный синглтон пула.
+ * Должен быть вызван один раз перед использованием getPool().
+ */
+export function initPool(config: DbConfig): Pool {
+  pool = new Pool(config);
+  return pool;
+}
+
+/**
+ * Получить глобальный экземпляр пула. Выбрасывает ошибку, если не инициализирован.
+ */
+export function getPool(): Pool {
+  if (!pool) {
+    throw new Error('Database pool not initialized. Call initPool() first.');
+  }
   return pool;
 }

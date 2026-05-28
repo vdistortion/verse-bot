@@ -1,5 +1,5 @@
 {
-  "name": "@scope/shared",
+  "name": "@verse/shared",
   "version": "1.0.0",
   "description": "Shared utilities for bots and miniapps",
   "main": "dist/index.js",

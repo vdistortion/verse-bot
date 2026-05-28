@@ -1,4 +1,4 @@
-name: imp-universal-bot-dev
+name: verse-bot-dev
 
 services:
   db:

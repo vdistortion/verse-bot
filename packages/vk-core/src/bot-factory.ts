@@ -6,7 +6,6 @@ export interface VKBotFactoryOptions {
   token: string;
   groupId: number;
   useLogger?: boolean;
-  proxyUrl?: string;
 }
 
 interface LongPollResponse {

@@ -1,6 +1,6 @@
 import type { Pool } from 'pg';
 import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
-import type { FormatToken } from './format/tokens';
+import type { FormatToken } from './format';
 
 export type Platform = 'telegram' | 'vk';
 
@@ -29,4 +29,6 @@ export interface UniversalContext {
   replyWithFile?: (buffer: Buffer, filename: string, caption?: string) => Promise<void>;
   replyWithPhoto?: (photoUrl: string, caption?: string) => Promise<void>;
   chatType: 'channel' | 'private' | 'group' | 'supergroup' | 'unknown';
+  tgApi?: any; // API Telegram-бота (GrammY)
+  vkApi?: any; // Экземпляр VK-бота
 }

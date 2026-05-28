@@ -1,6 +1,6 @@
 # Project Structure
 
-\`\`\`
+```text
 /
 ├── apps/
 │ └── bot/ # Example bot application
@@ -10,7 +10,7 @@
 │ ├── shared/ # UniversalContext, DB, formatting
 │ └── miniapp/ # Telegram Mini App utilities
 └── docs/
-\`\`\`
+```
 
 Commands in `apps/bot/src/commands/` receive a `UniversalContext` and are
 platform-agnostic — the same handler runs on both Telegram and VK.

@@ -10,7 +10,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/your-org/verse
+      link: https://github.com/vdistortion/verse-bot
 features:
   - title: Multi-platform
     details: One command handler works on both Telegram (GrammY) and VK out of the box.

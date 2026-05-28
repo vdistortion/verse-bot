@@ -1,7 +1,5 @@
 # Getting Started
 
-> ⚠️ The package names and structure are still being finalized.
-
 ## Prerequisites
 
 - Node.js 20+
@@ -11,31 +9,26 @@
 
 Clone the repository and install dependencies:
 
-\`\`\`bash
-git clone https://github.com/your-org/verse
-cd verse
+```bash
+git clone https://github.com/vdistortion/verse-bot
+cd verse-bot
 npm install
-\`\`\`
+```
 
 Copy the environment file and fill in your tokens:
 
-\`\`\`bash
+```bash
 cp .env.example .env
-\`\`\`
+```
 
 ## Running
 
-\`\`\`bash
-
-# Both platforms
-
+```bash
 npm run dev
 
 # Telegram only
-
 npm run dev:tg
 
 # VK only
-
 npm run dev:vk
-\`\`\`
+```

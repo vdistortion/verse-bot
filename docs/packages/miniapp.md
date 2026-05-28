@@ -4,27 +4,27 @@ Telegram Mini App utilities. Framework-agnostic core with an optional Angular in
 
 ## Core
 
-\`\`\`ts
+```ts
 import { telegramApi } from '@verse/miniapp';
 
 await telegramApi.init({
-onBack: () => window.history.back(),
+  onBack: () => window.history.back(),
 });
 
 telegramApi.showMainButton('Submit');
-\`\`\`
+```
 
 ## Angular
 
-\`\`\`ts
+```ts
 import { TelegramApiService } from '@verse/miniapp/angular';
 
 @Component({ ... })
 export class AppComponent {
-private tg = inject(TelegramApiService);
-
-ngOnInit() {
-this.tg.init();
+  private tg = inject(TelegramApiService);
+    
+  ngOnInit() {
+    this.tg.init();
+  }
 }
-}
-\`\`\`
+```

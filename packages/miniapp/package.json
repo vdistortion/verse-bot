@@ -13,9 +13,7 @@
     },
     "./angular": {
       "source": "./src/angular/index.ts",
-      "import": "./dist/angular/index.js",
-      "require": "./dist/angular/index.js",
-      "types": "./dist/angular/index.d.ts"
+      "types": "./src/angular/index.ts"
     }
   },
   "scripts": {

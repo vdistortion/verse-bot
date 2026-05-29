@@ -1,6 +1,6 @@
 {
   "name": "create-verse-bot",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "CLI to scaffold a new Verse Bot project",
   "main": "dist/index.js",
   "bin": {

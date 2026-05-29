@@ -1,6 +1,6 @@
 {
   "name": "imp-bot",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,8 +10,8 @@
     "start": "node dist/src/index.js"
   },
   "dependencies": {
-    "@verse/shared": "*",
-    "@verse/tg-core": "*",
-    "@verse/vk-core": "*"
+    "@verse/shared": "^0.1.0",
+    "@verse/tg-core": "^0.1.0",
+    "@verse/vk-core": "^0.1.0"
   }
 }

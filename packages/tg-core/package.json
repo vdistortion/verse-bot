@@ -1,6 +1,6 @@
 {
   "name": "@verse/tg-core",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Core library for building Telegram bots",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@verse/shared": "*",
+    "@verse/shared": "^0.1.0",
     "grammy": "^1.42.0"
   }
 }

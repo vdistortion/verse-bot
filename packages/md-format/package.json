@@ -1,6 +1,6 @@
 {
   "name": "@verse/md-format",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Formatting utilities for Telegram MarkdownV2 and VK Markdown",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

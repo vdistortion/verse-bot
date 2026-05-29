@@ -1,13 +1,13 @@
-name: verse-bot-release
+name: verse-bot-prod
 
 services:
   db:
     image: postgres:16-alpine
     restart: always
-    env_file: .env.release
+    env_file: .env
     volumes:
-      - ./data/release_db:/var/lib/postgresql/data
-      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./data/prod_db:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
       interval: 5s
@@ -19,9 +19,7 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    env_file: .env.release
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ~/projects/caddy-static/content/imp:/srv/content/imp

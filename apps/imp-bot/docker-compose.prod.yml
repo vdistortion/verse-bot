@@ -1,0 +1,27 @@
+name: imp-bot-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file: .env
+    volumes:
+      - ./data/prod_db:/var/lib/postgresql/data
+      # В продакшене схему можно загрузить через volume или использовать managed database
+      - ../../packages/create-verse-bot/template/schema.sql:/docker-entrypoint-initdb.d/01-common.sql
+      - ./schema.imp.sql:/docker-entrypoint-initdb.d/02-imp.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy

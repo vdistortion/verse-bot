@@ -144,15 +144,11 @@ export const phrases = {
       format(platform)`Будь как дома, ${firstName}...`,
     group: (platform: Platform, title: string) =>
       format(platform)`Группа ${title} подключена к системе.`,
-    mainMenu: (platform: Platform) =>
-      platform === 'telegram' ? format(platform)`🐾 ${bold('Главное меню')}` : '🐾 Главное меню',
+    mainMenu: (platform: Platform) => format(platform)`🐾 ${bold('Главное меню')}`,
     fullMenu: (platform: Platform) => '😈',
   },
 
-  stop: (platform: Platform) =>
-    platform === 'telegram'
-      ? format(platform)`Кнопки удалены... Всё забыто...`
-      : 'Кнопки удалены... Всё забыто...',
+  stop: (platform: Platform) => format(platform)`Кнопки удалены... Всё забыто...`,
 
   help: {
     getMessage: ({
@@ -215,13 +211,9 @@ export const phrases = {
 
   id: {
     message: (platform: Platform, userId: string) =>
-      platform === 'telegram'
-        ? format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${String(userId)}`
-        : format(platform)`🆔 Ваш бесполезный ID: ${String(userId)}`,
+      format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${String(userId)}`,
     chatId: (platform: Platform, chatId: number | string) =>
-      platform === 'telegram'
-        ? format(platform)`🆔 ${bold('ID группы:')} ${String(chatId)}`
-        : format(platform)`🆔 ID чата: ${String(chatId)}`,
+      format(platform)`🆔 ${bold('ID чата:')} ${String(chatId)}`,
   },
 
   cat: {

@@ -1,5 +1,3 @@
-import type { Platform } from './universal-context';
-
 export interface UniversalKeyboardButton {
   label: string;
   command?: string;

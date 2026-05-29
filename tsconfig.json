@@ -6,6 +6,7 @@
     { "path": "./packages/miniapp" },
     { "path": "./packages/tg-core" },
     { "path": "./packages/vk-core" },
+    { "path": "./packages/md-format" },
     { "path": "./apps/imp-bot" }
   ],
   "compilerOptions": {

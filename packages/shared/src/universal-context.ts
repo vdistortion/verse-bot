@@ -1,8 +1,6 @@
 import type { Pool } from 'pg';
 import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
-import type { FormatToken } from './format';
-
-export type Platform = 'telegram' | 'vk';
+import type { FormatToken, Platform } from './format';
 
 export interface UniversalReplyOptions {
   parse_mode?: 'MarkdownV2';

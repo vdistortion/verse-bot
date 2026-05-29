@@ -1,6 +1,6 @@
 import { escapeMarkdownV2 } from './markdown';
 import { FormatToken } from './tokens';
-import type { Platform } from '../universal-context';
+import type { Platform } from './tokens';
 
 export function format(platform: Platform) {
   return (strings: TemplateStringsArray, ...values: (string | FormatToken)[]): string => {
@@ -12,7 +12,6 @@ export function format(platform: Platform) {
         if (val instanceof FormatToken) {
           result += val.render(platform);
         } else {
-          // Это сырая строка – экранируем её для Telegram, для VK оставляем как есть
           result += platform === 'telegram' ? escapeMarkdownV2(val) : val;
         }
       }

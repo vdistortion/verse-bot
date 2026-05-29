@@ -1,7 +1,7 @@
 import { escapeMarkdownV2 } from './markdown';
-import type { Platform } from '../universal-context';
 
-// Базовый класс токена
+export type Platform = 'telegram' | 'vk';
+
 export abstract class FormatToken {
   abstract render(platform: Platform): string;
 }
@@ -17,7 +17,9 @@ export class BoldToken extends FormatToken {
         : platform === 'telegram'
           ? escapeMarkdownV2(this.text)
           : this.text;
-    return platform === 'telegram' ? `*${inner}*` : inner;
+    if (platform === 'telegram') return `*${inner}*`;
+    if (platform === 'vk') return `**${inner}**`;
+    return inner;
   }
 }
 
@@ -35,12 +37,9 @@ export class LinkToken extends FormatToken {
         : platform === 'telegram'
           ? escapeMarkdownV2(this.label)
           : this.label;
-    if (platform === 'telegram') {
-      // url считаем валидным
-      return `[${labelStr}](${this.url})`;
-    } else {
-      return `${labelStr}: ${this.url}`;
-    }
+    if (platform === 'telegram') return `[${labelStr}](${this.url})`;
+    // VK ToDo
+    return `[${labelStr}](${this.url})`;
   }
 }
 
@@ -64,6 +63,7 @@ export class SpoilerToken extends FormatToken {
         : platform === 'telegram'
           ? escapeMarkdownV2(this.text)
           : this.text;
-    return platform === 'telegram' ? `||${inner}||` : inner;
+    if (platform === 'telegram') return `||${inner}||`;
+    return inner;
   }
 }

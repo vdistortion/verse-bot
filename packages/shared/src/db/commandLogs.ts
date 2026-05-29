@@ -1,5 +1,5 @@
+import type { Platform } from '@verse/md-format';
 import { getPool } from './client.js';
-import type { Platform } from '../universal-context';
 
 export interface CommandStat {
   command: string;

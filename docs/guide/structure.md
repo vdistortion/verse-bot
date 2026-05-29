@@ -3,7 +3,7 @@
 ```text
 /
 ├── apps/
-│ └── bot/ # Example bot application
+│ └── imp-bot/ # Example bot application
 ├── packages/
 │ ├── tg-core/ # Telegram adapter (GrammY)
 │ ├── vk-core/ # VK adapter (custom fetch client)
@@ -12,5 +12,5 @@
 └── docs/
 ```
 
-Commands in `apps/bot/src/commands/` receive a `UniversalContext` and are
+Commands in `apps/imp-bot/src/commands/` receive a `UniversalContext` and are
 platform-agnostic — the same handler runs on both Telegram and VK.

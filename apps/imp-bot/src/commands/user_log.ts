@@ -1,14 +1,8 @@
-import { type UniversalContext, getUserCommandLogs, bold } from '@verse/shared';
+import { getUserCommandLogs, bold, requireAdmin, catchErrors } from '@verse/shared';
 import { phrases } from '../locales/ru';
 
-export async function userLogCommand(ctx: UniversalContext, userId: number): Promise<void> {
-  if (ctx.chatType !== 'private') return;
-  if (!ctx.isAdmin) {
-    await ctx.replySafe(phrases.admin.notAdmin(ctx.platform));
-    return;
-  }
-
-  try {
+export const userLogCommand = requireAdmin(
+  catchErrors(async (ctx, userId: number) => {
     const logs = await getUserCommandLogs(userId, 15);
     if (logs.length === 0) {
       await ctx.replySafe(`Нет логов для пользователя ${userId}`);
@@ -23,8 +17,6 @@ export async function userLogCommand(ctx: UniversalContext, userId: number): Pro
     }
 
     await ctx.replySafe(message);
-  } catch (err) {
-    console.error('User log error:', err);
-    await ctx.replySafe(phrases.errorDefault(ctx.platform));
-  }
-}
+  }, phrases),
+  phrases,
+);

@@ -1,14 +1,8 @@
-import { type UniversalContext, getCommandStats, bold } from '@verse/shared';
+import { getCommandStats, bold, requireAdmin, catchErrors } from '@verse/shared';
 import { phrases } from '../locales/ru';
 
-export async function statsCommand(ctx: UniversalContext): Promise<void> {
-  if (ctx.chatType !== 'private') return;
-  if (!ctx.isAdmin) {
-    await ctx.replySafe(phrases.admin.notAdmin(ctx.platform));
-    return;
-  }
-
-  try {
+export const statsCommand = requireAdmin(
+  catchErrors(async (ctx) => {
     const stats = await getCommandStats();
     if (stats.length === 0) {
       await ctx.replySafe('Статистика пуста');
@@ -32,8 +26,6 @@ export async function statsCommand(ctx: UniversalContext): Promise<void> {
     }
 
     await ctx.replySafe(message);
-  } catch (err) {
-    console.error('Stats error:', err);
-    await ctx.replySafe(phrases.errorDefault(ctx.platform));
-  }
-}
+  }, phrases),
+  phrases,
+);

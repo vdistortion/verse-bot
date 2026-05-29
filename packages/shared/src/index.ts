@@ -9,3 +9,4 @@ export * from './format/tokens.js';
 export * from './format/mdOpts.js';
 export * from './universal-context.js';
 export * from './keyboards.js';
+export * from './command-guards.js';

@@ -1,4 +1,4 @@
-import { getAllUsers, type DbUser, type UniversalContext, link, bold } from '@verse/shared';
+import { getAllUsers, type DbUser, link, bold, requireAdmin, catchErrors } from '@verse/shared';
 import { phrases } from '../locales/ru';
 
 function formatDate(dateStr: string): string {
@@ -14,19 +14,8 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
-  if (ctx.chatType !== 'private') {
-    return;
-  }
-
-  if (!ctx.isAdmin) {
-    await ctx.replySafe(phrases.listUsers.notAdmin(ctx.platform));
-    return;
-  }
-
-  const isTg = ctx.platform === 'telegram';
-
-  try {
+export const listUsersCommand = requireAdmin(
+  catchErrors(async (ctx) => {
     await ctx.replySafe(phrases.listUsers.loading(ctx.platform));
 
     const users: DbUser[] = await getAllUsers();
@@ -45,7 +34,7 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
 
       if (user.tg_id && ctx.tgApi) {
         try {
-          const tgChat = await ctx.tgApi.api.getChat(Number(user.tg_id));
+          const tgChat = await ctx.tgApi.getChat(Number(user.tg_id));
           firstName = tgChat.first_name;
           lastName = tgChat.last_name;
           username = tgChat.username;
@@ -82,13 +71,12 @@ export async function listUsersCommand(ctx: UniversalContext): Promise<void> {
         profileUrl = username ? `https://vk.com/${username}` : `https://vk.com/id${user.vk_id}`;
       }
 
+      const isTg = ctx.platform === 'telegram';
       const namePart = profileUrl ? link(fullName, profileUrl) : isTg ? bold(fullName) : fullName;
       message += ctx.format`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`;
     }
 
     await ctx.replySafe(message, { link_preview_options: { is_disabled: true } });
-  } catch (err) {
-    console.error('List users error:', err);
-    await ctx.replySafe(phrases.listUsers.error(ctx.platform));
-  }
-}
+  }, phrases),
+  phrases,
+);

@@ -1,15 +1,14 @@
-import { bold, getUserOwnCommandLogs, UniversalContext } from '@verse/shared';
+import { bold, getUserOwnCommandLogs, requirePrivateChat, catchErrors } from '@verse/shared';
 import { phrases } from '../locales/ru';
 
-export async function myLogCommand(ctx: UniversalContext): Promise<void> {
-  if (ctx.chatType !== 'private') return;
-  const dbUserId = ctx.dbUserId;
-  if (!dbUserId) {
-    await ctx.replySafe(phrases.errorDefault(ctx.platform));
-    return;
-  }
+export const myLogCommand = requirePrivateChat(
+  catchErrors(async (ctx) => {
+    const dbUserId = ctx.dbUserId;
+    if (!dbUserId) {
+      await ctx.replySafe(phrases.errorDefault(ctx.platform));
+      return;
+    }
 
-  try {
     const logs = await getUserOwnCommandLogs(dbUserId, 15);
     if (logs.length === 0) {
       await ctx.replySafe('У вас пока нет логов.');
@@ -21,8 +20,5 @@ export async function myLogCommand(ctx: UniversalContext): Promise<void> {
       message += ctx.format`• ${entry.command} (${platform})\n`;
     }
     await ctx.replySafe(message);
-  } catch (err) {
-    console.error('Mylog error:', err);
-    await ctx.replySafe(phrases.errorDefault(ctx.platform));
-  }
-}
+  }, phrases),
+);

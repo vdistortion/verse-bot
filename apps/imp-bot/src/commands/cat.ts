@@ -1,23 +1,17 @@
-import { type UniversalContext } from '@verse/shared';
-import { phrases } from '../locales/ru';
+import { catchErrors, type UniversalContext } from '@verse/shared';
 import { getCat } from '../data-sources';
+import { phrases } from '../locales/ru';
 
-export async function catCommand(ctx: UniversalContext): Promise<void> {
-  try {
-    const catImageUrl = await getCat();
-
-    if (catImageUrl) {
-      if (ctx.replyWithPhoto) {
-        await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(ctx.platform));
-        return;
-      } else {
-        await ctx.replySafe(`${phrases.cat.caption(ctx.platform)}\n${catImageUrl}`);
-        return;
-      }
+export const catCommand = catchErrors(async (ctx: UniversalContext) => {
+  const catImageUrl = await getCat();
+  if (catImageUrl) {
+    if (ctx.replyWithPhoto) {
+      await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(ctx.platform));
+      return;
+    } else {
+      await ctx.replySafe(`${phrases.cat.caption(ctx.platform)}\n${catImageUrl}`);
+      return;
     }
-    await ctx.replySafe(phrases.cat.notFound(ctx.platform));
-  } catch (err) {
-    console.error('Cat error:', err);
-    await ctx.replySafe(phrases.cat.notFound(ctx.platform));
   }
-}
+  await ctx.replySafe(phrases.cat.notFound(ctx.platform));
+}, phrases);

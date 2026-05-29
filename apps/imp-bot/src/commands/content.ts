@@ -1,4 +1,4 @@
-import { type UniversalContext } from '@verse/shared';
+import { catchErrors, type UniversalContext } from '@verse/shared';
 import { phrases } from '../locales/ru';
 import { PUBLIC_URL } from '../env.js';
 
@@ -45,31 +45,26 @@ export async function sendContentItem(
   await ctx.replySafe(message);
 }
 
-export async function contentCommand(ctx: UniversalContext, itemNumber: number): Promise<void> {
+export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumber: number) => {
   if (!ctx.db) {
     await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
     return;
   }
 
-  try {
-    const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
+  const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
-    if (!allContent || allContent.length === 0) {
-      await ctx.replySafe(phrases.content.emptyDb(ctx.platform));
-      return;
-    }
-
-    const itemIndex = itemNumber - 1;
-
-    if (itemIndex < 0 || itemIndex >= allContent.length) {
-      await ctx.replySafe(phrases.content.notFound(ctx.platform, itemNumber, allContent.length));
-      return;
-    }
-
-    const requestedItem = allContent[itemIndex];
-    await sendContentItem(ctx, requestedItem, itemNumber);
-  } catch (err) {
-    console.error('Content error:', err);
-    await ctx.replySafe(phrases.content.error(ctx.platform));
+  if (!allContent || allContent.length === 0) {
+    await ctx.replySafe(phrases.content.emptyDb(ctx.platform));
+    return;
   }
-}
+
+  const itemIndex = itemNumber - 1;
+
+  if (itemIndex < 0 || itemIndex >= allContent.length) {
+    await ctx.replySafe(phrases.content.notFound(ctx.platform, itemNumber, allContent.length));
+    return;
+  }
+
+  const requestedItem = allContent[itemIndex];
+  await sendContentItem(ctx, requestedItem, itemNumber);
+}, phrases)

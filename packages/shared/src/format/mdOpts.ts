@@ -1,4 +1,4 @@
-import type { Platform } from '@verse/md-format';
+import type { Platform } from '@verse-bot/md-format';
 import type { UniversalReplyOptions } from '../universal-context.js';
 
 export function mdOpts(platform: Platform): UniversalReplyOptions {

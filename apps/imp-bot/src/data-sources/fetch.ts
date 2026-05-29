@@ -1,4 +1,4 @@
-import { http } from '@verse/shared';
+import { http } from '@verse-bot/shared';
 import type { IApiAdviceData, IApiCatData, IApiQuoteData, IApiQuoteParams } from './types';
 
 /**

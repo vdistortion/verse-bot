@@ -1,4 +1,4 @@
-import { getUserCommandLogs, bold, requireAdmin, catchErrors } from '@verse/shared';
+import { getUserCommandLogs, bold, requireAdmin, catchErrors } from '@verse-bot/shared';
 import { phrases } from '../locales/ru';
 
 export const userLogCommand = requireAdmin(

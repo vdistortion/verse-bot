@@ -10,7 +10,7 @@ import {
   createVKKeyboard,
   type Platform,
   type UniversalContext,
-} from '@verse/shared';
+} from '@verse-bot/shared';
 
 export interface VKBotConfig {
   token: string;

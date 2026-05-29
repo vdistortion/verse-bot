@@ -1,5 +1,5 @@
 {
-  "name": "@verse/shared",
+  "name": "@verse-bot/shared",
   "version": "0.1.0",
   "description": "Shared utilities for bots and miniapps",
   "main": "dist/index.js",
@@ -18,7 +18,7 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@verse/md-format": "^0.1.0",
+    "@verse-bot/md-format": "^0.1.0",
     "pg": "^8.20.0"
   },
   "devDependencies": {

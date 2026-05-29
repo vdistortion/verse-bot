@@ -8,7 +8,7 @@ import {
   type UniversalContext,
   userExists,
   mdOpts,
-} from '@verse/shared';
+} from '@verse-bot/shared';
 import { createBot } from './bot-factory.js';
 import { dbMiddleware } from './middleware';
 import type { BotContext } from './types';

@@ -1,6 +1,6 @@
-import { initPool, getPool } from '@verse/shared';
-import { createUniversalTelegramBot } from '@verse/tg-core';
-import { createUniversalVKBot } from '@verse/vk-core';
+import { initPool, getPool } from '@verse-bot/shared';
+import { createUniversalTelegramBot } from '@verse-bot/tg-core';
+import { createUniversalVKBot } from '@verse-bot/vk-core';
 import { TELEGRAM_BOT_TOKEN, VK_GROUP_TOKEN, VK_GROUP_ID } from './env.js';
 
 // Инициализация БД, если заданы переменные

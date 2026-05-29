@@ -1,4 +1,4 @@
-import { catchErrors, type UniversalContext } from '@verse/shared';
+import { catchErrors, type UniversalContext } from '@verse-bot/shared';
 import { phrases } from '../locales/ru';
 import { PUBLIC_URL } from '../env.js';
 

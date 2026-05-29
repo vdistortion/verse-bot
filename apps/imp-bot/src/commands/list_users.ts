@@ -1,4 +1,4 @@
-import { getAllUsers, type DbUser, link, bold, requireAdmin, catchErrors } from '@verse/shared';
+import { getAllUsers, type DbUser, link, bold, requireAdmin, catchErrors } from '@verse-bot/shared';
 import { phrases } from '../locales/ru';
 
 function formatDate(dateStr: string): string {

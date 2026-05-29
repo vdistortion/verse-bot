@@ -7,5 +7,5 @@ export {
   escapeMarkdownV2,
   FormatToken,
   type Platform,
-} from '@verse/md-format';
+} from '@verse-bot/md-format';
 export { mdOpts } from './mdOpts';

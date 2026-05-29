@@ -1,4 +1,4 @@
-import { bold, catchErrors } from '@verse/shared';
+import { bold, catchErrors } from '@verse-bot/shared';
 import { getQuote } from '../data-sources';
 import { phrases } from '../locales/ru';
 

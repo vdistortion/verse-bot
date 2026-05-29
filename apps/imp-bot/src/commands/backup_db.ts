@@ -1,4 +1,4 @@
-import { requireAdmin } from '@verse/shared';
+import { requireAdmin } from '@verse-bot/shared';
 import { phrases } from '../locales/ru';
 
 export const backupDbCommand = requireAdmin(async (ctx) => {

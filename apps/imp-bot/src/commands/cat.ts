@@ -1,4 +1,4 @@
-import { catchErrors, type UniversalContext } from '@verse/shared';
+import { catchErrors, type UniversalContext } from '@verse-bot/shared';
 import { getCat } from '../data-sources';
 import { phrases } from '../locales/ru';
 

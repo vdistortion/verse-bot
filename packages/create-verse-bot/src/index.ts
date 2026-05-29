@@ -47,21 +47,21 @@ async function main() {
   const resolvePackage = (name: string) =>
     useLocal ? `file:${path.resolve(__dirname, '../..', name.split('/')[1])}` : 'latest';
 
-  deps['@verse/shared'] = resolvePackage('@verse/shared');
+  deps['@verse-bot/shared'] = resolvePackage('@verse-bot/shared');
   if (platforms.includes('telegram')) {
-    deps['@verse/tg-core'] = resolvePackage('@verse/tg-core');
+    deps['@verse-bot/tg-core'] = resolvePackage('@verse-bot/tg-core');
   }
   if (platforms.includes('vk')) {
-    deps['@verse/vk-core'] = resolvePackage('@verse/vk-core');
+    deps['@verse-bot/vk-core'] = resolvePackage('@verse-bot/vk-core');
   }
 
   pkg.dependencies = { ...pkg.dependencies, ...deps };
   // Удаляем лишние зависимости, если платформа не выбрана
   if (!platforms.includes('telegram')) {
-    delete pkg.dependencies['@verse/tg-core'];
+    delete pkg.dependencies['@verse-bot/tg-core'];
   }
   if (!platforms.includes('vk')) {
-    delete pkg.dependencies['@verse/vk-core'];
+    delete pkg.dependencies['@verse-bot/vk-core'];
   }
   fs.writeJsonSync(pkgPath, pkg, { spaces: 2 });
 

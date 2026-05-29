@@ -10,8 +10,8 @@
     "start": "node dist/src/index.js"
   },
   "dependencies": {
-    "@verse/shared": "^0.1.0",
-    "@verse/tg-core": "^0.1.0",
-    "@verse/vk-core": "^0.1.0"
+    "@verse-bot/shared": "^0.1.0",
+    "@verse-bot/tg-core": "^0.1.0",
+    "@verse-bot/vk-core": "^0.1.0"
   }
 }

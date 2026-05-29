@@ -1,4 +1,4 @@
-import { catchErrors } from '@verse/shared';
+import { catchErrors } from '@verse-bot/shared';
 import { sendContentItem } from './content';
 import { phrases } from '../locales/ru';
 

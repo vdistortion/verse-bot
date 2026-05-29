@@ -1,5 +1,5 @@
 {
-  "name": "@verse/vk-core",
+  "name": "@verse-bot/vk-core",
   "version": "0.1.0",
   "description": "Core library for building VK bots",
   "main": "dist/index.js",
@@ -18,6 +18,6 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@verse/shared": "^0.1.0"
+    "@verse-bot/shared": "^0.1.0"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@verse/miniapp",
+  "name": "@verse-bot/miniapp",
   "version": "0.1.0",
   "description": "Telegram Mini App integration utilities",
   "main": "dist/index.js",

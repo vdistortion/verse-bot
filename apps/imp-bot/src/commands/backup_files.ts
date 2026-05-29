@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { ZipArchive } from 'archiver';
-import { requireAdmin } from '@verse/shared';
+import { requireAdmin } from '@verse-bot/shared';
 import { phrases } from '../locales/ru';
 import { CONTENT_DIR } from '../env.js';
 

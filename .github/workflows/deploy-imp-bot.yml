@@ -1,0 +1,41 @@
+name: Deploy Imp Bot
+
+on:
+  push:
+    branches: [release]
+    paths:
+      - 'apps/imp-bot/**'
+      - 'packages/create-verse-bot/template/schema.sql'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            PROJECT_PATH=~/projects/${{ github.event.repository.name }}
+            if [ ! -d "$PROJECT_PATH" ]; then
+              mkdir -p ~/projects
+              git clone git@github.com:${{ github.repository }}.git "$PROJECT_PATH"
+            fi
+            cd "$PROJECT_PATH"
+            git pull origin release
+            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" > apps/imp-bot/.env
+            echo "VK_GROUP_TOKEN=${{ secrets.VK_GROUP_TOKEN }}" >> apps/imp-bot/.env
+            echo "VK_GROUP_ID=${{ secrets.VK_GROUP_ID }}" >> apps/imp-bot/.env
+            echo "POSTGRES_DB=postgres" >> apps/imp-bot/.env
+            echo "POSTGRES_USER=postgres" >> apps/imp-bot/.env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> apps/imp-bot/.env
+            echo "POSTGRES_HOST=db" >> apps/imp-bot/.env
+            echo "PUBLIC_URL=${{ secrets.PUBLIC_URL }}" >> apps/imp-bot/.env
+            echo "TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME }}" >> apps/imp-bot/.env
+            echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID }}" >> apps/imp-bot/.env
+            cd apps/imp-bot
+            docker compose -f docker-compose.release.yml up -d --build

@@ -1,5 +1,5 @@
-import { db } from './client.js';
-import type { Platform } from '../universal-context';
+import type { Platform } from '@verse-bot/md-format';
+import { getPool } from './client.js';
 
 export interface CommandStat {
   command: string;
@@ -17,7 +17,7 @@ export interface CommandLogEntry {
 
 export async function getCommandStats(days?: number): Promise<CommandStat[]> {
   if (days) {
-    const { rows } = await db().query<CommandStat>(
+    const { rows } = await getPool().query<CommandStat>(
       `SELECT command, platform, count(*)::int as count
        FROM command_logs
        WHERE created_at > now() - interval '1 day' * $1
@@ -27,7 +27,7 @@ export async function getCommandStats(days?: number): Promise<CommandStat[]> {
     );
     return rows;
   } else {
-    const { rows } = await db().query<CommandStat>(
+    const { rows } = await getPool().query<CommandStat>(
       `SELECT command, platform, count(*)::int as count
        FROM command_logs
        GROUP BY command, platform
@@ -38,7 +38,7 @@ export async function getCommandStats(days?: number): Promise<CommandStat[]> {
 }
 
 export async function getUserCommandLogs(userId: number, limit = 20): Promise<CommandLogEntry[]> {
-  const { rows } = await db().query<CommandLogEntry>(
+  const { rows } = await getPool().query<CommandLogEntry>(
     `SELECT * FROM command_logs WHERE user_id = $1 ORDER BY id DESC LIMIT $2`,
     [userId, limit],
   );
@@ -50,11 +50,10 @@ export async function logCommand(
   platform: Platform,
   command: string,
 ): Promise<void> {
-  await db().query(`INSERT INTO command_logs (user_id, platform, command) VALUES ($1, $2, $3)`, [
-    dbUserId,
-    platform,
-    command,
-  ]);
+  await getPool().query(
+    `INSERT INTO command_logs (user_id, platform, command) VALUES ($1, $2, $3)`,
+    [dbUserId, platform, command],
+  );
 }
 
 export async function getUserOwnCommandLogs(

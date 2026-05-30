@@ -1,12 +1,9 @@
 export * from './utils/array.js';
 export * from './utils/http.js';
-export * from './utils/i18n.js';
-export * from './db/client.js';
+export { createPool, initPool, getPool } from './db/client.js';
 export * from './db/users.js';
 export * from './db/commandLogs.js';
-export * from './format/format.js';
-export * from './format/helpers.js';
-export * from './format/tokens.js';
-export * from './format/mdOpts.js';
+export * from './format/index.js';
 export * from './universal-context.js';
 export * from './keyboards.js';
+export * from './command-guards.js';

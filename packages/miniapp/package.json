@@ -1,23 +1,66 @@
 {
-  "name": "@scope/miniapp",
-  "version": "1.0.0",
-  "description": "Telegram Mini App utilities",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+  "name": "@verse-bot/miniapp",
+  "type": "module",
+  "version": "0.2.1",
+  "description": "Telegram Mini App integration utilities — framework-agnostic core with Angular support",
+  "keywords": [
+    "telegram",
+    "mini-app",
+    "miniapp",
+    "twa",
+    "telegram-web-app",
+    "angular",
+    "bot",
+    "verse-bot"
+  ],
+  "homepage": "https://verse-bot.zvalentin.ru",
+  "bugs": {
+    "url": "https://github.com/vdistortion/verse-bot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vdistortion/verse-bot.git",
+    "directory": "packages/miniapp"
+  },
+  "license": "Apache-2.0",
+  "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "tsc --noemit"
+    "build": "ng-packagr -p ng-package.json",
+    "publish": "npm run build && cd dist && npm publish",
+    "pack": "npm run build && cd dist && npm pack --pack-destination .."
+  },
+  "peerDependencies": {
+    "@angular/common": ">=14.0.0 <22.0.0",
+    "@angular/core": ">=14.0.0 <22.0.0",
+    "@angular/router": ">=14.0.0 <22.0.0",
+    "rxjs": ">=7.0.0 <8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/router": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@angular/common": "^21.2.15",
+    "@angular/core": "^21.2.15",
+    "@angular/router": "^21.2.15",
+    "ng-packagr": "^21.2.3",
+    "rxjs": "^7.8.2"
   },
   "dependencies": {
-    "@scope/shared": "*"
+    "@telegram-apps/sdk": "^3.11.8"
   }
 }

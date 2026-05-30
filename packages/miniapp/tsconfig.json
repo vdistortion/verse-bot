@@ -2,10 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
-    "composite": true
+    "composite": true,
+    "paths": {
+      "@verse-bot/miniapp": ["./src/public-api.ts"]
+    }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "angular/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,0 +1,25 @@
+{
+  "name": "create-verse-bot",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "CLI to scaffold a new Verse Bot project",
+  "main": "dist/index.js",
+  "bin": {
+    "create-verse-bot": "./dist/index.js"
+  },
+  "files": [
+    "template",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.1.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4"
+  }
+}

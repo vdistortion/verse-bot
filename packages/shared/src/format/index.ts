@@ -1,5 +1,11 @@
-export * from './format.js';
-export * from './helpers.js';
-export * from './tokens.js';
-export * from './mdOpts.js';
-export * from './markdown.js';
+export {
+  format,
+  bold,
+  link,
+  raw,
+  spoiler,
+  escapeMarkdownV2,
+  FormatToken,
+  type Platform,
+} from '@verse-bot/md-format';
+export { mdOpts } from './mdOpts.js';

@@ -1,12 +1,15 @@
 import type { Pool } from 'pg';
-import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
-import type { FormatToken } from './format/tokens';
-
-export type Platform = 'telegram' | 'vk';
+import type { FormatToken, Platform } from './format/index.js';
 
 export interface UniversalReplyOptions {
   parse_mode?: 'MarkdownV2';
-  telegramReplyMarkup?: ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove;
+  /**
+   * Telegram reply markup.
+   * Принимает GrammY Keyboard, InlineKeyboard или сырые объекты ReplyKeyboardMarkup/Remove.
+   * Типизировано как any: shared платформо-агностичен и не зависит от grammy.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  telegramReplyMarkup?: any;
   vkKeyboard?: string;
   remove_keyboard?: boolean;
   link_preview_options?: { is_disabled: boolean };
@@ -29,4 +32,6 @@ export interface UniversalContext {
   replyWithFile?: (buffer: Buffer, filename: string, caption?: string) => Promise<void>;
   replyWithPhoto?: (photoUrl: string, caption?: string) => Promise<void>;
   chatType: 'channel' | 'private' | 'group' | 'supergroup' | 'unknown';
+  tgApi?: any; // API Telegram-бота (GrammY)
+  vkApi?: any; // Экземпляр VK-бота
 }

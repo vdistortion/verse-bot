@@ -1,5 +1,5 @@
-import { db } from './client.js';
-import type { Platform } from '../universal-context';
+import type { Platform } from '@verse-bot/md-format';
+import { getPool } from './client.js';
 
 export interface DbUser {
   id: number;
@@ -14,7 +14,7 @@ export async function findOrCreateUser(
   platformUserId: string,
 ): Promise<DbUser | null> {
   const column = platform === 'telegram' ? 'tg_id' : 'vk_id';
-  const { rows } = await db().query<DbUser>(
+  const { rows } = await getPool().query<DbUser>(
     `INSERT INTO users (${column}) VALUES ($1) ON CONFLICT (${column}) DO UPDATE SET updated_at = now() RETURNING *`,
     [platformUserId],
   );
@@ -24,17 +24,17 @@ export async function findOrCreateUser(
 export async function removeUser(platform: Platform, platformUserId: string): Promise<void> {
   const column = platform === 'telegram' ? 'tg_id' : 'vk_id';
 
-  await db().query(
+  await getPool().query(
     `DELETE FROM command_logs WHERE user_id = (SELECT id FROM users WHERE ${column} = $1)`,
     [platformUserId],
   );
 
-  await db().query(`DELETE FROM users WHERE ${column} = $1`, [platformUserId]);
+  await getPool().query(`DELETE FROM users WHERE ${column} = $1`, [platformUserId]);
 }
 
 export async function userExists(platform: Platform, platformUserId: string): Promise<boolean> {
   const column = platform === 'telegram' ? 'tg_id' : 'vk_id';
-  const { rows } = await db().query<{ id: number }>(
+  const { rows } = await getPool().query<{ id: number }>(
     `SELECT id FROM users WHERE ${column} = $1 LIMIT 1`,
     [platformUserId],
   );
@@ -42,6 +42,6 @@ export async function userExists(platform: Platform, platformUserId: string): Pr
 }
 
 export async function getAllUsers(): Promise<DbUser[]> {
-  const { rows } = await db().query<DbUser>('SELECT * FROM users ORDER BY created_at DESC');
+  const { rows } = await getPool().query<DbUser>('SELECT * FROM users ORDER BY created_at DESC');
   return rows;
 }

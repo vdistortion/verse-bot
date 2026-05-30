@@ -1,0 +1,25 @@
+name: verse-bot-release
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file: .env
+    volumes:
+      - ./data/release_db:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy

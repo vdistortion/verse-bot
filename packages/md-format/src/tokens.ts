@@ -18,7 +18,6 @@ export class BoldToken extends FormatToken {
           ? escapeMarkdownV2(this.text)
           : this.text;
     if (platform === 'telegram') return `*${inner}*`;
-    if (platform === 'vk') return `**${inner}**`;
     return inner;
   }
 }
@@ -38,8 +37,7 @@ export class LinkToken extends FormatToken {
           ? escapeMarkdownV2(this.label)
           : this.label;
     if (platform === 'telegram') return `[${labelStr}](${this.url})`;
-    // VK ToDo
-    return `[${labelStr}](${this.url})`;
+    return `${labelStr}: ${this.url}`;
   }
 }
 

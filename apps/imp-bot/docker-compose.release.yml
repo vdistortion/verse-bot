@@ -7,7 +7,6 @@ services:
     env_file: .env
     volumes:
       - ./data/release_db:/var/lib/postgresql/data
-      # В продакшене схему можно загрузить через volume или использовать managed database
       - ../../packages/create-verse-bot/template/schema.sql:/docker-entrypoint-initdb.d/01-common.sql
       - ./schema.imp.sql:/docker-entrypoint-initdb.d/02-imp.sql
     healthcheck:

@@ -57,12 +57,15 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       }
     }
 
+    // Системная кнопка «Начать» в VK
+    if (commandToExecute === 'Начать') {
+      commandToExecute = '/start';
+    }
+
     // Если текст – это кнопка, преобразуем в команду со слешем
     if (!commandToExecute.startsWith('/') && buttonToCommand.has(commandToExecute)) {
       commandToExecute = '/' + buttonToCommand.get(commandToExecute)!;
     }
-
-    const isStart = ['/start', 'Начать'].includes(commandToExecute);
 
     // --- БД: только если pool доступен ---
     let dbUserId: number | undefined;
@@ -78,7 +81,11 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         return;
       }
       dbUserId = dbUser.id;
-      await logCommand(dbUser.id, 'vk', isStart ? '/start' : commandToExecute);
+      await logCommand(
+        dbUser.id,
+        'vk',
+        commandToExecute,
+      );
 
       // users.get только для зарегистрированных пользователей с pool
       try {

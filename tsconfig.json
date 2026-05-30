@@ -1,11 +1,12 @@
 {
   "files": [],
   "references": [
+    { "path": "./packages/create-verse-bot" },
     { "path": "./packages/shared" },
-    { "path": "./packages/miniapp" },
     { "path": "./packages/tg-core" },
     { "path": "./packages/vk-core" },
-    { "path": "./apps/bot" }
+    { "path": "./packages/md-format" },
+    { "path": "./apps/imp-bot" }
   ],
   "compilerOptions": {
     "target": "es2022",

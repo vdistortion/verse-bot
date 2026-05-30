@@ -1,4 +1,5 @@
-import type { VKContext, VKUpdate } from './types';
+import { VK_MAX_RANDOM_ID } from './vk-constants.js';
+import type { VKContext, VKUpdate } from './types/index.js';
 
 type UpdateHandler = (ctx: VKContext) => void | Promise<void>;
 
@@ -180,7 +181,7 @@ export class VKBot {
     const params: Record<string, unknown> = {
       peer_id: peerId,
       message: text,
-      random_id: Date.now(),
+      random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
     };
 
     if (keyboard) {

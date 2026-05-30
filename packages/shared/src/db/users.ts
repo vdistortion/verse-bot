@@ -1,5 +1,5 @@
+import type { Platform } from '@verse-bot/md-format';
 import { getPool } from './client.js';
-import type { Platform } from '../universal-context';
 
 export interface DbUser {
   id: number;

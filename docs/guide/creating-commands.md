@@ -7,7 +7,7 @@
 Создайте файл `apps/bot/src/commands/hello.ts`:
 
 ```ts
-import type { UniversalContext } from '@verse/shared';
+import type { UniversalContext } from '@verse-bot/shared';
 
 export async function helloCommand(ctx: UniversalContext) {
   await ctx.reply(ctx.format`Привет, ${ctx.firstName ?? 'гость'}!`);
@@ -39,7 +39,7 @@ ctx.format`${link('Нажми', 'https://example.com')}`;
 
 Для создания клавиатур используйте:
 
-- Telegram: `createTelegramKeyboard` из `@verse/tg-core`.
-- VK: `createVKKeyboard` из `@verse/shared`.
+- Telegram: `createTelegramKeyboard` из `@verse-bot/tg-core`.
+- VK: `createVKKeyboard` из `@verse-bot/shared`.
 
 Примеры смотрите в команде startCommand.

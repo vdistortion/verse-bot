@@ -5,13 +5,12 @@ import {
   findOrCreateUser,
   format,
   logCommand,
-  type UniversalContext,
-  userExists,
   mdOpts,
-} from '@verse/shared';
+  type UniversalContext,
+} from '@verse-bot/shared';
 import { createBot } from './bot-factory.js';
-import { dbMiddleware } from './middleware';
-import type { BotContext } from './types';
+import { dbMiddleware } from './middleware/index.js';
+import type { BotContext } from './types/index.js';
 
 export interface TelegramBotConfig {
   token: string;
@@ -31,6 +30,34 @@ export interface TelegramBotConfig {
   contentDir?: string;
 }
 
+function makePhotoHandler(ctx: BotContext, contentDir?: string) {
+  return async (photoUrl: string, caption?: string) => {
+    try {
+      await ctx.replyWithPhoto(photoUrl, {
+        caption: caption ?? undefined,
+        parse_mode: 'MarkdownV2',
+      });
+    } catch {
+      const peerId = ctx.chat?.id ?? 0;
+      if (contentDir) {
+        const filename = decodeURIComponent(photoUrl.split('/').pop() ?? '');
+        const filepath = path.join(contentDir, 'content-images', filename);
+        if (existsSync(filepath)) {
+          const buffer = readFileSync(filepath);
+          await ctx.replyWithPhoto(new InputFile(buffer, filename), {
+            caption: caption ?? undefined,
+            parse_mode: 'MarkdownV2',
+          });
+        } else {
+          await ctx.api.sendMessage(peerId, caption ?? '');
+        }
+      } else {
+        await ctx.api.sendMessage(peerId, caption ?? '');
+      }
+    }
+  };
+}
+
 export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotContext> {
   const bot = createBot({ token: config.token });
 
@@ -39,31 +66,6 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
 
   // Middleware создания UniversalContext
   bot.use(async (ctx, next) => {
-    const defaultPhotoHandler = async (photoUrl: string, caption?: string) => {
-      try {
-        await ctx.replyWithPhoto(photoUrl, {
-          caption: caption ?? undefined,
-          parse_mode: 'MarkdownV2',
-        });
-      } catch {
-        if (config.contentDir) {
-          const filename = decodeURIComponent(photoUrl.split('/').pop() ?? '');
-          const filepath = path.join(config.contentDir, 'content-images', filename);
-          if (existsSync(filepath)) {
-            const buffer = readFileSync(filepath);
-            await ctx.replyWithPhoto(new InputFile(buffer, filename), {
-              caption: caption ?? undefined,
-              parse_mode: 'MarkdownV2',
-            });
-          } else {
-            await ctx.api.sendMessage(uctx.peerId, caption ?? '');
-          }
-        } else {
-          await ctx.api.sendMessage(uctx.peerId, caption ?? '');
-        }
-      }
-    };
-
     const uctx: UniversalContext = {
       platform: 'telegram',
       userId: String(ctx.from?.id ?? 0),
@@ -93,7 +95,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
           caption ? { caption, parse_mode: 'MarkdownV2' } : { parse_mode: 'MarkdownV2' },
         );
       },
-      replyWithPhoto: config.onReplyWithPhoto ?? defaultPhotoHandler,
+      replyWithPhoto: config.onReplyWithPhoto ?? makePhotoHandler(ctx, config.contentDir),
       tgApi: ctx.api,
     };
     (ctx as any).uctx = uctx;
@@ -103,24 +105,16 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
   // Middleware проверки и логирования пользователей
   bot.use(async (ctx, next) => {
     const text = ctx.message?.text ?? '';
-    const isStart = text === '/start' || text.startsWith('/start ');
+    const isStart = text === '/start' || text.startsWith('/start ') || text.startsWith('/start@');
     const uctx: UniversalContext = (ctx as any).uctx;
     if (!uctx) return next();
 
-    const exists = await userExists(uctx.platform, uctx.userId);
-    if (!exists) {
-      if (isStart) {
-        const dbUser = await findOrCreateUser(uctx.platform, uctx.userId);
-        if (!dbUser) return;
-        uctx.dbUserId = dbUser.id;
-        await logCommand(dbUser.id, uctx.platform, '/start');
-        return next();
-      }
-      return;
-    }
+    // Если БД недоступна — пропускаем всю работу с пользователями
+    if (!ctx.db) return next();
 
     const dbUser = await findOrCreateUser(uctx.platform, uctx.userId);
-    uctx.dbUserId = dbUser!.id;
+    if (!dbUser) return;
+    uctx.dbUserId = dbUser.id;
     if (isStart) {
       await logCommand(dbUser!.id, uctx.platform, '/start');
       return next();
@@ -136,7 +130,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
   for (const { command, label } of config.buttons) {
     const handler = config.commands[command];
     if (handler) {
-      // Команда вида /cat
+      // Команда вида /start
       bot.command(command, async (ctx) => {
         const uctx = (ctx as any).uctx;
         await handler(uctx);

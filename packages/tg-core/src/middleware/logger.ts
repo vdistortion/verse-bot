@@ -1,5 +1,5 @@
 import type { MiddlewareFn } from 'grammy';
-import type { BotContext } from '../types';
+import type { BotContext } from '../types/index.js';
 
 export const loggerMiddleware: MiddlewareFn<BotContext> = async (ctx, next) => {
   const start = Date.now();

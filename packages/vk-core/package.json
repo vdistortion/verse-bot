@@ -1,23 +1,27 @@
 {
-  "name": "@verse/vk-core",
-  "version": "1.0.0",
+  "name": "@verse-bot/vk-core",
+  "version": "0.1.0",
+  "type": "module",
   "description": "Core library for building VK bots",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "source": "./src/index.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@verse/shared": "*"
+    "@verse-bot/shared": "^0.1.0"
   }
 }

@@ -1,24 +1,18 @@
 {
   "name": "verse-bot-monorepo",
-  "version": "2.0.0",
+  "version": "0.1.0",
   "description": "Universal bot framework – write commands once, run on Telegram and VK",
   "private": true,
   "scripts": {
-    "docker:dev:up": "docker compose -f docker-compose.dev.yml up -d",
-    "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
-    "docker:dev:clean": "docker compose -f docker-compose.dev.yml down -v --rmi all",
-    "docker:main:up": "docker compose -f docker-compose.main.yml up -d --build",
-    "docker:main:down": "docker compose -f docker-compose.main.yml down",
-    "docker:main:clean": "docker compose -f docker-compose.main.yml down -v --rmi all",
-    "docker:release:up": "docker compose -f docker-compose.release.yml up -d --build",
-    "docker:release:down": "docker compose -f docker-compose.release.yml down",
-    "docker:release:clean": "docker compose -f docker-compose.release.yml down -v --rmi all",
+    "docker:dev:up": "docker compose up -d",
+    "docker:dev:down": "docker compose down",
+    "docker:dev:clean": "docker compose down -v --rmi all",
     "prepare": "cp -n .env.example .env",
-    "build": "tsc --build",
+    "build": "npm run build --workspace=@verse-bot/miniapp && tsc --build",
     "build:clean": "npm run clean && npm run build",
-    "dev": "dotenv -- env tsx watch --watch=packages --conditions=source apps/bot/src/index.ts",
-    "dev:tg": "dotenv -- env VK_GROUP_TOKEN='' VK_GROUP_ID='' tsx watch --watch=packages --conditions=source apps/bot/src/index.ts",
-    "dev:vk": "dotenv -- env TELEGRAM_BOT_TOKEN='' tsx watch --watch=packages --conditions=source apps/bot/src/index.ts",
+    "dev": "dotenv -- env tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
+    "dev:tg": "dotenv -- env VK_GROUP_TOKEN='' VK_GROUP_ID='' tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
+    "dev:vk": "dotenv -- env TELEGRAM_BOT_TOKEN='' tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
     "clean": "find . -name dist -type d -exec rm -rf {} + && find . -name \"*.tsbuildinfo\" -delete",
     "clean:all": "npm run clean && rm -rf node_modules package-lock.json && npm i",
     "docs:dev": "vitepress dev docs",
@@ -38,18 +32,7 @@
     "apps/*",
     "docs"
   ],
-  "keywords": [
-    "telegram-bot",
-    "vk-bot",
-    "monorepo",
-    "typescript",
-    "boilerplate",
-    "grammy",
-    "docker",
-    "postgres"
-  ],
   "devDependencies": {
-    "@types/archiver": "^7.0.0",
     "@types/debug": "^4.1.13",
     "@types/node": "^25.7.0",
     "debug": "^4.4.3",
@@ -58,9 +41,5 @@
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vitepress": "^1.6.4"
-  },
-  "dependencies": {
-    "archiver": "^8.0.0",
-    "zod": "^4.4.3"
   }
 }

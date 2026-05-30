@@ -10,5 +10,5 @@ export interface SessionData {
 // Расширяем контекст gramgrammy
 export interface BotContext extends GrammyContext, SessionFlavor<SessionData> {
   // Можно добавить свои поля
-  db: Pool;
+  db?: Pool;
 }

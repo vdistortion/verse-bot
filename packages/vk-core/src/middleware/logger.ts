@@ -1,4 +1,4 @@
-import type { VKContext } from '../types';
+import type { VKContext } from '../types/index.js';
 
 export function createLoggerMiddleware() {
   return async (ctx: VKContext, next: () => void | Promise<void>) => {

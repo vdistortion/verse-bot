@@ -2,8 +2,8 @@ import {
   bindThemeParamsCssVars,
   closeMiniApp,
   disableVerticalSwipes,
-  hideBackButton,
-  hideSettingsButton,
+  hideBackButton as tgHideBackButton,
+  hideSettingsButton as tgHideSettingsButton,
   init,
   miniApp,
   miniAppReady,
@@ -20,8 +20,8 @@ import {
   onSettingsButtonClick,
   setMainButtonParams,
   setSecondaryButtonParams,
-  showBackButton,
-  showSettingsButton,
+  showBackButton as tgShowBackButton,
+  showSettingsButton as tgShowSettingsButton,
   unmountBackButton,
   unmountClosingBehavior,
   unmountMainButton,
@@ -98,26 +98,27 @@ export class TelegramApi {
 
   showBackButton(): void {
     if (!this.#isMiniApp) return;
-    showBackButton();
+    tgShowBackButton();
   }
 
   hideBackButton(): void {
     if (!this.#isMiniApp) return;
-    hideBackButton();
+    tgHideBackButton();
   }
 
   showSettingsButton(): void {
     if (!this.#isMiniApp) return;
-    showSettingsButton();
+    tgShowSettingsButton();
   }
 
   hideSettingsButton(): void {
     if (!this.#isMiniApp) return;
-    hideSettingsButton();
+    tgHideSettingsButton();
   }
 
   onMainButtonClick(cb: () => void): VoidFunction {
     if (!this.#isMiniApp) return () => {};
+    if (!cb) return () => {};
     return onMainButtonClick(cb);
   }
 

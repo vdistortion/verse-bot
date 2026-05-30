@@ -1,4 +1,4 @@
-import type { VKContext } from '../types';
+import type { VKContext } from '../types/index.js';
 
 export function createErrorHandler() {
   return (err: Error, ctx: VKContext) => {

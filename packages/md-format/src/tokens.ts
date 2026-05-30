@@ -1,4 +1,4 @@
-import { escapeMarkdownV2 } from './markdown';
+import { escapeMarkdownV2 } from './markdown.js';
 
 export type Platform = 'telegram' | 'vk';
 

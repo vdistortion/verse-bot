@@ -1,10 +1,9 @@
-// apps/bot/src/index.ts
 import { initPool, getPool } from '@verse-bot/shared';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';
-import * as env from './env';
-import * as commands from './commands';
-import { phrases, getButtons } from './locales/ru';
+import * as env from './env.js';
+import * as commands from './commands/index.js';
+import { phrases, getButtons } from './locales/ru.js';
 
 // Инициализация БД
 const poolConfig = {

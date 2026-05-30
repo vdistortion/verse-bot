@@ -1,5 +1,5 @@
 import { catchErrors, type UniversalContext } from '@verse-bot/shared';
-import { phrases } from '../locales/ru';
+import { phrases } from '../locales/ru.js';
 import { PUBLIC_URL } from '../env.js';
 
 interface BotContentItem {
@@ -67,4 +67,4 @@ export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumb
 
   const requestedItem = allContent[itemIndex];
   await sendContentItem(ctx, requestedItem, itemNumber);
-}, phrases)
+}, phrases);

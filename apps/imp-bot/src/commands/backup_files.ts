@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { ZipArchive } from 'archiver';
 import { requireAdmin } from '@verse-bot/shared';
-import { phrases } from '../locales/ru';
+import { phrases } from '../locales/ru.js';
 import { CONTENT_DIR } from '../env.js';
 
 const contentDir = CONTENT_DIR ?? '/srv/content/imp';

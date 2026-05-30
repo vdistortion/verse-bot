@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { telegramApi } from '../lib/telegram-api.service.js';
+import { telegramApi } from '@verse-bot/miniapp';
 
 @Injectable({ providedIn: 'root' })
 export class TelegramApiService {

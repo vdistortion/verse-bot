@@ -10,8 +10,8 @@ import {
   mdOpts,
 } from '@verse-bot/shared';
 import { createBot } from './bot-factory.js';
-import { dbMiddleware } from './middleware';
-import type { BotContext } from './types';
+import { dbMiddleware } from './middleware/index.js';
+import type { BotContext } from './types/index.js';
 
 export interface TelegramBotConfig {
   token: string;

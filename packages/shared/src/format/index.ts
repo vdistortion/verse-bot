@@ -8,4 +8,4 @@ export {
   FormatToken,
   type Platform,
 } from '@verse-bot/md-format';
-export { mdOpts } from './mdOpts';
+export { mdOpts } from './mdOpts.js';

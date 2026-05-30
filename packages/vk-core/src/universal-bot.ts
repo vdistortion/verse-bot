@@ -1,6 +1,6 @@
 import { type Pool } from 'pg';
 import { createVKBot, type VKBot } from './bot-factory.js';
-import type { VKContext } from './types';
+import type { VKContext } from './types/index.js';
 import {
   findOrCreateUser,
   format,

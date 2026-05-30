@@ -1,6 +1,5 @@
 import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@verse-bot/shared';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
-import { homepage } from '../../../../package.json';
 
 // --- интерфейс команды ---
 export interface CommandDef {
@@ -176,7 +175,7 @@ export const phrases = {
         ? f`\n\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
         : '';
 
-      const footer = f`\n${link('Исходный код', homepage)}\nНе обязательно использовать. Не обязательно понимать.\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
+      const footer = f`\n${link('Исходный код', 'https://github.com/vdistortion/verse-bot')}\nНе обязательно использовать. Не обязательно понимать.\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
       return f`${raw(header)}${raw(linksSection)}${raw(footer)}`;
     },

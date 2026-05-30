@@ -1,4 +1,4 @@
-import { getApiAdvice, getApiCat, getApiQuote } from './fetch';
+import { getApiAdvice, getApiCat, getApiQuote } from './fetch.js';
 
 export async function getCat(): Promise<string> {
   const { url } = await getApiCat();

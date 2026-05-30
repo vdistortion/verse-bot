@@ -1,5 +1,5 @@
 import { getCommandStats, bold, requireAdmin, catchErrors } from '@verse-bot/shared';
-import { phrases } from '../locales/ru';
+import { phrases } from '../locales/ru.js';
 
 export const statsCommand = requireAdmin(
   catchErrors(async (ctx) => {

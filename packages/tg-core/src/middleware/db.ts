@@ -1,6 +1,6 @@
 import type { MiddlewareFn } from 'grammy';
 import { getPool } from '@verse-bot/shared';
-import type { BotContext } from '../types';
+import type { BotContext } from '../types/index.js';
 
 export const dbMiddleware: MiddlewareFn<BotContext> = async (ctx, next) => {
   ctx.db = getPool();

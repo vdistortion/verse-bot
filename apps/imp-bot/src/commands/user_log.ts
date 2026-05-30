@@ -1,5 +1,5 @@
 import { getUserCommandLogs, bold, requireAdmin, catchErrors } from '@verse-bot/shared';
-import { phrases } from '../locales/ru';
+import { phrases } from '../locales/ru.js';
 
 export const userLogCommand = requireAdmin(
   catchErrors(async (ctx, userId: number) => {

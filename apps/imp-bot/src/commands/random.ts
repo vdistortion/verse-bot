@@ -1,6 +1,6 @@
 import { catchErrors } from '@verse-bot/shared';
-import { sendContentItem } from './content';
-import { phrases } from '../locales/ru';
+import { sendContentItem } from './content.js';
+import { phrases } from '../locales/ru.js';
 
 export const randomCommand = catchErrors(async (ctx) => {
   if (!ctx.db) {
@@ -20,4 +20,4 @@ export const randomCommand = catchErrors(async (ctx) => {
   const itemNumber = randomIndex + 1;
 
   await sendContentItem(ctx, randomItem, itemNumber);
-}, phrases)
+}, phrases);

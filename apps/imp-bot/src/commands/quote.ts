@@ -1,6 +1,6 @@
 import { bold, catchErrors } from '@verse-bot/shared';
-import { getQuote } from '../data-sources';
-import { phrases } from '../locales/ru';
+import { getQuote } from '../data-sources/index.js';
+import { phrases } from '../locales/ru.js';
 
 export const quoteCommand = catchErrors(async (ctx) => {
   const { quoteText, quoteAuthor } = await getQuote();

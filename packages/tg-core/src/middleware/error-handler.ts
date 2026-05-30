@@ -1,5 +1,5 @@
 import type { ErrorHandler } from 'grammy';
-import type { BotContext } from '../types';
+import type { BotContext } from '../types/index.js';
 
 export const errorHandler: ErrorHandler<BotContext> = (err) => {
   const ctx = err.ctx;

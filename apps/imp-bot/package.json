@@ -1,17 +1,23 @@
 {
   "name": "imp-bot",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "start": "node dist/src/index.js"
+    "start": "node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/archiver": "^7.0.0"
   },
   "dependencies": {
     "@verse-bot/shared": "^0.1.0",
     "@verse-bot/tg-core": "^0.1.0",
-    "@verse-bot/vk-core": "^0.1.0"
+    "@verse-bot/vk-core": "^0.1.0",
+    "archiver": "^8.0.0",
+    "zod": "^4.4.3"
   }
 }

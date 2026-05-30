@@ -1,6 +1,6 @@
 import { createVKKeyboard, type UniversalContext } from '@verse-bot/shared';
 import { createTelegramKeyboard } from '@verse-bot/tg-core';
-import { getButtons, phrases } from '../locales/ru';
+import { getButtons, phrases } from '../locales/ru.js';
 
 export async function startCommand(
   ctx: UniversalContext,

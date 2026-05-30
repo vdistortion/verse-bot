@@ -38,8 +38,8 @@ async function main() {
   const templateDir = path.resolve(__dirname, '../template');
   fs.copySync(templateDir, targetDir);
 
-  // Обновляем package.json для зависимостей
-  const pkgPath = path.join(targetDir, 'package.json');
+  // Обновляем ng-package.json для зависимостей
+  const pkgPath = path.join(targetDir, 'ng-package.json');
   const pkg = fs.readJsonSync(pkgPath);
   const deps: Record<string, string> = {};
 

@@ -1,5 +1,5 @@
 import { type UniversalContext } from '@verse-bot/shared';
-import { phrases } from '../locales/ru';
+import { phrases } from '../locales/ru.js';
 
 export async function idCommand(ctx: UniversalContext): Promise<void> {
   const id = ctx.chatType === 'private' ? ctx.userId : ctx.peerId;

@@ -22,7 +22,7 @@ import { TelegramApiService } from '@verse-bot/miniapp/angular';
 @Component({ ... })
 export class AppComponent {
   private tg = inject(TelegramApiService);
-    
+
   ngOnInit() {
     this.tg.init();
   }

@@ -1,5 +1,5 @@
 import { requireAdmin } from '@verse-bot/shared';
-import { phrases } from '../locales/ru';
+import { phrases } from '../locales/ru.js';
 
 export const backupDbCommand = requireAdmin(async (ctx) => {
   if (!ctx.replyWithFile) {

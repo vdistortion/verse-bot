@@ -1,4 +1,4 @@
-import type { VKContext, VKUpdate } from './types';
+import type { VKContext, VKUpdate } from './types/index.js';
 
 type UpdateHandler = (ctx: VKContext) => void | Promise<void>;
 

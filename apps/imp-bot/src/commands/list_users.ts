@@ -1,5 +1,5 @@
 import { getAllUsers, type DbUser, link, bold, requireAdmin, catchErrors } from '@verse-bot/shared';
-import { phrases } from '../locales/ru';
+import { phrases } from '../locales/ru.js';
 
 function formatDate(dateStr: string): string {
   // Форматируем дату без информации о часовом поясе, чтобы избежать скобок

@@ -1,5 +1,5 @@
 import { http } from '@verse-bot/shared';
-import type { IApiAdviceData, IApiCatData, IApiQuoteData, IApiQuoteParams } from './types';
+import type { IApiAdviceData, IApiCatData, IApiQuoteData, IApiQuoteParams } from './types.js';
 
 /**
  * Сайт: https://thecatapi.com/

@@ -1,6 +1,6 @@
 import { catchErrors, type UniversalContext } from '@verse-bot/shared';
-import { getCat } from '../data-sources';
-import { phrases } from '../locales/ru';
+import { getCat } from '../data-sources/index.js';
+import { phrases } from '../locales/ru.js';
 
 export const catCommand = catchErrors(async (ctx: UniversalContext) => {
   const catImageUrl = await getCat();

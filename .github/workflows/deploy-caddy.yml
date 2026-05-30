@@ -28,7 +28,7 @@ jobs:
               echo "🚀 Starting standalone Caddy container at ${CADDY_STATIC_DIR}"
               mkdir -p $CADDY_STATIC_DIR
 
-              wget -q -O $CADDY_STATIC_DIR/Caddyfile https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/caddy/static.caddyfile
+              wget -q -O $CADDY_STATIC_DIR/static.caddyfile https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/caddy/static.caddyfile
               wget -q -O $CADDY_STATIC_DIR/docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/caddy/docker-compose.yml
 
               cd $CADDY_STATIC_DIR

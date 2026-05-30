@@ -1,7 +1,7 @@
 {
   "name": "@verse-bot/miniapp",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Telegram Mini App integration utilities — framework-agnostic core with Angular support",
   "keywords": [
     "telegram",
@@ -30,6 +30,7 @@
   },
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
+    "publish": "npm run build && cd dist && npm publish",
     "pack": "npm run build && cd dist && npm pack --pack-destination .."
   },
   "peerDependencies": {

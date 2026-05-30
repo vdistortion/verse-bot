@@ -1,4 +1,4 @@
-name: imp-bot-prod
+name: verse-bot-release
 
 services:
   db:
@@ -6,10 +6,8 @@ services:
     restart: always
     env_file: .env
     volumes:
-      - ./data/prod_db:/var/lib/postgresql/data
-      # В продакшене схему можно загрузить через volume или использовать managed database
-      - ../../packages/create-verse-bot/template/schema.sql:/docker-entrypoint-initdb.d/01-common.sql
-      - ./schema.imp.sql:/docker-entrypoint-initdb.d/02-imp.sql
+      - ./data/release_db:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
       interval: 5s

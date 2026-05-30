@@ -6,6 +6,7 @@
     "declaration": true,
     "composite": true
   },
+  "references": [{ "path": "../md-format" }],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

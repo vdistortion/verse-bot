@@ -3,6 +3,10 @@ import { getPool } from '@verse-bot/shared';
 import type { BotContext } from '../types/index.js';
 
 export const dbMiddleware: MiddlewareFn<BotContext> = async (ctx, next) => {
-  ctx.db = getPool();
+  try {
+    ctx.db = getPool();
+  } catch {
+    // pool не инициализирован — бот работает без БД
+  }
   await next();
 };

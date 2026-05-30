@@ -5,9 +5,14 @@ import * as env from './env.js';
 import * as commands from './commands/index.js';
 import { phrases, getButtons } from './locales/ru.js';
 
+if (!process.env.POSTGRES_USER) {
+  console.error('[env] POSTGRES_USER is required');
+  process.exit(1);
+}
+
 // Инициализация БД
 const poolConfig = {
-  user: process.env.POSTGRES_USER!,
+  user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD!,
   host: process.env.POSTGRES_HOST || 'localhost',
   database: process.env.POSTGRES_DB!,

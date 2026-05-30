@@ -3,6 +3,9 @@ import { input, checkbox } from '@inquirer/prompts';
 import path from 'node:path';
 import fs from 'fs-extra';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function main() {
   const projectName = await input({
@@ -38,8 +41,8 @@ async function main() {
   const templateDir = path.resolve(__dirname, '../template');
   fs.copySync(templateDir, targetDir);
 
-  // Обновляем ng-package.json для зависимостей
-  const pkgPath = path.join(targetDir, 'ng-package.json');
+  // Обновляем package.json для зависимостей
+  const pkgPath = path.join(targetDir, 'package.json');
   const pkg = fs.readJsonSync(pkgPath);
   const deps: Record<string, string> = {};
 

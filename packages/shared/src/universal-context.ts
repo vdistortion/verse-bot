@@ -1,10 +1,15 @@
 import type { Pool } from 'pg';
-import type { ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove } from 'grammy/types';
 import type { FormatToken, Platform } from './format/index.js';
 
 export interface UniversalReplyOptions {
   parse_mode?: 'MarkdownV2';
-  telegramReplyMarkup?: ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove;
+  /**
+   * Telegram reply markup.
+   * Принимает GrammY Keyboard, InlineKeyboard или сырые объекты ReplyKeyboardMarkup/Remove.
+   * Типизировано как any: shared платформо-агностичен и не зависит от grammy.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  telegramReplyMarkup?: any;
   vkKeyboard?: string;
   remove_keyboard?: boolean;
   link_preview_options?: { is_disabled: boolean };

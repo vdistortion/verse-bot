@@ -1,23 +1,22 @@
-import { initPool, getPool } from '@verse-bot/shared';
+import { initPool, getPool, type UniversalContext } from '@verse-bot/shared';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';
 import { TELEGRAM_BOT_TOKEN, VK_GROUP_TOKEN, VK_GROUP_ID } from './env.js';
 
 // Инициализация БД, если заданы переменные
 if (process.env.POSTGRES_USER) {
-  const poolConfig = {
+  initPool({
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD!,
     host: process.env.POSTGRES_HOST || 'localhost',
     database: process.env.POSTGRES_DB!,
     port: 5432,
-  };
-  initPool(poolConfig);
+  });
 }
 
 // Заглушки команд – замените на свои
 const commands = {
-  ping: async (ctx: any) => {
+  ping: async (ctx: UniversalContext) => {
     await ctx.reply('pong');
   },
 };
@@ -29,13 +28,20 @@ if (TELEGRAM_BOT_TOKEN) {
     commands,
     buttons: [],
   });
-  bot.start().then(() => console.log('🤖 Telegram bot started'));
+  bot.start();
+  console.log('🚀 Telegram bot started');
 }
 
 // VK
 if (VK_GROUP_TOKEN && VK_GROUP_ID) {
-  const pool = getPool(); // если БД не используется, getPool() выбросит ошибку,
-  // но можно обернуть в try или проверять наличие process.env.POSTGRES_USER
+  const pool = process.env.POSTGRES_USER ? getPool() : undefined;
+
+  if (!pool) {
+    console.warn(
+      'VK bot started without database (POSTGRES_* not set). User persistence disabled.',
+    );
+  }
+
   const bot = createUniversalVKBot({
     token: VK_GROUP_TOKEN,
     groupId: VK_GROUP_ID,
@@ -43,5 +49,6 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     buttons: [],
     pool,
   });
-  bot.start().then(() => console.log('🤖 VK bot started'));
+  bot.start();
+  console.log('🤖 VK bot started');
 }

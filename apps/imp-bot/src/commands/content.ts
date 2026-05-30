@@ -8,9 +8,9 @@ interface BotContentItem {
   text_content?: string;
 }
 
-function getImageUrl(filename: string): string {
-  const encodedFilename = encodeURIComponent(filename);
-  return `${PUBLIC_URL}/content-images/${encodedFilename}`;
+function getImageUrl(filename: string): string | null {
+  if (!PUBLIC_URL) return null;
+  return `${PUBLIC_URL}/content-images/${encodeURIComponent(filename)}`;
 }
 
 export async function sendContentItem(

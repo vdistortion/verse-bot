@@ -8,6 +8,7 @@
     "create-verse-bot": "./dist/index.js"
   },
   "files": [
+    "template",
     "dist"
   ],
   "scripts": {

@@ -2,7 +2,7 @@ name: Deploy Imp Bot
 
 on:
   push:
-    branches: [main]
+    branches: [release]
     paths:
       - 'apps/imp-bot/**'
       - 'packages/create-verse-bot/template/schema.sql'
@@ -30,5 +30,8 @@ jobs:
             echo "POSTGRES_USER=postgres" >> apps/imp-bot/.env
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_MAIN }}" >> apps/imp-bot/.env
             echo "POSTGRES_HOST=db" >> apps/imp-bot/.env
+            echo "PUBLIC_URL=${{ secrets.PUBLIC_URL }}" >> apps/imp-bot/.env
+            echo "TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME }}" >> apps/imp-bot/.env
+            echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID }}" >> apps/imp-bot/.env
             cd apps/imp-bot
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.release.yml up -d --build

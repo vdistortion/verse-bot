@@ -1,4 +1,4 @@
-name: verse-bot-dev
+name: imp-bot-dev
 
 services:
   db:
@@ -9,9 +9,5 @@ services:
       - '5432:5432'
     volumes:
       - ./data/dev_db:/var/lib/postgresql/data
-      - ./packages/create-verse-bot/template/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - ./packages/create-verse-bot/template/schema.sql:/docker-entrypoint-initdb.d/01-common.sql
+      - ./apps/imp-bot/schema.imp.sql:/docker-entrypoint-initdb.d/02-imp.sql

@@ -6,8 +6,16 @@ export async function getCat(): Promise<string> {
 }
 
 export async function getQuote(): Promise<{ quoteText: string; quoteAuthor: string }> {
-  const { quoteText, quoteAuthor } = await getApiQuote();
-  return { quoteText, quoteAuthor };
+  try {
+    const { quoteText, quoteAuthor } = await getApiQuote();
+    return { quoteText, quoteAuthor };
+  } catch (err) {
+    console.error('[getQuote] API error:', err);
+    return {
+      quoteText: 'Даже цитаты сегодня молчат. Попробуй позже.',
+      quoteAuthor: '',
+    };
+  }
 }
 
 export async function getAdvice(): Promise<string> {

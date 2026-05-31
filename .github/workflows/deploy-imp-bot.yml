@@ -28,7 +28,7 @@ jobs:
             cd "$PROJECT_PATH"
             git pull origin release
             echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" > apps/imp-bot/.env
-            echo "TELEGRAM_ADMIN_ID=${{ secrets.TELEGRAM_ADMIN_ID }}" > apps/imp-bot/.env
+            echo "TELEGRAM_ADMIN_ID=${{ secrets.TELEGRAM_ADMIN_ID }}" >> apps/imp-bot/.env
             echo "VK_GROUP_TOKEN=${{ secrets.VK_GROUP_TOKEN }}" >> apps/imp-bot/.env
             echo "VK_GROUP_ID=${{ secrets.VK_GROUP_ID }}" >> apps/imp-bot/.env
             echo "POSTGRES_DB=postgres" >> apps/imp-bot/.env
@@ -37,9 +37,9 @@ jobs:
             echo "POSTGRES_HOST=db" >> apps/imp-bot/.env
             echo "STATIC_DOMAIN=${{ secrets.STATIC_DOMAIN }}" >> apps/imp-bot/.env
             echo "STATIC_PATH_PREFIX=${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
-            echo "PUBLIC_URL=https://${STATIC_DOMAIN}/${STATIC_PATH_PREFIX}" >> apps/imp-bot/.env
-            echo "CONTENT_IMAGES_BASE_URL=${PUBLIC_URL}" >> apps/imp-bot/.env
-            echo "CONTENT_DIR=/srv/static/${STATIC_PATH_PREFIX}" >> apps/imp-bot/.env
+            echo "PUBLIC_URL=https://${{ secrets.STATIC_DOMAIN }}/${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
+            echo "CONTENT_IMAGES_BASE_URL=https://${{ secrets.STATIC_DOMAIN }}/${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
+            echo "CONTENT_DIR=/srv/static/${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
             echo "TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME }}" >> apps/imp-bot/.env
             echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID }}" >> apps/imp-bot/.env
             cd apps/imp-bot

@@ -9,7 +9,7 @@ const schema = z
     VK_GROUP_ID: z.coerce.number().int().positive().optional(),
     VK_ADMIN_ID: z.coerce.number().int().positive().optional(),
     PUBLIC_URL: z.url().optional(),
-    CONTENT_DIR: z.string().default('/srv/content/imp'),
+    CONTENT_DIR: z.string().default('/srv/static/imp'),
   })
   .refine((d) => d.TELEGRAM_BOT_TOKEN || d.VK_GROUP_TOKEN, {
     message: 'At least one of TELEGRAM_BOT_TOKEN or VK_GROUP_TOKEN must be set',

@@ -29,7 +29,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     volumes:
-      - /root/projects/content/imp:/usr/share/nginx/html:ro
+      - /srv/static/imp:/usr/share/nginx/html:ro
     networks:
       - caddy
     labels:

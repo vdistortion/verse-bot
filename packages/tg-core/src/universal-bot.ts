@@ -41,7 +41,7 @@ function makePhotoHandler(ctx: BotContext, contentDir?: string) {
       const peerId = ctx.chat?.id ?? 0;
       if (contentDir) {
         const filename = decodeURIComponent(photoUrl.split('/').pop() ?? '');
-        const filepath = path.join(contentDir, 'content-images', filename);
+        const filepath = path.join(contentDir, filename);
         if (existsSync(filepath)) {
           const buffer = readFileSync(filepath);
           await ctx.replyWithPhoto(new InputFile(buffer, filename), {

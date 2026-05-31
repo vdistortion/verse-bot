@@ -4,7 +4,7 @@ import { requireAdmin } from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
 import { CONTENT_DIR } from '../env.js';
 
-const contentDir = CONTENT_DIR ?? '/srv/content/imp';
+const contentDir = CONTENT_DIR ?? '/srv/static/imp';
 
 export const backupFilesCommand = requireAdmin(async (ctx) => {
   if (!ctx.replyWithFile) {

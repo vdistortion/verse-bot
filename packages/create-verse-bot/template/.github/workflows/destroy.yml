@@ -1,0 +1,35 @@
+name: Destroy Bot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Destroy deployment via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            PROJECT_PATH=~/projects/${{ github.event.repository.name }}
+            BOT_PATH=$PROJECT_PATH
+
+            # 1. Останавливаем контейнеры, удаляем volumes и образы
+            if [ -d "$BOT_PATH" ]; then
+              cd "$BOT_PATH"
+              docker compose -f docker-compose.release.yml down -v --rmi all
+              echo "✅ Контейнеры остановлены, volumes и образы удалены"
+            else
+              echo "⚠️  $BOT_PATH не найден — контейнеры пропускаем"
+            fi
+
+            # 2. Удаляем .env с секретами
+            rm -f "$BOT_PATH/.env"
+            echo "✅ .env удалён"
+
+            # 3. Удаляем клон репозитория
+            rm -rf "$PROJECT_PATH"
+            echo "✅ Репозиторий удалён: $PROJECT_PATH"

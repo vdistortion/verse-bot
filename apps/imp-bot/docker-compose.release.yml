@@ -24,3 +24,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  static:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - /srv/static/imp:/usr/share/nginx/html:ro
+    networks:
+      - caddy
+    labels:
+      caddy: static.cloud-server-99.space
+      caddy.handle_path: /imp/*
+      caddy.handle_path.reverse_proxy: "{{upstreams 80}}"
+
+networks:
+  caddy:
+    external: true

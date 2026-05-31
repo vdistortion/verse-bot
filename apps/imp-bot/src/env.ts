@@ -26,6 +26,8 @@ if (!result.success) {
   process.exit(1);
 }
 
+export const CONTENT_IMAGES_BASE_URL = process.env.CONTENT_IMAGES_BASE_URL;
+
 export const {
   TELEGRAM_BOT_TOKEN,
   TELEGRAM_BOT_USERNAME,

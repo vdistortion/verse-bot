@@ -29,12 +29,12 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     volumes:
-      - /srv/static/imp:/usr/share/nginx/html:ro
+      - ${CONTENT_DIR}:/usr/share/nginx/html:ro
     networks:
       - caddy
     labels:
-      caddy: static.cloud-server-99.space
-      caddy.handle_path: /imp/*
+      caddy: ${STATIC_DOMAIN}
+      caddy.handle_path: /${STATIC_PATH_PREFIX}/*
       caddy.handle_path.reverse_proxy: "{{upstreams 80}}"
 
 networks:

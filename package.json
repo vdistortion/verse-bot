@@ -4,9 +4,9 @@
   "description": "Universal bot framework – write commands once, run on Telegram and VK",
   "private": true,
   "scripts": {
-    "docker:dev:up": "docker compose up -d",
-    "docker:dev:down": "docker compose down",
-    "docker:dev:clean": "docker compose down -v --rmi all",
+    "docker:dev:up": "docker compose -f apps/imp-bot/docker-compose.yml up -d",
+    "docker:dev:down": "docker compose -f apps/imp-bot/docker-compose.yml down",
+    "docker:dev:clean": "docker compose -f apps/imp-bot/docker-compose.yml down -v --rmi all",
     "prepare": "cp -n .env.example .env",
     "build": "npm run build --workspace=@verse-bot/miniapp && tsc --build",
     "build:clean": "npm run clean && npm run build",

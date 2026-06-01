@@ -1,6 +1,6 @@
 import { catchErrors, type UniversalContext } from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
-import { CONTENT_IMAGES_BASE_URL } from '../env.js';
+import { PUBLIC_URL } from '../env.js';
 
 interface BotContentItem {
   id: number;
@@ -9,8 +9,8 @@ interface BotContentItem {
 }
 
 function getImageUrl(filename: string): string | null {
-  if (!CONTENT_IMAGES_BASE_URL) return null;
-  return `${CONTENT_IMAGES_BASE_URL}/${encodeURIComponent(filename)}`;
+  if (!PUBLIC_URL) return null;
+  return `${PUBLIC_URL}/${encodeURIComponent(filename)}`;
 }
 
 export async function sendContentItem(

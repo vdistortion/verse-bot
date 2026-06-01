@@ -1,6 +1,7 @@
 export {
   format,
   bold,
+  code,
   link,
   raw,
   spoiler,

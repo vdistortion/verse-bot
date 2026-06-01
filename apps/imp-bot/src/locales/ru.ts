@@ -1,4 +1,13 @@
-import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@verse-bot/shared';
+import {
+  format,
+  bold,
+  code,
+  link,
+  raw,
+  spoiler,
+  type Platform,
+  FormatToken,
+} from '@verse-bot/shared';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 
 // --- интерфейс команды ---
@@ -120,8 +129,6 @@ export function getButtons(fullMenu: boolean) {
     if (commands.random.button)
       buttons.push({ label: commands.random.button, command: '/' + commands.random.command });
   }
-  if (commands.help.button)
-    buttons.push({ label: commands.help.button, command: '/' + commands.help.command });
   return buttons;
 }
 
@@ -210,9 +217,9 @@ export const phrases = {
 
   id: {
     message: (platform: Platform, userId: string) =>
-      format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${String(userId)}`,
+      format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${code(String(userId))}`,
     chatId: (platform: Platform, chatId: number | string) =>
-      format(platform)`🆔 ${bold('ID чата:')} ${String(chatId)}`,
+      format(platform)`🆔 ${bold('ID чата:')} ${code(String(chatId))}`,
   },
 
   cat: {

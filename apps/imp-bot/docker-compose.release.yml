@@ -34,7 +34,7 @@ services:
     labels:
       caddy: ${STATIC_DOMAIN}
       caddy.handle_path: /${STATIC_PATH_PREFIX}/*
-      caddy.handle_path.reverse_proxy: "{{upstreams 80}}"
+      caddy.handle_path.reverse_proxy: '{{upstreams 80}}'
 
 networks:
   caddy:

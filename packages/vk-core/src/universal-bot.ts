@@ -81,11 +81,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         return;
       }
       dbUserId = dbUser.id;
-      await logCommand(
-        dbUser.id,
-        'vk',
-        commandToExecute,
-      );
+      await logCommand(dbUser.id, 'vk', commandToExecute);
 
       // users.get только для зарегистрированных пользователей с pool
       try {

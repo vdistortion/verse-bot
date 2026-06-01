@@ -5,7 +5,6 @@ import * as env from './env.js';
 import * as commands from './commands/index.js';
 import { phrases, getButtons } from './locales/ru.js';
 
-
 initPool({
   user: env.POSTGRES_USER,
   password: env.POSTGRES_PASSWORD,

@@ -1,4 +1,4 @@
-import { catchErrors, type UniversalContext } from '@verse-bot/shared';
+import { catchErrors, code, type UniversalContext } from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
 import { PUBLIC_URL } from '../env.js';
 
@@ -19,14 +19,16 @@ export async function sendContentItem(
   itemNumber: number,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const hint = phrases.content.commandHint(ctx.platform, itemNumber);
+  const hintLine = ctx.isAdmin
+    ? ctx.format`\n\n${code(phrases.content.commandHint(ctx.platform, itemNumber))}`
+    : '';
 
   if (imageUrl && ctx.replyWithPhoto) {
     let caption = '';
     if (item.text_content) {
       caption += ctx.format`${item.text_content}`;
     }
-    caption += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+    caption += hintLine;
     await ctx.replyWithPhoto(imageUrl, caption);
     return;
   }
@@ -41,7 +43,7 @@ export async function sendContentItem(
         ? `\n\n[📷 Смотреть изображение](${imageUrl})`
         : `\n\n${imageUrl}`;
   }
-  message += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
+  message += hintLine;
   await ctx.replySafe(message);
 }
 

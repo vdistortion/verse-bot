@@ -20,7 +20,6 @@ import {
   backupFilesCommand,
   catCommand,
   contentCommand,
-  fullCommand,
   helpCommand,
   idCommand,
   listUsersCommand,
@@ -42,7 +41,7 @@ initPool({
   port: 5432,
 });
 
-const allButtons = [...getButtons(true), ...getButtons(false)].map((b) => ({
+const allButtons = getButtons().map((b) => ({
   command: b.command.replace('/', ''),
   label: b.label,
 }));
@@ -57,7 +56,6 @@ if (TELEGRAM_BOT_TOKEN) {
     adminId: TELEGRAM_ADMIN_ID,
     commands: {
       start: startCommand,
-      full: fullCommand,
       cat: catCommand,
       quote: quoteCommand,
       advice: adviceCommand,
@@ -89,7 +87,6 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     adminId: VK_ADMIN_ID,
     commands: {
       start: startCommand,
-      full: fullCommand,
       cat: catCommand,
       quote: quoteCommand,
       advice: adviceCommand,
@@ -106,7 +103,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     contentCommand: contentCommand,
     userLogCommand: userLogCommand,
     unknownCommandPhrase: phrases.unknownCommand,
-    getButtonsForUnknown: () => getButtons(false),
+    getButtonsForUnknown: () => getButtons(),
     pool: getPool(),
   });
   vkBot.start();

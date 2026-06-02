@@ -117,18 +117,12 @@ export function setMyCommands() {
     .map((cmd) => ({ command: cmd.command, description: cmd.tgDescription! }));
 }
 
-export function getButtons(fullMenu: boolean) {
+export function getButtons() {
   const buttons: { label: string; command: string }[] = [];
   if (commands.cat.button)
     buttons.push({ label: commands.cat.button, command: '/' + commands.cat.command });
   if (commands.quote.button)
     buttons.push({ label: commands.quote.button, command: '/' + commands.quote.command });
-  if (fullMenu) {
-    if (commands.advice.button)
-      buttons.push({ label: commands.advice.button, command: '/' + commands.advice.command });
-    if (commands.random.button)
-      buttons.push({ label: commands.random.button, command: '/' + commands.random.command });
-  }
   return buttons;
 }
 

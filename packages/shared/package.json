@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@verse-bot/md-format": "^0.1.0",
-    "pg": "^8.20.0"
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@types/pg": "^8.20.0"

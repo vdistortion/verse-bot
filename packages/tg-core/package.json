@@ -23,6 +23,6 @@
   },
   "dependencies": {
     "@verse-bot/shared": "^0.1.0",
-    "grammy": "^1.42.0"
+    "grammy": "^1.43.0"
   }
 }

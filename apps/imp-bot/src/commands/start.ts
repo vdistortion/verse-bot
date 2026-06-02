@@ -1,12 +1,8 @@
-import { createVKKeyboard, type UniversalContext } from '@verse-bot/shared';
-import { createTelegramKeyboard } from '@verse-bot/tg-core';
+import type { UniversalContext, UniversalReplyOptions } from '@verse-bot/shared';
 import { getButtons, phrases } from '../locales/ru.js';
 
-export async function startCommand(
-  ctx: UniversalContext,
-  fullMenu: boolean = false,
-): Promise<void> {
-  const buttons = getButtons(fullMenu);
+export async function startCommand(ctx: UniversalContext) {
+  const buttons = getButtons(false);
   // группируем в ряды по 2 кнопки
   const universalKeyboard = [];
   for (let i = 0; i < buttons.length; i += 2) {
@@ -14,13 +10,15 @@ export async function startCommand(
       buttons.slice(i, i + 2).map((b) => ({ label: b.label, command: b.command })),
     );
   }
-  const message = fullMenu
-    ? phrases.start.fullMenu(ctx.platform)
-    : phrases.start.mainMenu(ctx.platform);
+  const message = phrases.start.mainMenu(ctx.platform);
 
-  await ctx.replySafe(message, {
-    ...(ctx.platform === 'telegram'
-      ? { telegramReplyMarkup: createTelegramKeyboard(universalKeyboard) }
-      : { vkKeyboard: createVKKeyboard(universalKeyboard) }),
-  });
+  const extra: UniversalReplyOptions = {};
+
+  if (ctx.chatType === 'private') {
+    extra.replyKeyboard = universalKeyboard;
+  } else {
+    extra.inlineKeyboard = universalKeyboard;
+  }
+
+  await ctx.replySafe(message, extra);
 }

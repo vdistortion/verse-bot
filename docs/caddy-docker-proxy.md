@@ -41,8 +41,8 @@ services:
     image: lucaslorentz/caddy-docker-proxy:ci-alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     environment:
       - CADDY_INGRESS_NETWORKS=caddy
     volumes:
@@ -100,7 +100,7 @@ services:
       - caddy
     labels:
       caddy: app.example.com
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy.reverse_proxy: '{{upstreams 3000}}'
 
 networks:
   internal:
@@ -120,8 +120,8 @@ networks:
 
 ```yaml
 labels:
-  caddy: "app.example.com www.app.example.com"
-  caddy.reverse_proxy: "{{upstreams 3000}}"
+  caddy: 'app.example.com www.app.example.com'
+  caddy.reverse_proxy: '{{upstreams 3000}}'
 ```
 
 Домены перечисляются через пробел в одной строке.
@@ -133,15 +133,15 @@ labels:
 ```yaml
 labels:
   caddy: upload.example.com
-  caddy.reverse_proxy: "{{upstreams 3000}}"
+  caddy.reverse_proxy: '{{upstreams 3000}}'
   caddy.request_body.max_size: 100MB
 ```
 
 ```yaml
 labels:
   caddy: api.example.com
-  caddy.reverse_proxy: "{{upstreams 8080}}"
-  caddy.header.Access-Control-Allow-Origin: "*"
+  caddy.reverse_proxy: '{{upstreams 8080}}'
+  caddy.header.Access-Control-Allow-Origin: '*'
 ```
 
 ### Статические файлы (nginx)
@@ -161,7 +161,7 @@ services:
     labels:
       caddy: static.example.com
       caddy.handle_path: /files/*
-      caddy.handle_path.reverse_proxy: "{{upstreams 80}}"
+      caddy.handle_path.reverse_proxy: '{{upstreams 80}}'
 
 networks:
   caddy:
@@ -177,7 +177,7 @@ networks:
 ```yaml
 labels:
   caddy: static.example.com
-  caddy.reverse_proxy: "{{upstreams 80}}"
+  caddy.reverse_proxy: '{{upstreams 80}}'
 ```
 
 **Соглашение о путях для статики:** рекомендуется хранить файлы
@@ -210,11 +210,13 @@ docker compose down
 ## Диагностика
 
 **Посмотреть все контейнеры в сети caddy:**
+
 ```bash
 docker network inspect caddy
 ```
 
 **Посмотреть сгенерированный конфиг (как Caddy видит маршруты):**
+
 ```bash
 docker exec $(docker ps -qf name=caddy) \
   wget -qO- http://localhost:2019/config/

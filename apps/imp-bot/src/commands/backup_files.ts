@@ -4,22 +4,20 @@ import { requireAdmin } from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
 import { CONTENT_DIR } from '../env.js';
 
-const contentDir = CONTENT_DIR ?? '/srv/static/imp';
-
 export const backupFilesCommand = requireAdmin(async (ctx) => {
   if (!ctx.replyWithFile) {
     await ctx.replySafe(phrases.backupDb.unsupported(ctx.platform));
     return;
   }
 
-  if (!existsSync(contentDir)) {
-    await ctx.replySafe(phrases.backupFiles.notFound(ctx.platform, contentDir));
+  if (!existsSync(CONTENT_DIR)) {
+    await ctx.replySafe(phrases.backupFiles.notFound(ctx.platform, CONTENT_DIR));
     return;
   }
 
   await ctx.replySafe(phrases.backupFiles.start(ctx.platform));
 
-  const buffer = await zipDirectory(contentDir);
+  const buffer = await zipDirectory(CONTENT_DIR);
   const filename = `content_backup_${new Date().toISOString()}.zip`;
   await ctx.replyWithFile(buffer, filename, phrases.backupFiles.success(ctx.platform));
 }, phrases);

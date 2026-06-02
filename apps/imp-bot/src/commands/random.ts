@@ -1,6 +1,6 @@
-import { catchErrors } from '@verse-bot/shared';
+import { catchErrors, type UniversalReplyOptions } from '@verse-bot/shared';
 import { sendContentItem } from './content.js';
-import { phrases } from '../locales/ru.js';
+import { getButtons, getInlineButton, phrases } from '../locales/ru.js';
 
 export const randomCommand = catchErrors(async (ctx) => {
   if (!ctx.db) {
@@ -18,6 +18,20 @@ export const randomCommand = catchErrors(async (ctx) => {
   const randomIndex = Math.floor(Math.random() * allContent.length);
   const randomItem = allContent[randomIndex];
   const itemNumber = randomIndex + 1;
+  const extra: UniversalReplyOptions = {};
 
-  await sendContentItem(ctx, randomItem, itemNumber);
+  if (ctx.chatType === 'private') {
+    const fullButtons = getButtons(true);
+    const universalKeyboard = [];
+    for (let i = 0; i < fullButtons.length; i += 2) {
+      universalKeyboard.push(
+        fullButtons.slice(i, i + 2).map((b) => ({ label: b.label, command: b.command })),
+      );
+    }
+    extra.replyKeyboard = universalKeyboard;
+  } else {
+    extra.inlineKeyboard = getInlineButton('random', '🚀 В неизвестность');
+  }
+
+  await sendContentItem(ctx, randomItem, itemNumber, extra);
 }, phrases);

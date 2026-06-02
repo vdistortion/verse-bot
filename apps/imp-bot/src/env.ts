@@ -9,7 +9,11 @@ const schema = z
     VK_GROUP_ID: z.coerce.number().int().positive().optional(),
     VK_ADMIN_ID: z.coerce.number().int().positive().optional(),
     PUBLIC_URL: z.url().optional(),
-    CONTENT_DIR: z.string().default('/srv/static/imp'),
+    CONTENT_DIR: z.string(),
+    POSTGRES_USER: z.string().min(1),
+    POSTGRES_PASSWORD: z.string(),
+    POSTGRES_HOST: z.string(),
+    POSTGRES_DB: z.string().min(1),
   })
   .refine((d) => d.TELEGRAM_BOT_TOKEN || d.VK_GROUP_TOKEN, {
     message: 'At least one of TELEGRAM_BOT_TOKEN or VK_GROUP_TOKEN must be set',
@@ -26,8 +30,6 @@ if (!result.success) {
   process.exit(1);
 }
 
-export const CONTENT_IMAGES_BASE_URL = process.env.CONTENT_IMAGES_BASE_URL;
-
 export const {
   TELEGRAM_BOT_TOKEN,
   TELEGRAM_BOT_USERNAME,
@@ -37,4 +39,8 @@ export const {
   VK_ADMIN_ID,
   PUBLIC_URL,
   CONTENT_DIR,
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_HOST,
+  POSTGRES_DB,
 } = result.data;

@@ -65,3 +65,15 @@ export class SpoilerToken extends FormatToken {
     return inner;
   }
 }
+
+export class CodeToken extends FormatToken {
+  constructor(private text: string) {
+    super();
+  }
+  render(platform: Platform): string {
+    if (platform === 'telegram') {
+      return `\`${this.text.replace(/`/g, '\\`')}\``;
+    }
+    return this.text;
+  }
+}

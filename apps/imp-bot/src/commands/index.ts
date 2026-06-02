@@ -2,7 +2,6 @@ export { idCommand } from './id.js';
 export { backupDbCommand } from './backup_db.js';
 export { backupFilesCommand } from './backup_files.js';
 export { startCommand } from './start.js';
-export { fullCommand } from './full.js';
 export { catCommand } from './cat.js';
 export { quoteCommand } from './quote.js';
 export { adviceCommand } from './advice.js';

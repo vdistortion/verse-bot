@@ -1,26 +1,47 @@
 import { initPool, getPool } from '@verse-bot/shared';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';
-import * as env from './env.js';
-import * as commands from './commands/index.js';
+import {
+  CONTENT_DIR,
+  POSTGRES_DB,
+  POSTGRES_HOST,
+  POSTGRES_PASSWORD,
+  POSTGRES_USER,
+  TELEGRAM_ADMIN_ID,
+  TELEGRAM_BOT_TOKEN,
+  VK_ADMIN_ID,
+  VK_GROUP_ID,
+  VK_GROUP_TOKEN,
+} from './env.js';
+import {
+  adminCommand,
+  adviceCommand,
+  backupDbCommand,
+  backupFilesCommand,
+  catCommand,
+  contentCommand,
+  helpCommand,
+  idCommand,
+  listUsersCommand,
+  myLogCommand,
+  quoteCommand,
+  randomCommand,
+  startCommand,
+  statsCommand,
+  stopCommand,
+  userLogCommand,
+} from './commands/index.js';
 import { phrases, getButtons } from './locales/ru.js';
 
-if (!process.env.POSTGRES_USER) {
-  console.error('[env] POSTGRES_USER is required');
-  process.exit(1);
-}
-
-// Инициализация БД
-const poolConfig = {
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD!,
-  host: process.env.POSTGRES_HOST || 'localhost',
-  database: process.env.POSTGRES_DB!,
+initPool({
+  user: POSTGRES_USER,
+  password: POSTGRES_PASSWORD,
+  host: POSTGRES_HOST,
+  database: POSTGRES_DB,
   port: 5432,
-};
-initPool(poolConfig);
+});
 
-const allButtons = [...getButtons(true), ...getButtons(false)].map((b) => ({
+const allButtons = getButtons(false).map((b) => ({
   command: b.command.replace('/', ''),
   label: b.label,
 }));
@@ -29,60 +50,58 @@ const allButtons = [...getButtons(true), ...getButtons(false)].map((b) => ({
 const uniqueButtons = Array.from(new Map(allButtons.map((b) => [b.command + b.label, b])).values());
 
 // Telegram
-if (env.TELEGRAM_BOT_TOKEN) {
+if (TELEGRAM_BOT_TOKEN) {
   const tgBot = createUniversalTelegramBot({
-    token: env.TELEGRAM_BOT_TOKEN,
-    adminId: env.TELEGRAM_ADMIN_ID,
+    token: TELEGRAM_BOT_TOKEN,
+    adminId: TELEGRAM_ADMIN_ID,
     commands: {
-      start: commands.startCommand,
-      full: commands.fullCommand,
-      cat: commands.catCommand,
-      quote: commands.quoteCommand,
-      advice: commands.adviceCommand,
-      random: commands.randomCommand,
-      help: commands.helpCommand,
-      stop: commands.stopCommand,
-      id: commands.idCommand,
-      mylog: commands.myLogCommand,
-      admin: commands.adminCommand,
-      backupdb: commands.backupDbCommand,
-      backupfiles: commands.backupFilesCommand,
-      list_users: commands.listUsersCommand,
-      stats: commands.statsCommand,
+      start: startCommand,
+      cat: catCommand,
+      quote: quoteCommand,
+      advice: adviceCommand,
+      random: randomCommand,
+      help: helpCommand,
+      stop: stopCommand,
+      id: idCommand,
+      mylog: myLogCommand,
+      admin: adminCommand,
+      backupdb: backupDbCommand,
+      backupfiles: backupFilesCommand,
+      list_users: listUsersCommand,
+      stats: statsCommand,
     },
     buttons: uniqueButtons,
-    contentCommand: commands.contentCommand,
-    userLogCommand: commands.userLogCommand,
-    contentDir: env.CONTENT_DIR,
+    contentCommand: contentCommand,
+    userLogCommand: userLogCommand,
+    contentDir: CONTENT_DIR,
   });
   tgBot.start();
   console.log('🚀 Telegram bot started');
 }
 
 // VK
-if (env.VK_GROUP_TOKEN && env.VK_GROUP_ID) {
+if (VK_GROUP_TOKEN && VK_GROUP_ID) {
   const vkBot = createUniversalVKBot({
-    token: env.VK_GROUP_TOKEN,
-    groupId: env.VK_GROUP_ID,
-    adminId: env.VK_ADMIN_ID,
+    token: VK_GROUP_TOKEN,
+    groupId: VK_GROUP_ID,
+    adminId: VK_ADMIN_ID,
     commands: {
-      start: commands.startCommand,
-      full: commands.fullCommand,
-      cat: commands.catCommand,
-      quote: commands.quoteCommand,
-      advice: commands.adviceCommand,
-      random: commands.randomCommand,
-      help: commands.helpCommand,
-      stop: commands.stopCommand,
-      id: commands.idCommand,
-      mylog: commands.myLogCommand,
-      admin: commands.adminCommand,
-      list_users: commands.listUsersCommand,
-      stats: commands.statsCommand,
+      start: startCommand,
+      cat: catCommand,
+      quote: quoteCommand,
+      advice: adviceCommand,
+      random: randomCommand,
+      help: helpCommand,
+      stop: stopCommand,
+      id: idCommand,
+      mylog: myLogCommand,
+      admin: adminCommand,
+      list_users: listUsersCommand,
+      stats: statsCommand,
     },
     buttons: uniqueButtons,
-    contentCommand: commands.contentCommand,
-    userLogCommand: commands.userLogCommand,
+    contentCommand: contentCommand,
+    userLogCommand: userLogCommand,
     unknownCommandPhrase: phrases.unknownCommand,
     getButtonsForUnknown: () => getButtons(false),
     pool: getPool(),

@@ -1,24 +1,21 @@
 {
   "name": "verse-bot-monorepo",
-  "version": "0.1.0",
   "description": "Universal bot framework – write commands once, run on Telegram and VK",
   "private": true,
   "scripts": {
-    "docker:dev:up": "docker compose up -d",
-    "docker:dev:down": "docker compose down",
-    "docker:dev:clean": "docker compose down -v --rmi all",
+    "docker:dev:up": "docker compose -f apps/imp-bot/docker-compose.yml up -d",
+    "docker:dev:down": "docker compose -f apps/imp-bot/docker-compose.yml down",
+    "docker:dev:clean": "docker compose -f apps/imp-bot/docker-compose.yml down -v --rmi all",
     "prepare": "cp -n .env.example .env",
-    "build": "npm run build --workspace=@verse-bot/miniapp && tsc --build",
-    "build:clean": "npm run clean && npm run build",
+    "build": "tsc --build",
+    "build:miniapp": "npm run build --workspace=@verse-bot/miniapp",
     "dev": "dotenv -- env tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
-    "dev:tg": "dotenv -- env VK_GROUP_TOKEN='' VK_GROUP_ID='' tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
-    "dev:vk": "dotenv -- env TELEGRAM_BOT_TOKEN='' tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
-    "clean": "find . -name dist -type d -exec rm -rf {} + && find . -name \"*.tsbuildinfo\" -delete",
-    "clean:all": "npm run clean && rm -rf node_modules package-lock.json && npm i",
+    "clean": "./tools/clean.sh",
+    "clean:all": "./tools/clean-all.sh",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "format": "prettier . --write '!data'"
+    "format": "prettier . --write"
   },
   "prettier": {
     "singleQuote": true,
@@ -29,16 +26,15 @@
   "license": "Apache-2.0",
   "workspaces": [
     "packages/*",
-    "apps/*",
-    "docs"
+    "apps/*"
   ],
   "devDependencies": {
     "@types/debug": "^4.1.13",
-    "@types/node": "^25.7.0",
+    "@types/node": "^25.9.1",
     "debug": "^4.4.3",
     "dotenv-cli": "^11.0.0",
     "prettier": "3.8.3",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vitepress": "^1.6.4"
   }

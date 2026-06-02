@@ -1,5 +1,4 @@
-import { createVKKeyboard, type UniversalContext } from '@verse-bot/shared';
-import { createTelegramKeyboard } from '@verse-bot/tg-core';
+import type { UniversalContext, UniversalReplyOptions } from '@verse-bot/shared';
 import { getButtons, phrases } from '../locales/ru.js';
 
 export async function startCommand(ctx: UniversalContext) {
@@ -13,9 +12,13 @@ export async function startCommand(ctx: UniversalContext) {
   }
   const message = phrases.start.mainMenu(ctx.platform);
 
-  await ctx.replySafe(message, {
-    ...(ctx.platform === 'telegram'
-      ? { telegramReplyMarkup: createTelegramKeyboard(universalKeyboard) }
-      : { vkKeyboard: createVKKeyboard(universalKeyboard) }),
-  });
+  const extra: UniversalReplyOptions = {};
+
+  if (ctx.chatType === 'private') {
+    extra.replyKeyboard = universalKeyboard;
+  } else {
+    extra.inlineKeyboard = universalKeyboard;
+  }
+
+  await ctx.replySafe(message, extra);
 }

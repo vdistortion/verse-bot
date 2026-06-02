@@ -7,6 +7,7 @@ import {
   spoiler,
   type Platform,
   FormatToken,
+  type UniversalKeyboardButton,
 } from '@verse-bot/shared';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 
@@ -128,6 +129,10 @@ export function getButtons(fullMenu: boolean) {
       buttons.push({ label: commands.advice.button, command: '/' + commands.advice.command });
   }
   return buttons;
+}
+
+export function getInlineButton(command: string, label: string): UniversalKeyboardButton[][] {
+  return [[{ label, command: `/${command}` }]];
 }
 
 export function getHelpLines(isAdmin: boolean, platform: Platform): string {

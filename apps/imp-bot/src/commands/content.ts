@@ -1,4 +1,9 @@
-import { catchErrors, code, type UniversalContext } from '@verse-bot/shared';
+import {
+  catchErrors,
+  code,
+  type UniversalContext,
+  type UniversalReplyOptions,
+} from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
 import { PUBLIC_URL } from '../env.js';
 
@@ -17,6 +22,7 @@ export async function sendContentItem(
   ctx: UniversalContext,
   item: BotContentItem,
   itemNumber: number,
+  extra?: UniversalReplyOptions,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
   const hintLine =
@@ -30,7 +36,7 @@ export async function sendContentItem(
       caption += ctx.format`${item.text_content}`;
     }
     caption += hintLine;
-    await ctx.replyWithPhoto(imageUrl, caption);
+    await ctx.replyWithPhoto(imageUrl, caption, extra);
     return;
   }
 
@@ -45,7 +51,7 @@ export async function sendContentItem(
         : `\n\n${imageUrl}`;
   }
   message += hintLine;
-  await ctx.replySafe(message);
+  await ctx.replySafe(message, extra);
 }
 
 export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumber: number) => {

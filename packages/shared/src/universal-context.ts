@@ -1,18 +1,13 @@
 import type { Pool } from 'pg';
 import type { FormatToken, Platform } from './format/index.js';
+import type { UniversalKeyboardButton } from './keyboards.js';
 
 export interface UniversalReplyOptions {
   parse_mode?: 'MarkdownV2';
-  /**
-   * Telegram reply markup.
-   * Принимает GrammY Keyboard, InlineKeyboard или сырые объекты ReplyKeyboardMarkup/Remove.
-   * Типизировано как any: shared платформо-агностичен и не зависит от grammy.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  telegramReplyMarkup?: any;
-  vkKeyboard?: string;
   remove_keyboard?: boolean;
   link_preview_options?: { is_disabled: boolean };
+  replyKeyboard?: UniversalKeyboardButton[][];
+  inlineKeyboard?: UniversalKeyboardButton[][];
 }
 
 export interface UniversalContext {
@@ -29,8 +24,17 @@ export interface UniversalContext {
   format: (strings: TemplateStringsArray, ...values: (string | FormatToken)[]) => string;
   replySafe: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
   reply: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
-  replyWithFile?: (buffer: Buffer, filename: string, caption?: string) => Promise<void>;
-  replyWithPhoto?: (photoUrl: string, caption?: string) => Promise<void>;
+  replyWithFile?: (
+    buffer: Buffer,
+    filename: string,
+    caption?: string,
+    extra?: UniversalReplyOptions,
+  ) => Promise<void>;
+  replyWithPhoto?: (
+    photoUrl: string,
+    caption?: string,
+    extra?: UniversalReplyOptions,
+  ) => Promise<void>;
   chatType: 'channel' | 'private' | 'group' | 'supergroup' | 'unknown';
   tgApi?: any; // API Telegram-бота (GrammY)
   vkApi?: any; // Экземпляр VK-бота

@@ -1,4 +1,14 @@
-import { format, bold, link, raw, spoiler, type Platform, FormatToken } from '@verse-bot/shared';
+import {
+  format,
+  bold,
+  code,
+  link,
+  raw,
+  spoiler,
+  type Platform,
+  FormatToken,
+  type UniversalKeyboardButton,
+} from '@verse-bot/shared';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 
 // --- интерфейс команды ---
@@ -33,14 +43,12 @@ export const commands: Record<string, CommandDef> = {
   advice: {
     command: 'advice',
     button: '🧨 Отмочить',
+    help: '⚠️ Нестабильно',
   },
   random: {
     command: 'random',
     button: '🎲 Рандом',
-  },
-  full: {
-    command: 'full',
-    hidden: true,
+    help: 'Источник неизвестен',
   },
   content: {
     command: 'content',
@@ -110,19 +118,21 @@ export function setMyCommands() {
 
 export function getButtons(fullMenu: boolean) {
   const buttons: { label: string; command: string }[] = [];
-  if (commands.cat.button)
-    buttons.push({ label: commands.cat.button, command: '/' + commands.cat.command });
   if (commands.quote.button)
     buttons.push({ label: commands.quote.button, command: '/' + commands.quote.command });
+  if (commands.cat.button)
+    buttons.push({ label: commands.cat.button, command: '/' + commands.cat.command });
   if (fullMenu) {
-    if (commands.advice.button)
-      buttons.push({ label: commands.advice.button, command: '/' + commands.advice.command });
     if (commands.random.button)
       buttons.push({ label: commands.random.button, command: '/' + commands.random.command });
+    if (commands.advice.button)
+      buttons.push({ label: commands.advice.button, command: '/' + commands.advice.command });
   }
-  if (commands.help.button)
-    buttons.push({ label: commands.help.button, command: '/' + commands.help.command });
   return buttons;
+}
+
+export function getInlineButton(command: string, label: string): UniversalKeyboardButton[][] {
+  return [[{ label, command: `/${command}` }]];
 }
 
 export function getHelpLines(isAdmin: boolean, platform: Platform): string {
@@ -130,6 +140,8 @@ export function getHelpLines(isAdmin: boolean, platform: Platform): string {
   for (const cmd of Object.values(commands)) {
     if (cmd.hidden || !cmd.help) continue;
     if (cmd.adminOnly) continue;
+    if (cmd.command === 'random' && Math.random() < 0.2) continue;
+    if (cmd.command === 'advice' && Math.random() < 0.1) continue;
     const cmdText = `/${cmd.command}`;
     lines += format(platform)`${cmdText} — ${cmd.help}\n`;
   }
@@ -210,9 +222,9 @@ export const phrases = {
 
   id: {
     message: (platform: Platform, userId: string) =>
-      format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${String(userId)}`,
+      format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${code(String(userId))}`,
     chatId: (platform: Platform, chatId: number | string) =>
-      format(platform)`🆔 ${bold('ID чата:')} ${String(chatId)}`,
+      format(platform)`🆔 ${bold('ID чата:')} ${code(String(chatId))}`,
   },
 
   cat: {

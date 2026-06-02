@@ -1,6 +1,11 @@
-import { catchErrors, type UniversalContext } from '@verse-bot/shared';
+import {
+  catchErrors,
+  code,
+  type UniversalContext,
+  type UniversalReplyOptions,
+} from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
-import { CONTENT_IMAGES_BASE_URL } from '../env.js';
+import { PUBLIC_URL } from '../env.js';
 
 interface BotContentItem {
   id: number;
@@ -9,25 +14,29 @@ interface BotContentItem {
 }
 
 function getImageUrl(filename: string): string | null {
-  if (!CONTENT_IMAGES_BASE_URL) return null;
-  return `${CONTENT_IMAGES_BASE_URL}/${encodeURIComponent(filename)}`;
+  if (!PUBLIC_URL) return null;
+  return `${PUBLIC_URL}/${encodeURIComponent(filename)}`;
 }
 
 export async function sendContentItem(
   ctx: UniversalContext,
   item: BotContentItem,
   itemNumber: number,
+  extra?: UniversalReplyOptions,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const hint = phrases.content.commandHint(ctx.platform, itemNumber);
+  const hintLine =
+    ctx.isAdmin && ctx.chatType === 'private'
+      ? ctx.format`\n\n${code(phrases.content.commandHint(ctx.platform, itemNumber))}`
+      : '';
 
   if (imageUrl && ctx.replyWithPhoto) {
     let caption = '';
     if (item.text_content) {
       caption += ctx.format`${item.text_content}`;
     }
-    caption += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
-    await ctx.replyWithPhoto(imageUrl, caption);
+    caption += hintLine;
+    await ctx.replyWithPhoto(imageUrl, caption, extra);
     return;
   }
 
@@ -41,8 +50,8 @@ export async function sendContentItem(
         ? `\n\n[📷 Смотреть изображение](${imageUrl})`
         : `\n\n${imageUrl}`;
   }
-  message += ctx.platform === 'telegram' ? `\n\n\`${hint}\`` : `\n\n${hint}`;
-  await ctx.replySafe(message);
+  message += hintLine;
+  await ctx.replySafe(message, extra);
 }
 
 export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumber: number) => {

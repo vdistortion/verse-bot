@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import { escapeMarkdownV2, requireAdmin } from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
+import { POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_USER } from '../env.js';
 
 export const backupDbCommand = requireAdmin(async (ctx) => {
   if (!ctx.replyWithFile) {
@@ -8,23 +9,13 @@ export const backupDbCommand = requireAdmin(async (ctx) => {
     return;
   }
 
-  const dbUser = process.env.POSTGRES_USER;
-  const dbPass = process.env.POSTGRES_PASSWORD;
-  const dbHost = process.env.POSTGRES_HOST;
-  const dbName = process.env.POSTGRES_DB;
-
-  if (!dbUser || !dbPass || !dbHost || !dbName) {
-    await ctx.replySafe('Не заданы параметры подключения к БД.');
-    return;
-  }
-
   await ctx.replySafe(phrases.backupDb.start(ctx.platform));
 
   try {
     const dump = execSync(
-      `pg_dump -U ${dbUser} -h ${dbHost} -d ${dbName} --no-owner --no-privileges`,
+      `pg_dump -U ${POSTGRES_USER} -h ${POSTGRES_HOST} -d ${POSTGRES_DB} --no-owner --no-privileges`,
       {
-        env: { ...process.env, PGPASSWORD: dbPass },
+        env: { ...process.env, PGPASSWORD: POSTGRES_PASSWORD },
         maxBuffer: 50 * 1024 * 1024, // 50 MB
       },
     );

@@ -7,3 +7,4 @@ export * from './format/index.js';
 export * from './universal-context.js';
 export * from './keyboards.js';
 export * from './command-guards.js';
+export { createVKInlineKeyboard } from './keyboards.js';

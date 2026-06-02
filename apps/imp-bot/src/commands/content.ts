@@ -19,9 +19,10 @@ export async function sendContentItem(
   itemNumber: number,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const hintLine = ctx.isAdmin
-    ? ctx.format`\n\n${code(phrases.content.commandHint(ctx.platform, itemNumber))}`
-    : '';
+  const hintLine =
+    ctx.isAdmin && ctx.chatType === 'private'
+      ? ctx.format`\n\n${code(phrases.content.commandHint(ctx.platform, itemNumber))}`
+      : '';
 
   if (imageUrl && ctx.replyWithPhoto) {
     let caption = '';

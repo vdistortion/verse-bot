@@ -41,7 +41,7 @@ initPool({
   port: 5432,
 });
 
-const allButtons = getButtons().map((b) => ({
+const allButtons = getButtons(false).map((b) => ({
   command: b.command.replace('/', ''),
   label: b.label,
 }));
@@ -103,7 +103,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     contentCommand: contentCommand,
     userLogCommand: userLogCommand,
     unknownCommandPhrase: phrases.unknownCommand,
-    getButtonsForUnknown: () => getButtons(),
+    getButtonsForUnknown: () => getButtons(false),
     pool: getPool(),
   });
   vkBot.start();

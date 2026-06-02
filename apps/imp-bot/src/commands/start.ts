@@ -3,7 +3,7 @@ import { createTelegramKeyboard } from '@verse-bot/tg-core';
 import { getButtons, phrases } from '../locales/ru.js';
 
 export async function startCommand(ctx: UniversalContext) {
-  const buttons = getButtons();
+  const buttons = getButtons(false);
   // группируем в ряды по 2 кнопки
   const universalKeyboard = [];
   for (let i = 0; i < buttons.length; i += 2) {

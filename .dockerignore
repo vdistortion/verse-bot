@@ -7,5 +7,6 @@ node_modules
 docs
 data
 packages/miniapp
+packages/create-verse-bot
 tools
 *.md

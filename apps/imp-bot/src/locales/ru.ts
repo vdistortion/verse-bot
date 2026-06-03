@@ -11,7 +11,6 @@ import {
 } from '@verse-bot/shared';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 
-// --- интерфейс команды ---
 export interface CommandDef {
   command: string;
   tgDescription?: string;
@@ -21,7 +20,6 @@ export interface CommandDef {
   adminOnly?: boolean;
 }
 
-// --- объект команд ---
 export const commands: Record<string, CommandDef> = {
   start: {
     command: 'start',
@@ -69,7 +67,7 @@ export const commands: Record<string, CommandDef> = {
   id: {
     command: 'id',
     tgDescription: '🆔 Мой ID',
-    help: 'Показать ваш ID',
+    help: '🆔 Показать ваш ID',
   },
   mylog: {
     command: 'mylog',
@@ -109,13 +107,6 @@ export const commands: Record<string, CommandDef> = {
   },
 };
 
-// --- вспомогательные функции ---
-export function setMyCommands() {
-  return Object.values(commands)
-    .filter((cmd) => !cmd.hidden && !cmd.adminOnly && cmd.tgDescription)
-    .map((cmd) => ({ command: cmd.command, description: cmd.tgDescription! }));
-}
-
 export function getButtons(fullMenu: boolean) {
   const buttons: { label: string; command: string }[] = [];
   if (commands.quote.button)
@@ -135,7 +126,7 @@ export function getInlineButton(command: string, label: string): UniversalKeyboa
   return [[{ label, command: `/${command}` }]];
 }
 
-export function getHelpLines(isAdmin: boolean, platform: Platform): string {
+export function getHelpLines(platform: Platform): string {
   let lines = '';
   for (const cmd of Object.values(commands)) {
     if (cmd.hidden || !cmd.help) continue;
@@ -155,39 +146,33 @@ export const phrases = {
       format(platform)`Будь как дома, ${firstName}...`,
     group: (platform: Platform, title: string) =>
       format(platform)`Группа ${title} подключена к системе.`,
-    mainMenu: (platform: Platform) => format(platform)`🐾 ${bold('Главное меню')}`,
-    fullMenu: (platform: Platform) => '😈',
   },
 
-  stop: (platform: Platform) => format(platform)`Кнопки удалены... Всё забыто...`,
+  stop: (platform: Platform) => format(platform)`Всё забыто...`,
 
   help: {
-    getMessage: ({
-      platform,
-      isAdmin,
-      chatType,
-    }: {
-      platform: Platform;
-      isAdmin: boolean;
-      chatType: string;
-    }) => {
+    getMessage: (platform: Platform) => {
       const f = format(platform);
       const vkGroupLink = VK_GROUP_TOKEN ? VK_GROUP_ID : undefined;
       const tgUsername = TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_USERNAME : undefined;
-      const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${raw(getHelpLines(isAdmin, platform))}`;
+      const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${raw(getHelpLines(platform))}`;
 
-      const links = [];
+      const renderedLinks = [];
       if (platform === 'telegram' && vkGroupLink) {
-        links.push(link('Бот ВКонтакте', `https://vk.com/club${vkGroupLink}`));
+        const botVk = link('Бот ВКонтакте', `https://vk.com/club${vkGroupLink}`);
+        renderedLinks.push(f`${botVk} — Не обязательно использовать`);
       } else if (platform !== 'telegram' && tgUsername) {
-        links.push(`Бот в Telegram: https://t.me/${tgUsername}`);
+        const botTg = link('Бот в Telegram', `https://t.me/${tgUsername}`);
+        renderedLinks.push(f`${botTg} — Не обязательно использовать`);
       }
-      const renderedLinks = links.map((l) => (l instanceof FormatToken ? l.render(platform) : l));
+      renderedLinks.push(
+        f`${link('Исходный код', 'https://github.com/vdistortion/verse-bot')} — Не обязательно понимать.`,
+      );
       const linksSection = renderedLinks.length
-        ? f`\n\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
+        ? f`\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
         : '';
 
-      const footer = f`\n${link('Исходный код', 'https://github.com/vdistortion/verse-bot')}\nНе обязательно использовать. Не обязательно понимать.\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
+      const footer = f`\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
       return f`${raw(header)}${raw(linksSection)}${raw(footer)}`;
     },
@@ -205,7 +190,6 @@ export const phrases = {
           `/userlog\\_${userIdPlaceholder} – 📋 Логи пользователя`;
         return format(platform)`👑 ${bold('Административные команды:')}\n${raw(tgCmds)}`;
       } else {
-        // VK
         return (
           format(platform)`👑 Административные команды:\n` +
           `/list_users – 👥 Список активных пользователей\n` +
@@ -214,10 +198,6 @@ export const phrases = {
         );
       }
     },
-    notAdmin: (platform: Platform) =>
-      format(platform)`⛔ У вас нет прав для выполнения этой команды.`,
-    notPrivate: (platform: Platform) =>
-      format(platform)`Команда доступна только в личных сообщениях с ботом.`,
   },
 
   id: {
@@ -232,59 +212,7 @@ export const phrases = {
     notFound: (platform: Platform) => format(platform)`Кот убежал в сервера. Попробуй позже 🐾`,
   },
 
-  random: {
-    emptyDb: (platform: Platform) => format(platform)`В базе данных нет контента.`,
-    error: (platform: Platform) =>
-      format(platform)`❌ Произошла ошибка при получении случайного контента.`,
-    dbUnavailable: (platform: Platform) => format(platform)`❌ База данных недоступна.`,
-  },
-
-  content: {
-    notFound: (platform: Platform, number: number, total: number) =>
-      format(
-        platform,
-      )`Контент с номером ${String(number)} не найден. Всего элементов: ${String(total)}.`,
-    commandHint: (platform: Platform, number: number) =>
-      format(platform)`/content_${String(number)}`,
-    dbUnavailable: (platform: Platform) => format(platform)`❌ База данных недоступна.`,
-    emptyDb: (platform: Platform) => format(platform)`В базе данных нет контента.`,
-    error: (platform: Platform) => format(platform)`❌ Произошла ошибка при получении контента.`,
-    invalidNumber: (platform: Platform) =>
-      format(platform)`Пожалуйста, укажите корректный номер контента. Например: /content_1`,
-  },
-
-  backupDb: {
-    start: (platform: Platform) => format(platform)`⏳ Запускаю создание бэкапа...`,
-    success: (platform: Platform) => format(platform)`Вот ваш полный бэкап базы данных 💾`,
-    error: (platform: Platform) => format(platform)`❌ Произошла ошибка при создании бэкапа.`,
-    notAdmin: (platform: Platform) =>
-      format(platform)`⛔ У вас нет прав для выполнения этой команды.`,
-    notPrivate: (platform: Platform) =>
-      format(platform)`Команда доступна только в личных сообщениях с ботом.`,
-    unsupported: (platform: Platform) =>
-      format(platform)`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`,
-  },
-
-  backupFiles: {
-    notFound: (platform: Platform, dir: string) =>
-      format(platform)`⚠️ Папка с контентом не найдена: ${dir}`,
-    start: (platform: Platform) => format(platform)`⏳ Упаковываю файлы...`,
-    success: (platform: Platform) => format(platform)`📦 Бэкап файлов контента`,
-    error: (platform: Platform) => format(platform)`❌ Ошибка при создании архива.`,
-  },
-
-  listUsers: {
-    loading: (platform: Platform) => format(platform)`Загружаю список пользователей...`,
-    empty: (platform: Platform) => format(platform)`В базе данных нет активных пользователей.`,
-    header: (platform: Platform, count: number) =>
-      format(platform)`${bold(`👥 Список активных пользователей (${count}):`)}`,
-    error: (platform: Platform) =>
-      format(platform)`❌ Произошла ошибка при получении списка пользователей.`,
-    notAdmin: (platform: Platform) =>
-      format(platform)`⛔ У вас нет прав для выполнения этой команды.`,
-    notPrivate: (platform: Platform) =>
-      format(platform)`Команда доступна только в личных сообщениях с ботом.`,
-  },
+  contentHint: (platform: Platform, number: number) => format(platform)`/content_${String(number)}`,
 
   unknownCommand: (platform: Platform) =>
     format(

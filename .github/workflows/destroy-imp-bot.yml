@@ -14,6 +14,10 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            export STATIC_DOMAIN="${{ secrets.STATIC_DOMAIN }}"
+            export STATIC_PATH_PREFIX="${{ secrets.STATIC_PATH_PREFIX }}"
+            export CONTENT_DIR="${{ secrets.CONTENT_DIR }}"
+
             PROJECT_PATH=~/projects/${{ github.event.repository.name }}
             if [ -d "$PROJECT_PATH" ]; then
               cd "$PROJECT_PATH"

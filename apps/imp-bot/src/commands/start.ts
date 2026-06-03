@@ -10,13 +10,15 @@ export async function startCommand(ctx: UniversalContext) {
       buttons.slice(i, i + 2).map((b) => ({ label: b.label, command: b.command })),
     );
   }
-  const message = phrases.start.mainMenu(ctx.platform);
 
   const extra: UniversalReplyOptions = {};
+  let message = '';
 
   if (ctx.chatType === 'private') {
+    message = phrases.start.personal(ctx.platform, ctx.firstName ?? 'гость');
     extra.replyKeyboard = universalKeyboard;
   } else {
+    message = phrases.start.group(ctx.platform, ctx.chatTitle ?? 'группа');
     extra.inlineKeyboard = universalKeyboard;
   }
 

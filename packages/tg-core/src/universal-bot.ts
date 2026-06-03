@@ -93,6 +93,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       firstName: ctx.from?.first_name,
       lastName: ctx.from?.last_name,
       username: ctx.from?.username,
+      chatTitle: ctx.chat?.title,
       chatType: chatType,
       format: format('telegram'),
       replySafe: async (text, extra) => uctx.reply(text, { ...mdOpts('telegram'), ...extra }),

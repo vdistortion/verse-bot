@@ -1,0 +1,12 @@
+node_modules
+**/dist
+**/*.tsbuildinfo
+.git
+.github
+.env*
+docs
+data
+packages/miniapp
+packages/create-verse-bot
+tools
+*.md

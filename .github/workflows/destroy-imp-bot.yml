@@ -15,21 +15,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             PROJECT_PATH=~/projects/${{ github.event.repository.name }}
-            BOT_PATH=$PROJECT_PATH/apps/imp-bot
-
-            # 1. Останавливаем контейнеры, удаляем volumes и образы
-            if [ -d "$BOT_PATH" ]; then
-              cd "$BOT_PATH"
-              docker compose -f docker-compose.release.yml down -v --rmi all
-              echo "✅ Контейнеры остановлены, volumes и образы удалены"
-            else
-              echo "⚠️  $BOT_PATH не найден — контейнеры пропускаем"
+            if [ -d "$PROJECT_PATH" ]; then
+              cd "$PROJECT_PATH"
+              docker compose -f apps/imp-bot/docker-compose.release.yml down -v --rmi all
+              rm -rf "$PROJECT_PATH"
+              echo "✅ Репозиторий удалён: $PROJECT_PATH"
             fi
-
-            # 2. Удаляем .env с секретами
-            rm -f "$BOT_PATH/.env"
-            echo "✅ .env удалён"
-
-            # 3. Удаляем клон репозитория
-            rm -rf "$PROJECT_PATH"
-            echo "✅ Репозиторий удалён: $PROJECT_PATH"

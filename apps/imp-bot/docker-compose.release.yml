@@ -7,8 +7,8 @@ services:
     env_file: ../../.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./apps/imp-bot/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./apps/imp-bot/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
       interval: 5s

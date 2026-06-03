@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:16-alpine
     restart: always
-    env_file: .env
+    env_file: ../../.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./apps/imp-bot/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: apps/imp-bot/Dockerfile
     restart: always
-    env_file: .env
+    env_file: ../../.env
     depends_on:
       db:
         condition: service_healthy

@@ -6,7 +6,7 @@ COPY packages/shared/package.json ./packages/shared/
 COPY packages/tg-core/package.json ./packages/tg-core/
 COPY packages/vk-core/package.json ./packages/vk-core/
 COPY apps/imp-bot/package.json ./apps/imp-bot/
-RUN npm ci --ignore-scripts
+RUN npm ci
 COPY tsconfig.json ./
 COPY packages/ ./packages/
 COPY apps/imp-bot/ ./apps/imp-bot/

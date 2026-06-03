@@ -6,8 +6,9 @@ services:
     restart: always
     env_file: .env
     volumes:
-      - ./data/release_db:/var/lib/postgresql/data
-      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - postgres_data:/var/lib/postgresql/data
+      - ./apps/imp-bot/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./apps/imp-bot/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
       interval: 5s
@@ -17,7 +18,7 @@ services:
   bot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: apps/imp-bot/Dockerfile
     restart: always
     env_file: .env
     depends_on:
@@ -39,3 +40,6 @@ services:
 networks:
   caddy:
     external: true
+
+volumes:
+  postgres_data:

@@ -5,7 +5,6 @@ on:
     branches: [release]
     paths:
       - 'apps/imp-bot/**'
-      - 'packages/create-verse-bot/template/schema.sql'
   workflow_dispatch:
 
 jobs:
@@ -27,20 +26,18 @@ jobs:
             fi
             cd "$PROJECT_PATH"
             git pull origin release
-            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" > apps/imp-bot/.env
-            echo "TELEGRAM_ADMIN_ID=${{ secrets.TELEGRAM_ADMIN_ID }}" >> apps/imp-bot/.env
-            echo "VK_GROUP_TOKEN=${{ secrets.VK_GROUP_TOKEN }}" >> apps/imp-bot/.env
-            echo "VK_GROUP_ID=${{ secrets.VK_GROUP_ID }}" >> apps/imp-bot/.env
-            echo "POSTGRES_DB=postgres" >> apps/imp-bot/.env
-            echo "POSTGRES_USER=postgres" >> apps/imp-bot/.env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> apps/imp-bot/.env
-            echo "POSTGRES_HOST=db" >> apps/imp-bot/.env
-            echo "STATIC_DOMAIN=${{ secrets.STATIC_DOMAIN }}" >> apps/imp-bot/.env
-            echo "STATIC_PATH_PREFIX=${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
-            echo "PUBLIC_URL=https://${{ secrets.STATIC_DOMAIN }}/${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
-            echo "CONTENT_IMAGES_BASE_URL=https://${{ secrets.STATIC_DOMAIN }}/${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
-            echo "CONTENT_DIR=/srv/static/${{ secrets.STATIC_PATH_PREFIX }}" >> apps/imp-bot/.env
-            echo "TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME }}" >> apps/imp-bot/.env
-            echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID }}" >> apps/imp-bot/.env
-            cd apps/imp-bot
-            docker compose -f docker-compose.release.yml up -d --build
+            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" > .env
+            echo "TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME }}" >> .env
+            echo "TELEGRAM_ADMIN_ID=${{ secrets.TELEGRAM_ADMIN_ID }}" >> .env
+            echo "VK_GROUP_TOKEN=${{ secrets.VK_GROUP_TOKEN }}" >> .env
+            echo "VK_GROUP_ID=${{ secrets.VK_GROUP_ID }}" >> .env
+            echo "VK_ADMIN_ID=${{ secrets.VK_ADMIN_ID }}" >> .env
+            echo "POSTGRES_DB=postgres" >> .env
+            echo "POSTGRES_USER=postgres" >> .env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+            echo "POSTGRES_HOST=db" >> .env
+            echo "STATIC_DOMAIN=${{ secrets.STATIC_DOMAIN }}" >> .env
+            echo "STATIC_PATH_PREFIX=${{ secrets.STATIC_PATH_PREFIX }}" >> .env
+            echo "PUBLIC_URL=https://${{ secrets.STATIC_DOMAIN }}/${{ secrets.STATIC_PATH_PREFIX }}" >> .env
+            echo "CONTENT_DIR=/srv/static/${{ secrets.STATIC_PATH_PREFIX }}" >> .env
+            docker compose -f apps/imp-bot/docker-compose.release.yml up -d --build

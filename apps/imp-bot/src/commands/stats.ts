@@ -27,5 +27,4 @@ export const statsCommand = requireAdmin(
 
     await ctx.replySafe(message);
   }, phrases),
-  phrases,
 );

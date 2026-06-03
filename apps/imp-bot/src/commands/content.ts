@@ -1,6 +1,7 @@
 import {
   catchErrors,
   code,
+  format,
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/shared';
@@ -25,17 +26,14 @@ export async function sendContentItem(
   extra?: UniversalReplyOptions,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const hintLine =
-    ctx.isAdmin && ctx.chatType === 'private'
-      ? ctx.format`\n\n${code(phrases.content.commandHint(ctx.platform, itemNumber))}`
-      : '';
+  const hintLine = ctx.format`\n\n${code(phrases.contentHint(ctx.platform, itemNumber))}`;
 
   if (imageUrl && ctx.replyWithPhoto) {
     let caption = '';
     if (item.text_content) {
       caption += ctx.format`${item.text_content}`;
     }
-    caption += hintLine;
+    caption += ctx.isAdmin && ctx.chatType === 'private' ? hintLine : '';
     await ctx.replyWithPhoto(imageUrl, caption, extra);
     return;
   }
@@ -56,21 +54,25 @@ export async function sendContentItem(
 
 export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumber: number) => {
   if (!ctx.db) {
-    await ctx.replySafe(phrases.content.dbUnavailable(ctx.platform));
+    await ctx.replySafe(format(ctx.platform)`❌ База данных недоступна.`);
     return;
   }
 
   const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
   if (!allContent || allContent.length === 0) {
-    await ctx.replySafe(phrases.content.emptyDb(ctx.platform));
+    await ctx.replySafe(format(ctx.platform)`В базе данных нет контента.`);
     return;
   }
 
   const itemIndex = itemNumber - 1;
 
   if (itemIndex < 0 || itemIndex >= allContent.length) {
-    await ctx.replySafe(phrases.content.notFound(ctx.platform, itemNumber, allContent.length));
+    await ctx.replySafe(
+      format(
+        ctx.platform,
+      )`Контент с номером ${String(itemNumber)} не найден. Всего элементов: ${String(allContent.length)}.`,
+    );
     return;
   }
 

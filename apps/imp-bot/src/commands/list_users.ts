@@ -1,4 +1,12 @@
-import { getAllUsers, type DbUser, link, bold, requireAdmin, catchErrors } from '@verse-bot/shared';
+import {
+  getAllUsers,
+  type DbUser,
+  link,
+  bold,
+  format,
+  requireAdmin,
+  catchErrors,
+} from '@verse-bot/shared';
 import { phrases } from '../locales/ru.js';
 
 function formatDate(dateStr: string): string {
@@ -16,16 +24,18 @@ function formatDate(dateStr: string): string {
 
 export const listUsersCommand = requireAdmin(
   catchErrors(async (ctx) => {
-    await ctx.replySafe(phrases.listUsers.loading(ctx.platform));
+    await ctx.replySafe(format(ctx.platform)`Загружаю список пользователей...`);
 
     const users: DbUser[] = await getAllUsers();
 
     if (users.length === 0) {
-      await ctx.replySafe(phrases.listUsers.empty(ctx.platform));
+      await ctx.replySafe(format(ctx.platform)`В базе данных нет активных пользователей.`);
       return;
     }
 
-    let message = phrases.listUsers.header(ctx.platform, users.length) + '\n\n';
+    let message = format(
+      ctx.platform,
+    )`${bold(`👥 Список активных пользователей (${users.length}):`)}\n\n`;
 
     for (const user of users) {
       let firstName: string | undefined;
@@ -78,5 +88,4 @@ export const listUsersCommand = requireAdmin(
 
     await ctx.replySafe(message, { link_preview_options: { is_disabled: true } });
   }, phrases),
-  phrases,
 );

@@ -21,6 +21,7 @@ export interface UniversalContext {
   firstName?: string;
   lastName?: string;
   username?: string;
+  chatTitle?: string;
   format: (strings: TemplateStringsArray, ...values: (string | FormatToken)[]) => string;
   replySafe: (text: string, extra?: UniversalReplyOptions) => Promise<void>;
   reply: (text: string, extra?: UniversalReplyOptions) => Promise<void>;

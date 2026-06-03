@@ -17,7 +17,7 @@ services:
 
   bot:
     build:
-      context: .
+      context: ../..
       dockerfile: apps/imp-bot/Dockerfile
     restart: always
     env_file: ../../.env

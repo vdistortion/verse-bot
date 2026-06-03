@@ -9,6 +9,7 @@
     "prepare": "cp -n .env.example .env",
     "build": "tsc --build",
     "build:miniapp": "npm run build --workspace=@verse-bot/miniapp",
+    "build:release": "tsc --build tsconfig.build.json",
     "dev": "dotenv -- env tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
     "clean": "./tools/clean.sh",
     "clean:all": "./tools/clean-all.sh",

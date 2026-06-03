@@ -21,6 +21,8 @@ services:
       dockerfile: apps/imp-bot/Dockerfile
     restart: always
     env_file: ../../.env
+    volumes:
+      - ${CONTENT_DIR}:${CONTENT_DIR}:ro
     depends_on:
       db:
         condition: service_healthy

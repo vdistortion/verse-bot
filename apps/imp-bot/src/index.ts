@@ -41,13 +41,15 @@ initPool({
   port: 5432,
 });
 
-const allButtons = getButtons(false).map((b) => ({
+const allPossibleButtonsForRegistration = getButtons(true).map((b) => ({
   command: b.command.replace('/', ''),
   label: b.label,
 }));
 
 // Уникальные кнопки
-const uniqueButtons = Array.from(new Map(allButtons.map((b) => [b.command + b.label, b])).values());
+const uniqueButtonsForRegistration = Array.from(
+  new Map(allPossibleButtonsForRegistration.map((b) => [b.command + b.label, b])).values(),
+);
 
 // Telegram
 if (TELEGRAM_BOT_TOKEN) {
@@ -70,7 +72,7 @@ if (TELEGRAM_BOT_TOKEN) {
       list_users: listUsersCommand,
       stats: statsCommand,
     },
-    buttons: uniqueButtons,
+    buttons: uniqueButtonsForRegistration,
     contentCommand: contentCommand,
     userLogCommand: userLogCommand,
     contentDir: CONTENT_DIR,
@@ -99,7 +101,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
       list_users: listUsersCommand,
       stats: statsCommand,
     },
-    buttons: uniqueButtons,
+    buttons: uniqueButtonsForRegistration,
     contentCommand: contentCommand,
     userLogCommand: userLogCommand,
     unknownCommandPhrase: phrases.unknownCommand,

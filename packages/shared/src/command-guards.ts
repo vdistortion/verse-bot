@@ -5,13 +5,10 @@ export type CommandHandler = (ctx: UniversalContext, ...args: any[]) => Promise<
 /**
  * Обёртка: требует приватный чат и права администратора.
  */
-export function requireAdmin(handler: CommandHandler, phrases: any) {
+export function requireAdmin(handler: CommandHandler) {
   return async (ctx: UniversalContext, ...args: any[]) => {
     if (ctx.chatType !== 'private') return;
-    if (!ctx.isAdmin) {
-      await ctx.replySafe(phrases.admin.notAdmin(ctx.platform));
-      return;
-    }
+    if (!ctx.isAdmin) return;
     return handler(ctx, ...args);
   };
 }

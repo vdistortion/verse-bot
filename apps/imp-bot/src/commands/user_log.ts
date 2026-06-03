@@ -18,5 +18,4 @@ export const userLogCommand = requireAdmin(
 
     await ctx.replySafe(message);
   }, phrases),
-  phrases,
 );

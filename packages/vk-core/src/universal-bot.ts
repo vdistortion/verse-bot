@@ -119,6 +119,16 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     // Если pool нет — пропускаем всю регистрацию/логирование,
     // обрабатываем команду для всех входящих
 
+    const result = (await bot.request('messages.getConversationsById', {
+      peer_ids: ctx.peerId,
+    })) as {
+      count: number;
+      items: Array<{
+        peer: { id: number; type: string };
+        chat_settings?: { title: string };
+      }>;
+    };
+
     // Формируем UniversalContext
     const uctx: UniversalContext = {
       platform: 'vk',
@@ -132,6 +142,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       firstName: vkFirstName,
       lastName: vkLastName,
       username: vkUsername,
+      chatTitle: result.items?.[0]?.chat_settings?.title,
       chatType: ctx.peerId > VK_PEER_CHAT_OFFSET ? 'group' : 'private',
       format: format('vk'),
       replySafe: async (text, extra) => uctx.reply(text, { ...mdOpts('vk'), ...extra }),

@@ -18,5 +18,8 @@
     "@verse-bot/vk-core": "^0.1.0",
     "archiver": "^8.0.0",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/archiver": "^8.0.0"
   }
 }

@@ -1,4 +1,4 @@
-import type { Platform } from '@verse-bot/md-format';
+import type { Platform } from '@verse-bot/core';
 import { getPool } from './client.js';
 
 export interface CommandStat {

@@ -1,16 +1,15 @@
 {
-  "name": "@verse-bot/shared",
+  "name": "@verse-bot/db",
   "version": "0.1.0",
   "type": "module",
-  "description": "Shared utilities for bots and miniapps",
+  "description": "Database client, user and command log repositories for Verse Bot Framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js"
     }
   },
   "files": [
@@ -22,8 +21,10 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@verse-bot/core": "^0.1.0",
-    "@verse-bot/db": "^0.1.0",
-    "@verse-bot/md-format": "^0.1.0"
+    "pg": "^8.21.0",
+    "postgrator": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0"
   }
 }

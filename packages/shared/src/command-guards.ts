@@ -1,4 +1,4 @@
-import type { UniversalContext } from './universal-context.js';
+import type { UniversalContext } from '@verse-bot/core';
 
 export type CommandHandler = (ctx: UniversalContext, ...args: any[]) => Promise<void>;
 

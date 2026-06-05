@@ -64,9 +64,6 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
 
     // --- БД: только если pool доступен ---
     let dbUserId: number | undefined;
-    let vkFirstName: string | undefined;
-    let vkLastName: string | undefined;
-    let vkUsername: string | undefined;
 
     if (config.pool) {
       const isStart = commandToExecute.startsWith('/start');
@@ -108,9 +105,6 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
             last_name?: string;
             screen_name?: string;
           };
-          vkFirstName = vkUser.first_name;
-          vkLastName = vkUser.last_name;
-          vkUsername = vkUser.screen_name;
         }
       } catch (vkErr) {
         console.error(`[VK Bot] Error fetching user details for ${ctx.userId}:`, vkErr);
@@ -129,7 +123,6 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       }>;
     };
 
-    // Формируем UniversalContext
     const uctx: UniversalContext = {
       platform: 'vk',
       userId: String(ctx.userId),
@@ -138,15 +131,29 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       isAdmin: ctx.userId === Number(config.adminId),
       db: config.pool,
       dbUserId,
-      vkApi: bot,
-      firstName: vkFirstName,
-      lastName: vkLastName,
-      username: vkUsername,
+      platformApi: bot,
+      getUserProfile: async () => {
+        try {
+          const users = (await bot.request('users.get', {
+            user_ids: ctx.userId,
+            fields: 'first_name,last_name,screen_name',
+          })) as any[];
+          if (users?.length) {
+            return {
+              firstName: users[0].first_name,
+              lastName: users[0].last_name,
+              username: users[0].screen_name,
+            };
+          }
+        } catch {}
+        return null;
+      },
       chatTitle: result.items?.[0]?.chat_settings?.title,
       chatType: ctx.peerId > VK_PEER_CHAT_OFFSET ? 'group' : 'private',
       format: format('vk'),
-      replySafe: async (text, extra) => uctx.reply(text, { ...mdOpts('vk'), ...extra }),
-      reply: async (msg, extra) => {
+      replySafe: async (text: string, extra?: UniversalReplyOptions) =>
+        uctx.reply(text, { ...mdOpts('vk'), ...extra }),
+      reply: async (msg: string, extra?: UniversalReplyOptions) => {
         let vkKeyboardJson: string | undefined;
         if (extra?.remove_keyboard) {
           vkKeyboardJson = JSON.stringify({ buttons: [] });
@@ -159,8 +166,9 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         await bot.sendMessage(ctx.peerId, msg, vkKeyboardJson);
       },
       replyWithPhoto: config.onReplyWithPhoto
-        ? (photoUrl, caption, extra) => config.onReplyWithPhoto!(uctx, photoUrl, caption, extra)
-        : async (photoUrl, caption, extra) => {
+        ? (photoUrl: string, caption?: string, extra?: UniversalReplyOptions) =>
+            config.onReplyWithPhoto!(uctx, photoUrl, caption, extra)
+        : async (photoUrl: string, caption?: string, extra?: UniversalReplyOptions) => {
             let vkKeyboardJson: string | undefined;
             if (extra?.inlineKeyboard) {
               // Приоритет инлайн-клавиатуры для VK

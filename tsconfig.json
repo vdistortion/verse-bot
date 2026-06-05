@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./packages/create-verse-bot" },
+    { "path": "./packages/core" },
     { "path": "./packages/shared" },
     { "path": "./packages/tg-core" },
     { "path": "./packages/vk-core" },

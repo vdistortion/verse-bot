@@ -1,5 +1,5 @@
 import { InlineKeyboard } from 'grammy';
-import type { UniversalKeyboardButton } from '@verse-bot/shared';
+import type { UniversalKeyboardButton } from '@verse-bot/core';
 
 export function createTelegramInlineKeyboard(
   universalKeyboard: UniversalKeyboardButton[][],

@@ -90,14 +90,13 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       text: messageText,
       isAdmin: fromId === config.adminId,
       db: ctx.db,
-      firstName: ctx.from?.first_name,
-      lastName: ctx.from?.last_name,
-      username: ctx.from?.username,
+      platformApi: ctx.api,
       chatTitle: ctx.chat?.title,
       chatType: chatType,
       format: format('telegram'),
-      replySafe: async (text, extra) => uctx.reply(text, { ...mdOpts('telegram'), ...extra }),
-      reply: async (text, extra) => {
+      replySafe: async (text: string, extra?: UniversalReplyOptions) =>
+        uctx.reply(text, { ...mdOpts('telegram'), ...extra }),
+      reply: async (text: string, extra?: UniversalReplyOptions) => {
         const telegramExtra: any = {
           ...(extra?.parse_mode && { parse_mode: extra.parse_mode }),
           ...(extra?.link_preview_options && {
@@ -116,7 +115,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
 
         await ctx.api.sendMessage(uctx.peerId, text, telegramExtra);
       },
-      replyWithFile: async (buffer, filename, caption, extra) => {
+      replyWithFile: async (
+        buffer: Buffer,
+        filename: string,
+        caption?: string,
+        extra?: UniversalReplyOptions,
+      ) => {
         const telegramExtra: any = {
           caption,
           parse_mode: 'MarkdownV2',
@@ -130,10 +134,22 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         await ctx.replyWithDocument(new InputFile(buffer, filename), telegramExtra);
       },
       replyWithPhoto: config.onReplyWithPhoto
-        ? (photoUrl, caption, extra) => config.onReplyWithPhoto!(photoUrl, caption, extra)
-        : (photoUrl, caption, extra) =>
+        ? (photoUrl: string, caption?: string, extra?: UniversalReplyOptions) =>
+            config.onReplyWithPhoto!(photoUrl, caption, extra)
+        : (photoUrl: string, caption?: string, extra?: UniversalReplyOptions) =>
             makePhotoHandler(ctx, config.contentDir)(photoUrl, caption, extra),
-      tgApi: ctx.api,
+      getUserProfile: async () => {
+        try {
+          const chat = await ctx.api.getChat(fromId);
+          return {
+            firstName: chat.first_name ?? 'Unknown',
+            lastName: chat.last_name,
+            username: chat.username,
+          };
+        } catch {
+          return null;
+        }
+      },
     };
     (ctx as any).uctx = uctx;
     await next();

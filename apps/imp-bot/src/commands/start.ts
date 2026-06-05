@@ -2,6 +2,9 @@ import type { UniversalContext, UniversalReplyOptions } from '@verse-bot/shared'
 import { getButtons, phrases } from '../locales/ru.js';
 
 export async function startCommand(ctx: UniversalContext) {
+  const profile = await ctx.getUserProfile();
+  const firstName = profile?.firstName ?? 'гость';
+
   const buttons = getButtons(false);
   // группируем в ряды по 2 кнопки
   const universalKeyboard = [];
@@ -15,7 +18,7 @@ export async function startCommand(ctx: UniversalContext) {
   let message = '';
 
   if (ctx.chatType === 'private') {
-    message = phrases.start.personal(ctx.platform, ctx.firstName ?? 'гость');
+    message = phrases.start.personal(ctx.platform, firstName);
     extra.replyKeyboard = universalKeyboard;
   } else {
     message = phrases.start.group(ctx.platform, ctx.chatTitle ?? 'группа');

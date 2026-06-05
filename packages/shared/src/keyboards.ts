@@ -1,7 +1,4 @@
-export interface UniversalKeyboardButton {
-  label: string;
-  command?: string;
-}
+import type { UniversalKeyboardButton } from '@verse-bot/core';
 
 export function createVKKeyboard(
   buttonRows: UniversalKeyboardButton[][],

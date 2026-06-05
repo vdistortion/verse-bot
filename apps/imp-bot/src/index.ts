@@ -1,4 +1,4 @@
-import { initPool, getPool } from '@verse-bot/shared';
+import { initPool, getPool } from '@verse-bot/db';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';
 import {

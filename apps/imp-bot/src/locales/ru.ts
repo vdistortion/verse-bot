@@ -1,5 +1,5 @@
-import { format, bold, code, link, raw, spoiler, type Platform } from '@verse-bot/shared';
-import type { UniversalKeyboardButton } from '@verse-bot/core';
+import type { Platform, UniversalKeyboardButton } from '@verse-bot/core';
+import { format, bold, code, link, raw, spoiler } from '@verse-bot/format';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 
 export interface CommandDef {

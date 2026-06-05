@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { ZipArchive } from 'archiver';
-import { format, requireAdmin } from '@verse-bot/shared';
+import { requireAdmin } from '@verse-bot/core';
+import { format } from '@verse-bot/format';
 import { CONTENT_DIR } from '../env.js';
 
 export const backupFilesCommand = requireAdmin(async (ctx) => {

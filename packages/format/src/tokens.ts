@@ -1,6 +1,5 @@
+import type { Platform } from '@verse-bot/core';
 import { escapeMarkdownV2 } from './markdown.js';
-
-export type Platform = 'telegram' | 'vk';
 
 export abstract class FormatToken {
   abstract render(platform: Platform): string;

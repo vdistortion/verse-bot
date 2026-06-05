@@ -1,4 +1,6 @@
-import { bold, getUserOwnCommandLogs, requirePrivateChat, catchErrors } from '@verse-bot/shared';
+import { requirePrivateChat, catchErrors } from '@verse-bot/core';
+import { getUserOwnCommandLogs } from '@verse-bot/db';
+import { bold } from '@verse-bot/format';
 import { phrases } from '../locales/ru.js';
 
 export const myLogCommand = requirePrivateChat(

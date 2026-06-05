@@ -1,7 +1,8 @@
 import type { UniversalContext } from '../context.js';
+import type { Platform } from '../types.js';
 
 export interface LoggingMiddlewareConfig {
-  logCommand: (dbUserId: number, platform: string, command: string) => Promise<void>;
+  logCommand: (dbUserId: number, platform: Platform, command: string) => Promise<void>;
 }
 
 export function createLoggingMiddleware(config: LoggingMiddlewareConfig) {

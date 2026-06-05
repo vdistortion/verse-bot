@@ -1,5 +1,6 @@
+import type { Platform } from '@verse-bot/core';
 import { escapeMarkdownV2 } from './markdown.js';
-import { FormatToken, type Platform } from './tokens.js';
+import { FormatToken } from './tokens.js';
 
 export function format(platform: Platform) {
   return (strings: TemplateStringsArray, ...values: (string | FormatToken)[]): string => {

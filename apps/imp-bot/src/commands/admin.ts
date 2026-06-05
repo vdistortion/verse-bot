@@ -1,4 +1,4 @@
-import { requireAdmin } from '@verse-bot/shared';
+import { requireAdmin } from '@verse-bot/core';
 import { phrases } from '../locales/ru.js';
 
 export const adminCommand = requireAdmin(async (ctx) => {

@@ -6,6 +6,7 @@
     "declaration": true,
     "composite": true
   },
+  "references": [{ "path": "../core" }, { "path": "../db" }, { "path": "../format" }],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

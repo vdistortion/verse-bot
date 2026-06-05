@@ -1,13 +1,6 @@
-import {
-  getAllUsers,
-  type DbUser,
-  link,
-  bold,
-  format,
-  requireAdmin,
-  catchErrors,
-  type UserProfile,
-} from '@verse-bot/shared';
+import { requireAdmin, catchErrors, type UserProfile } from '@verse-bot/core';
+import { getAllUsers, type DbUser } from '@verse-bot/db';
+import { link, bold, format } from '@verse-bot/format';
 import { phrases } from '../locales/ru.js';
 
 function formatDate(dateStr: string): string {

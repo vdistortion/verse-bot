@@ -1,16 +1,13 @@
-import { type Pool } from 'pg';
+import type { Pool } from 'pg';
 import {
-  findOrCreateUser,
-  format,
-  logCommand,
-  mdOpts,
-  createVKKeyboard,
-  createVKInlineKeyboard,
-  userExists,
+  createAuthMiddleware,
+  createLoggingMiddleware,
   type Platform,
   type UniversalContext,
   type UniversalReplyOptions,
-} from '@verse-bot/shared';
+} from '@verse-bot/core';
+import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
+import { format, mdOpts, createVKKeyboard, createVKInlineKeyboard } from '@verse-bot/format';
 import { VK_PEER_CHAT_OFFSET } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';
 import type { VKContext } from './types/index.js';
@@ -50,6 +47,9 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     buttonToCommand.set(label, command);
   }
 
+  const authMw = createAuthMiddleware({ findOrCreateUser, userExists });
+  const logMw = createLoggingMiddleware({ logCommand });
+
   // Общая логика обработки команды
   async function processCommand(ctx: VKContext, commandToExecute: string) {
     // Системная кнопка «Начать» в VK
@@ -61,57 +61,6 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     if (!commandToExecute.startsWith('/') && buttonToCommand.has(commandToExecute)) {
       commandToExecute = '/' + buttonToCommand.get(commandToExecute)!;
     }
-
-    // --- БД: только если pool доступен ---
-    let dbUserId: number | undefined;
-
-    if (config.pool) {
-      const isStart = commandToExecute.startsWith('/start');
-
-      let dbUser;
-      if (isStart) {
-        // Для /start всегда создаём или обновляем пользователя
-        dbUser = await findOrCreateUser('vk', String(ctx.userId));
-      } else {
-        // Для остальных команд проверяем существование, не создавая
-        const exists = await userExists('vk', String(ctx.userId));
-        if (!exists) {
-          // Пользователь был удалён – молча выходим
-          return;
-        }
-        // Получаем запись (чтобы обновить updated_at и получить id)
-        dbUser = await findOrCreateUser('vk', String(ctx.userId));
-      }
-
-      if (!dbUser) {
-        console.error(`Failed to find/create VK user ${ctx.userId}`);
-        return;
-      }
-      dbUserId = dbUser.id;
-
-      if (!isStart) {
-        await logCommand(dbUser.id, 'vk', commandToExecute);
-      }
-
-      // users.get только для зарегистрированных пользователей с pool
-      try {
-        const usersGetResult = await bot.request('users.get', {
-          user_ids: ctx.userId,
-          fields: 'first_name,last_name,screen_name',
-        });
-        if (Array.isArray(usersGetResult) && usersGetResult.length > 0) {
-          const vkUser = usersGetResult[0] as {
-            first_name: string;
-            last_name?: string;
-            screen_name?: string;
-          };
-        }
-      } catch (vkErr) {
-        console.error(`[VK Bot] Error fetching user details for ${ctx.userId}:`, vkErr);
-      }
-    }
-    // Если pool нет — пропускаем всю регистрацию/логирование,
-    // обрабатываем команду для всех входящих
 
     const result = (await bot.request('messages.getConversationsById', {
       peer_ids: ctx.peerId,
@@ -130,7 +79,6 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       text: commandToExecute,
       isAdmin: ctx.userId === Number(config.adminId),
       db: config.pool,
-      dbUserId,
       platformApi: bot,
       getUserProfile: async () => {
         try {
@@ -224,6 +172,10 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
             }
           },
     };
+
+    await authMw(uctx, async () => {});
+    if (!uctx.dbUserId) return;
+    await logMw(uctx, async () => {});
 
     // Выполнение команды
     const commandName = commandToExecute.startsWith('/')

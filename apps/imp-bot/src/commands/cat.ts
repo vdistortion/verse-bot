@@ -1,4 +1,4 @@
-import { catchErrors, type UniversalContext, type UniversalReplyOptions } from '@verse-bot/shared';
+import { catchErrors, type UniversalContext, type UniversalReplyOptions } from '@verse-bot/core';
 import { getCat } from '../data-sources/index.js';
 import { getInlineButton, phrases } from '../locales/ru.js';
 

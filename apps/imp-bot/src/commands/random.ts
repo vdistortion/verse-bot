@@ -1,4 +1,5 @@
-import { catchErrors, format, type UniversalReplyOptions } from '@verse-bot/shared';
+import { catchErrors, type UniversalReplyOptions } from '@verse-bot/core';
+import { format } from '@verse-bot/format';
 import { sendContentItem } from './content.js';
 import { getButtons, getInlineButton, phrases } from '../locales/ru.js';
 

@@ -1,4 +1,4 @@
-import { type UniversalContext } from '@verse-bot/shared';
+import { type UniversalContext } from '@verse-bot/core';
 import { phrases } from '../locales/ru.js';
 
 export async function helpCommand(ctx: UniversalContext): Promise<void> {

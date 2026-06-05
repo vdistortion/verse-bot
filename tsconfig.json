@@ -4,10 +4,9 @@
     { "path": "./packages/create-verse-bot" },
     { "path": "./packages/core" },
     { "path": "./packages/db" },
-    { "path": "./packages/shared" },
     { "path": "./packages/tg-core" },
     { "path": "./packages/vk-core" },
-    { "path": "./packages/md-format" },
+    { "path": "./packages/format" },
     { "path": "./apps/imp-bot" }
   ],
   "compilerOptions": {

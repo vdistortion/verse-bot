@@ -1,4 +1,5 @@
-import { bold, catchErrors, type UniversalReplyOptions } from '@verse-bot/shared';
+import { catchErrors, type UniversalReplyOptions } from '@verse-bot/core';
+import { bold } from '@verse-bot/format';
 import { getQuote } from '../data-sources/index.js';
 import { getInlineButton, phrases } from '../locales/ru.js';
 

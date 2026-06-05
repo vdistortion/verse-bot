@@ -2,13 +2,13 @@ import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { Bot, InputFile } from 'grammy';
 import {
-  findOrCreateUser,
-  format,
-  logCommand,
-  mdOpts,
+  createAuthMiddleware,
+  createLoggingMiddleware,
   type UniversalContext,
   type UniversalReplyOptions,
-} from '@verse-bot/shared';
+} from '@verse-bot/core';
+import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
+import { format, mdOpts } from '@verse-bot/format';
 import { createBot } from './bot-factory.js';
 import { dbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
@@ -155,28 +155,18 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     await next();
   });
 
-  // Middleware проверки и логирования пользователей
+  const authMw = createAuthMiddleware({ findOrCreateUser, userExists });
+  const logMw = createLoggingMiddleware({ logCommand });
+
   bot.use(async (ctx, next) => {
-    const text = ctx.message?.text ?? ctx.callbackQuery?.data ?? '';
-    const isStart = text === '/start' || text.startsWith('/start ') || text.startsWith('/start@');
-    const uctx: UniversalContext = (ctx as any).uctx;
+    const uctx = (ctx as any).uctx as UniversalContext;
     if (!uctx) return next();
-
-    // Если БД недоступна — пропускаем всю работу с пользователями
-    if (!ctx.db) return next();
-
-    const dbUser = await findOrCreateUser(uctx.platform, uctx.userId);
-    if (!dbUser) return;
-    uctx.dbUserId = dbUser.id;
-    if (isStart) {
-      await logCommand(dbUser!.id, uctx.platform, '/start');
-      return next();
-    }
-
-    const command = text.split(' ')[0];
-    const commandName = command.startsWith('/') ? command : text;
-    await logCommand(dbUser!.id, uctx.platform, commandName);
-    return next();
+    await authMw(uctx, next);
+  });
+  bot.use(async (ctx, next) => {
+    const uctx = (ctx as any).uctx as UniversalContext;
+    if (!uctx) return next();
+    await logMw(uctx, next);
   });
 
   bot.on('callback_query:data', async (ctx) => {

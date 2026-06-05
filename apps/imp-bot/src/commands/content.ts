@@ -1,10 +1,5 @@
-import {
-  catchErrors,
-  code,
-  format,
-  type UniversalContext,
-  type UniversalReplyOptions,
-} from '@verse-bot/shared';
+import { catchErrors, type UniversalContext, type UniversalReplyOptions } from '@verse-bot/core';
+import { code, format } from '@verse-bot/format';
 import { phrases } from '../locales/ru.js';
 import { PUBLIC_URL } from '../env.js';
 

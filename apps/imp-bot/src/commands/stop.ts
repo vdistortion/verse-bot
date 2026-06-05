@@ -1,4 +1,5 @@
-import { removeUser, type UniversalContext } from '@verse-bot/shared';
+import type { UniversalContext } from '@verse-bot/core';
+import { removeUser } from '@verse-bot/db';
 import { phrases } from '../locales/ru.js';
 
 export async function stopCommand(ctx: UniversalContext): Promise<void> {

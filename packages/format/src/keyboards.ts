@@ -11,10 +11,9 @@ export function createVKKeyboard(
         label: btn.label,
         payload: btn.command ? JSON.stringify({ command: btn.command }) : undefined,
       },
-      color: 'primary', // Можно настроить цвета по желанию
+      color: 'primary',
     })),
   );
-
   return JSON.stringify({ one_time: oneTime, buttons });
 }
 
@@ -29,6 +28,5 @@ export function createVKInlineKeyboard(buttonRows: UniversalKeyboardButton[][]):
       color: 'primary',
     })),
   );
-
   return JSON.stringify({ inline: true, buttons });
 }

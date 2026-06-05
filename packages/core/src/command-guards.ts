@@ -1,10 +1,7 @@
-import type { UniversalContext } from '@verse-bot/core';
+import type { UniversalContext } from './context.js';
 
 export type CommandHandler = (ctx: UniversalContext, ...args: any[]) => Promise<void>;
 
-/**
- * Обёртка: требует приватный чат и права администратора.
- */
 export function requireAdmin(handler: CommandHandler) {
   return async (ctx: UniversalContext, ...args: any[]) => {
     if (ctx.chatType !== 'private') return;
@@ -13,9 +10,6 @@ export function requireAdmin(handler: CommandHandler) {
   };
 }
 
-/**
- * Обёртка: требует приватный чат.
- */
 export function requirePrivateChat(handler: CommandHandler) {
   return async (ctx: UniversalContext, ...args: any[]) => {
     if (ctx.chatType !== 'private') return;
@@ -23,9 +17,6 @@ export function requirePrivateChat(handler: CommandHandler) {
   };
 }
 
-/**
- * Обёртка: перехватывает ошибки и отвечает стандартной фразой.
- */
 export function catchErrors(handler: CommandHandler, phrases: any) {
   return async (ctx: UniversalContext, ...args: any[]) => {
     try {

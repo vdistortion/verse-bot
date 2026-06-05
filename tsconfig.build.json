@@ -3,8 +3,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/db" },
-    { "path": "./packages/md-format" },
-    { "path": "./packages/shared" },
+    { "path": "./packages/format" },
     { "path": "./packages/tg-core" },
     { "path": "./packages/vk-core" },
     { "path": "./apps/imp-bot" }

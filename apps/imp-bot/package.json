@@ -11,7 +11,9 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@verse-bot/shared": "^0.1.0",
+    "@verse-bot/core": "^0.1.0",
+    "@verse-bot/db": "^0.1.0",
+    "@verse-bot/format": "^0.1.0",
     "@verse-bot/tg-core": "^0.1.0",
     "@verse-bot/vk-core": "^0.1.0",
     "archiver": "^8.0.0",

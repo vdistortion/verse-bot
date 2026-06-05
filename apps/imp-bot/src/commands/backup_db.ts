@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process';
-import { escapeMarkdownV2, format, requireAdmin } from '@verse-bot/shared';
+import { requireAdmin } from '@verse-bot/core';
+import { escapeMarkdownV2, format } from '@verse-bot/format';
 import { POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_USER } from '../env.js';
 
 export const backupDbCommand = requireAdmin(async (ctx) => {

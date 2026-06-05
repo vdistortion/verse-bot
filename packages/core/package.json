@@ -19,8 +19,8 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "dependencies": {},
   "devDependencies": {
+    "@types/pg": "^8.20.0",
     "typescript": "^6.0.3"
   }
 }

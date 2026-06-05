@@ -21,6 +21,7 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
+    "@verse-bot/core": "^0.1.0",
     "pg": "^8.21.0",
     "postgrator": "^8.0.0"
   },

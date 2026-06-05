@@ -1,4 +1,4 @@
-import type { UniversalContext, UniversalReplyOptions } from '@verse-bot/shared';
+import type { UniversalContext, UniversalReplyOptions } from '@verse-bot/core';
 import { getButtons, phrases } from '../locales/ru.js';
 
 export async function startCommand(ctx: UniversalContext) {

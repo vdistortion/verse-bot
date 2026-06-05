@@ -1,8 +1,8 @@
 {
-  "name": "@verse-bot/shared",
+  "name": "@verse-bot/format",
   "version": "0.1.0",
   "type": "module",
-  "description": "Shared utilities for bots and miniapps",
+  "description": "Formatting utilities for Telegram MarkdownV2 and VK Markdown",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -18,12 +18,9 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "tsc --noemit"
+    "dev": "tsc --watch"
   },
-  "dependencies": {
-    "@verse-bot/core": "^0.1.0",
-    "@verse-bot/db": "^0.1.0",
-    "@verse-bot/md-format": "^0.1.0"
+  "peerDependencies": {
+    "@verse-bot/core": "^0.1.0"
   }
 }

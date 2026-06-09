@@ -173,49 +173,63 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
           },
     };
 
-    await authMw(uctx, async () => {});
-    if (!uctx.dbUserId) return;
-    await logMw(uctx, async () => {});
+    const middlewares = [
+      authMw,
+      logMw,
+      async (uctx: UniversalContext, next: () => Promise<void>) => {
+        const commandName = commandToExecute.startsWith('/')
+          ? commandToExecute.slice(1)
+          : commandToExecute;
+        const handler = config.commands[commandName];
+        if (handler) {
+          await handler(uctx);
+          return;
+        }
 
-    // Выполнение команды
-    const commandName = commandToExecute.startsWith('/')
-      ? commandToExecute.slice(1)
-      : commandToExecute;
-    const handler = config.commands[commandName];
-    if (handler) {
-      await handler(uctx);
-      return;
-    }
+        // Динамические команды
+        const contentMatch = commandToExecute.match(/^\/content_(\d+)$/i);
+        if (contentMatch && config.contentCommand) {
+          const itemNumber = parseInt(contentMatch[1], 10);
+          if (!isNaN(itemNumber) && itemNumber > 0) {
+            await config.contentCommand(uctx, itemNumber);
+            return;
+          }
+        }
 
-    // Динамические команды
-    const contentMatch = commandToExecute.match(/^\/content_(\d+)$/i);
-    if (contentMatch && config.contentCommand) {
-      const itemNumber = parseInt(contentMatch[1], 10);
-      if (!isNaN(itemNumber) && itemNumber > 0) {
-        await config.contentCommand(uctx, itemNumber);
-        return;
-      }
-    }
+        const userlogMatch = commandToExecute.match(/^\/userlog_(\d+)$/i);
+        if (userlogMatch && config.userLogCommand) {
+          const userId = parseInt(userlogMatch[1], 10);
+          if (!isNaN(userId)) {
+            await config.userLogCommand(uctx, userId);
+            return;
+          }
+        }
 
-    const userlogMatch = commandToExecute.match(/^\/userlog_(\d+)$/i);
-    if (userlogMatch && config.userLogCommand) {
-      const userId = parseInt(userlogMatch[1], 10);
-      if (!isNaN(userId)) {
-        await config.userLogCommand(uctx, userId);
-        return;
-      }
-    }
+        // Неизвестная команда
+        if (config.unknownCommandPhrase && config.getButtonsForUnknown) {
+          const phrase = config.unknownCommandPhrase('vk');
+          const buttons = config.getButtonsForUnknown();
+          const rows = [];
+          for (let i = 0; i < buttons.length; i += 2) {
+            rows.push(buttons.slice(i, i + 2).map((b) => ({ label: b.label, command: b.command })));
+          }
+          await bot.sendMessage(ctx.peerId, phrase, createVKKeyboard(rows));
+        }
 
-    // Неизвестная команда
-    if (config.unknownCommandPhrase && config.getButtonsForUnknown) {
-      const phrase = config.unknownCommandPhrase('vk');
-      const buttons = config.getButtonsForUnknown();
-      const rows = [];
-      for (let i = 0; i < buttons.length; i += 2) {
-        rows.push(buttons.slice(i, i + 2).map((b) => ({ label: b.label, command: b.command })));
-      }
-      await bot.sendMessage(ctx.peerId, phrase, createVKKeyboard(rows));
-    }
+        await next();
+      },
+    ];
+
+    let index = -1;
+    const dispatch = async (i: number) => {
+      if (i <= index) throw new Error('next() called multiple times');
+      index = i;
+      const middleware = middlewares[i];
+      if (!middleware) return;
+      await middleware(uctx, () => dispatch(i + 1));
+    };
+
+    await dispatch(0);
   }
 
   // Обработка новых сообщений (в том числе нажатий на инлайн-кнопки, которые теперь текстовые)

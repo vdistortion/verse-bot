@@ -5,13 +5,12 @@ import type { MessageContext } from 'vk-io';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
-  type Platform,
   type UniversalContext,
   type UniversalReplyOptions,
   type UserProfile,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
-import { format, createVKKeyboard, createVKInlineKeyboard } from '@verse-bot/format';
+import { type Format, format, createVKKeyboard, createVKInlineKeyboard } from '@verse-bot/format';
 import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';
 
@@ -31,7 +30,7 @@ export interface VKBotConfig {
     caption?: string,
     extra?: UniversalReplyOptions,
   ) => Promise<void>;
-  unknownCommandPhrase?: (platform: Platform) => string;
+  unknownCommandPhrase?: (format: Format) => string;
   getButtonsForUnknown?: () => { label: string; command: string }[];
 }
 
@@ -191,7 +190,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
             await handler(uctx);
           } else if (uctx.chatType === 'private' && config.unknownCommandPhrase) {
             const buttons = config.getButtonsForUnknown?.() ?? [];
-            await uctx.reply(config.unknownCommandPhrase('vk'), {
+            await uctx.reply(config.unknownCommandPhrase(uctx.format), {
               replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
             });
           }

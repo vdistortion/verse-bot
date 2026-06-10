@@ -1,18 +1,17 @@
 import { catchErrors, type UniversalReplyOptions } from '@verse-bot/core';
-import { format } from '@verse-bot/format';
 import { sendContentItem } from './content.js';
 import { getButtons, getInlineButton, phrases } from '../locales/ru.js';
 
 export const randomCommand = catchErrors(async (ctx) => {
   if (!ctx.db) {
-    await ctx.replySafe(format(ctx.platform)`❌ База данных недоступна.`);
+    await ctx.replySafe(ctx.format`❌ База данных недоступна.`);
     return;
   }
 
   const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
   if (!allContent || allContent.length === 0) {
-    await ctx.replySafe(format(ctx.platform)`В базе данных нет контента.`);
+    await ctx.replySafe(ctx.format`В базе данных нет контента.`);
     return;
   }
 

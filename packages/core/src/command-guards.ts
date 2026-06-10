@@ -23,7 +23,7 @@ export function catchErrors(handler: CommandHandler, phrases: any) {
       return await handler(ctx, ...args);
     } catch (err) {
       console.error('Command error:', err);
-      await ctx.replySafe(phrases.errorDefault(ctx.platform));
+      await ctx.replySafe(phrases.errorDefault(ctx.format));
     }
   };
 }

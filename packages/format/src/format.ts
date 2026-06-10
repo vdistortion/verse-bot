@@ -19,3 +19,5 @@ export function format(platform: Platform) {
     return result;
   };
 }
+
+export type Format = ReturnType<typeof format>;

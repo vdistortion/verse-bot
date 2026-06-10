@@ -18,10 +18,10 @@ export async function startCommand(ctx: UniversalContext) {
   let message = '';
 
   if (ctx.chatType === 'private') {
-    message = phrases.start.personal(ctx.platform, firstName);
+    message = phrases.start.personal(ctx.format, firstName);
     extra.replyKeyboard = universalKeyboard;
   } else {
-    message = phrases.start.group(ctx.platform, ctx.chatTitle ?? 'группа');
+    message = phrases.start.group(ctx.format, ctx.chatTitle ?? 'группа');
     extra.inlineKeyboard = universalKeyboard;
   }
 

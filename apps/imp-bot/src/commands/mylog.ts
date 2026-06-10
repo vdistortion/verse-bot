@@ -7,7 +7,7 @@ export const myLogCommand = requirePrivateChat(
   catchErrors(async (ctx) => {
     const dbUserId = ctx.dbUserId;
     if (!dbUserId) {
-      await ctx.replySafe(phrases.errorDefault(ctx.platform));
+      await ctx.replySafe(phrases.errorDefault(ctx.format));
       return;
     }
 

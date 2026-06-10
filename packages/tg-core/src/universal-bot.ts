@@ -4,12 +4,11 @@ import { Bot, InputFile } from 'grammy';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
-  type Platform,
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
-import { format, mdOpts } from '@verse-bot/format';
+import { type Format, format, mdOpts } from '@verse-bot/format';
 import { createBot } from './bot-factory.js';
 import { dbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
@@ -35,7 +34,7 @@ export interface TelegramBotConfig {
   ) => Promise<void>;
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
-  unknownCommandPhrase?: (platform: Platform) => string;
+  unknownCommandPhrase?: (format: Format) => string;
 }
 
 function makePhotoHandler(ctx: BotContext, contentDir?: string) {
@@ -265,7 +264,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       if (config.buttons.some((b) => b.label === text)) return next();
 
       // Неизвестная команда – отвечаем фразой
-      await uctx.reply(config.unknownCommandPhrase!(uctx.platform));
+      await uctx.reply(config.unknownCommandPhrase!(uctx.format));
       await next();
     });
   }

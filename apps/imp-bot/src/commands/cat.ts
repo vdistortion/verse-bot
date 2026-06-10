@@ -12,13 +12,13 @@ export const catCommand = catchErrors(async (ctx: UniversalContext) => {
 
   if (catImageUrl) {
     if (ctx.replyWithPhoto) {
-      await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(ctx.platform), extra);
+      await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(ctx.format), extra);
       return;
     } else {
-      await ctx.replySafe(`${phrases.cat.caption(ctx.platform)}\n${catImageUrl}`, extra);
+      await ctx.replySafe(`${phrases.cat.caption(ctx.format)}\n${catImageUrl}`, extra);
       return;
     }
   }
 
-  await ctx.replySafe(phrases.cat.notFound(ctx.platform), extra);
+  await ctx.replySafe(phrases.cat.notFound(ctx.format), extra);
 }, phrases);

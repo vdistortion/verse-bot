@@ -1,6 +1,6 @@
 import { requireAdmin, catchErrors, type UserProfile } from '@verse-bot/core';
 import { getAllUsers, type DbUser } from '@verse-bot/db';
-import { link, bold, format } from '@verse-bot/format';
+import { link, bold } from '@verse-bot/format';
 import { phrases } from '../locales/ru.js';
 
 function formatDate(dateStr: string): string {
@@ -18,18 +18,16 @@ function formatDate(dateStr: string): string {
 
 export const listUsersCommand = requireAdmin(
   catchErrors(async (ctx) => {
-    await ctx.replySafe(format(ctx.platform)`Загружаю список пользователей...`);
+    await ctx.replySafe(ctx.format`Загружаю список пользователей...`);
 
     const users: DbUser[] = await getAllUsers();
 
     if (users.length === 0) {
-      await ctx.replySafe(format(ctx.platform)`В базе данных нет активных пользователей.`);
+      await ctx.replySafe(ctx.format`В базе данных нет активных пользователей.`);
       return;
     }
 
-    let message = format(
-      ctx.platform,
-    )`${bold(`👥 Список активных пользователей (${users.length}):`)}\n\n`;
+    let message = ctx.format`${bold(`👥 Список активных пользователей (${users.length}):`)}\n\n`;
 
     for (const user of users) {
       let profile: UserProfile | null = null;

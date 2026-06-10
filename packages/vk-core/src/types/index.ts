@@ -1,3 +1,5 @@
+import type { UniversalContext } from '@verse-bot/core';
+
 export interface VKMessage {
   id: number;
   date: number;
@@ -72,4 +74,5 @@ export interface VKContext {
   ) => Promise<unknown>;
   payload?: string;
   eventId?: string;
+  uctx?: UniversalContext;
 }

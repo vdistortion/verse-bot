@@ -153,7 +153,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         }
       },
     };
-    (ctx as any).uctx = uctx;
+    ctx.uctx = uctx;
     await next();
   });
 
@@ -161,18 +161,18 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
   const logMw = createLoggingMiddleware({ logCommand });
 
   bot.use(async (ctx, next) => {
-    const uctx = (ctx as any).uctx as UniversalContext;
+    const uctx = ctx.uctx;
     if (!uctx) return next();
     await authMw(uctx, next);
   });
   bot.use(async (ctx, next) => {
-    const uctx = (ctx as any).uctx as UniversalContext;
+    const uctx = ctx.uctx;
     if (!uctx) return next();
     await logMw(uctx, next);
   });
 
   bot.on('callback_query:data', async (ctx) => {
-    const uctx: UniversalContext = (ctx as any).uctx;
+    const uctx = ctx.uctx;
     if (!uctx) {
       await ctx.answerCallbackQuery();
       return;
@@ -224,12 +224,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     if (handler) {
       // Команда вида /start
       bot.command(command, async (ctx) => {
-        const uctx = (ctx as any).uctx;
+        const uctx = ctx.uctx!;
         await handler(uctx);
       });
       // Кнопка с текстом label
       bot.hears(label, async (ctx) => {
-        const uctx = (ctx as any).uctx;
+        const uctx = ctx.uctx!;
         await handler(uctx);
       });
     }
@@ -241,7 +241,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     const alreadyRegistered = config.buttons.some((b) => b.command === command);
     if (!alreadyRegistered) {
       bot.command(command, async (ctx) => {
-        const uctx = (ctx as any).uctx;
+        const uctx = ctx.uctx!;
         await handler(uctx);
       });
     }
@@ -250,7 +250,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
   // Обработка неизвестных команд (только в личных чатах)
   if (config.unknownCommandPhrase) {
     bot.on('message:text', async (ctx, next) => {
-      const uctx = (ctx as any).uctx as UniversalContext | undefined;
+      const uctx = ctx.uctx;
       if (!uctx || uctx.chatType !== 'private') return next();
 
       const text = ctx.message?.text?.trim() ?? '';
@@ -275,7 +275,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     bot.hears(/^\/content_(\d+)$/i, async (ctx) => {
       const itemNumber = parseInt(ctx.match[1], 10);
       if (!isNaN(itemNumber) && itemNumber > 0) {
-        const uctx = (ctx as any).uctx;
+        const uctx = ctx.uctx!;
         await config.contentCommand!(uctx, itemNumber);
       } else {
         // Сообщение об ошибке? Можно передать фразу из phrases, но пока опустим
@@ -287,7 +287,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     bot.hears(/^\/userlog_(\d+)$/i, async (ctx) => {
       const userId = parseInt(ctx.match[1], 10);
       if (!isNaN(userId)) {
-        const uctx = (ctx as any).uctx;
+        const uctx = ctx.uctx!;
         await config.userLogCommand!(uctx, userId);
       }
     });

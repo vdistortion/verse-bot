@@ -49,159 +49,157 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
   const authMw = createAuthMiddleware({ findOrCreateUser, userExists });
   const logMw = createLoggingMiddleware({ logCommand });
 
-  vk.updates.on('message_new', async (ctx: MessageContext, next): Promise<void> => {
-    if (ctx.isOutbox || ctx.isGroup) {
-      await next();
-      return;
-    }
+  vk.on('message_new', async (vctx) => {
+    console.log(`[${new Date().toISOString()}] VK @${vctx.userId}: ${vctx.text || '(no text)'}`);
 
-    let text = ctx.text?.trim() ?? '';
-    if (text === 'Начать') text = '/start';
+    try {
+      const ctx = vctx.update as unknown as MessageContext;
+      if (ctx.isOutbox || ctx.isGroup) return;
 
-    const payload = ctx.messagePayload;
-    if (payload?.command) {
-      text = payload.command;
-    }
+      let text = ctx.text?.trim() ?? '';
+      if (text === 'Начать') text = '/start';
 
-    const isChat = ctx.peerId >= VK_PEER_CHAT_OFFSET;
+      const payload = ctx.messagePayload;
+      if (payload?.command) {
+        text = payload.command;
+      }
 
-    const uctx: UniversalContext = {
-      platform: 'vk',
-      userId: String(ctx.senderId),
-      peerId: ctx.peerId,
-      text,
-      isAdmin: ctx.senderId === config.adminId,
-      chatType: isChat ? 'group' : 'private',
-      chatTitle: isChat ? 'Беседа' : undefined,
-      db: config.pool,
-      platformApi: vk,
-      format: format('vk'),
+      const isChat = ctx.peerId >= VK_PEER_CHAT_OFFSET;
 
-      getUserProfile: async (): Promise<UserProfile | null> => {
-        const [user] = await vk.api.users.get({ user_ids: [ctx.senderId] });
-        if (!user) return null;
-        return {
-          firstName: user.first_name,
-          lastName: user.last_name,
-        };
-      },
+      const uctx: UniversalContext = {
+        platform: 'vk',
+        userId: String(ctx.senderId),
+        peerId: ctx.peerId,
+        text,
+        isAdmin: ctx.senderId === config.adminId,
+        chatType: isChat ? 'group' : 'private',
+        chatTitle: isChat ? 'Беседа' : undefined,
+        db: config.pool,
+        platformApi: vk,
+        format: format('vk'),
 
-      reply: async (replyText: string, options?: UniversalReplyOptions) => {
-        let keyboard: string | undefined;
-        if (options?.replyKeyboard) {
-          keyboard = createVKKeyboard(options.replyKeyboard, (options as any).one_time);
-        } else if (options?.inlineKeyboard) {
-          keyboard = createVKInlineKeyboard(options.inlineKeyboard);
-        }
-        await ctx.send(replyText, {
-          keyboard,
-          random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
-        });
-      },
+        getUserProfile: async (): Promise<UserProfile | null> => {
+          const [user] = await vk.api.users.get({ user_ids: [ctx.senderId] });
+          if (!user) return null;
+          return {
+            firstName: user.first_name,
+            lastName: user.last_name,
+          };
+        },
 
-      replySafe: async (replyText: string, options?: UniversalReplyOptions) => {
-        const safeOptions = { ...options };
-        if (uctx.chatType !== 'private') {
-          delete safeOptions.replyKeyboard;
-        }
-        await uctx.reply(replyText, safeOptions);
-      },
-
-      replyWithPhoto: async (
-        photoUrl: string,
-        caption?: string,
-        options?: UniversalReplyOptions,
-      ) => {
-        if (config.onReplyWithPhoto) {
-          return config.onReplyWithPhoto(uctx, photoUrl, caption, options);
-        }
-
-        let keyboard: string | undefined;
-        if (options?.inlineKeyboard) {
-          keyboard = createVKInlineKeyboard(options.inlineKeyboard);
-        } else if (options?.replyKeyboard) {
-          keyboard = createVKKeyboard(options.replyKeyboard);
-        }
-
-        /** Загружает стрим в VK и отправляет сообщение с вложением. */
-        const uploadAndSend = async (
-          stream: NodeJS.ReadableStream | Buffer,  // ← добавить | Buffer
-          filename: string,
-        ): Promise<void> => {
-          const photo = await vk.upload.messagePhoto({
-            peer_id: ctx.peerId,
-            source: { value: stream, filename },
-          });
-          await ctx.send(caption ?? '', {
-            attachment: `photo${photo.ownerId}_${photo.id}`,
+        reply: async (replyText: string, options?: UniversalReplyOptions) => {
+          let keyboard: string | undefined;
+          if (options?.replyKeyboard) {
+            keyboard = createVKKeyboard(options.replyKeyboard, (options as any).one_time);
+          } else if (options?.inlineKeyboard) {
+            keyboard = createVKInlineKeyboard(options.inlineKeyboard);
+          }
+          await ctx.send(replyText, {
             keyboard,
             random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
           });
-        };
+        },
 
-        // Шаг 1: ищем файл локально в contentDir
-        if (config.contentDir) {
-          try {
-            const filename = decodeURIComponent(path.basename(new URL(photoUrl).pathname));
-            const localPath = path.join(config.contentDir, filename);
-            if (existsSync(localPath)) {
-              console.log(`[VK replyWithPhoto] local: ${localPath}`);
-              await uploadAndSend(createReadStream(localPath), filename);
-              return;
-            }
-          } catch (err: any) {
-            console.warn('[VK replyWithPhoto] local upload failed:', err.message);
+        replySafe: async (replyText: string, options?: UniversalReplyOptions) => {
+          const safeOptions = { ...options };
+          if (uctx.chatType !== 'private') {
+            delete safeOptions.replyKeyboard;
           }
-        }
+          await uctx.reply(replyText, safeOptions);
+        },
 
-        // Шаг 2: загружаем по URL через vk-io
-        try {
-          const filename = path.basename(new URL(photoUrl).pathname) || 'photo.jpg';
-          console.log(`[VK replyWithPhoto] url: ${photoUrl}`);
-          const res = await fetch(photoUrl, { headers: { 'User-Agent': 'VerseBot/1.0' } });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          await uploadAndSend(Buffer.from(await res.arrayBuffer()), filename);
-          return;
-        } catch (err: any) {
-          console.warn('[VK replyWithPhoto] url upload failed:', err.message);
-        }
+        replyWithPhoto: async (
+          photoUrl: string,
+          caption?: string,
+          options?: UniversalReplyOptions,
+        ) => {
+          if (config.onReplyWithPhoto) {
+            return config.onReplyWithPhoto(uctx, photoUrl, caption, options);
+          }
 
-        // Шаг 3: fallback — просто отправляем ссылку текстом
-        const fallbackText = [caption, photoUrl].filter(Boolean).join('\n\n');
-        await ctx.send(fallbackText || '📷', {
-          keyboard,
-          random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
-        });
-      },
-    };
+          let keyboard: string | undefined;
+          if (options?.inlineKeyboard) {
+            keyboard = createVKInlineKeyboard(options.inlineKeyboard);
+          } else if (options?.replyKeyboard) {
+            keyboard = createVKKeyboard(options.replyKeyboard);
+          }
 
-    await authMw(uctx, async () => {
-      await logMw(uctx, async () => {
-        let commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
+          const uploadAndSend = async (
+            stream: NodeJS.ReadableStream | Buffer,
+            filename: string,
+          ): Promise<void> => {
+            const photo = await vk.upload.messagePhoto({
+              peer_id: ctx.peerId,
+              source: { value: stream, filename },
+            });
+            await ctx.send(caption ?? '', {
+              attachment: `photo${photo.ownerId}_${photo.id}`,
+              keyboard,
+              random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
+            });
+          };
 
-        const cmd = commandToExecute ?? text;
-        const contentMatch = cmd.match(/^\/?content_(\d+)$/i);
-        if (contentMatch && config.contentCommand) {
-          return config.contentCommand(uctx, parseInt(contentMatch[1], 10));
-        }
-        const logMatch = cmd.match(/^\/?userlog_(\d+)$/i);
-        if (logMatch && config.userLogCommand) {
-          return config.userLogCommand(uctx, parseInt(logMatch[1], 10));
-        }
+          if (config.contentDir) {
+            try {
+              const filename = decodeURIComponent(path.basename(new URL(photoUrl).pathname));
+              const localPath = path.join(config.contentDir, filename);
+              if (existsSync(localPath)) {
+                console.log(`[VK replyWithPhoto] local: ${localPath}`);
+                await uploadAndSend(createReadStream(localPath), filename);
+                return;
+              }
+            } catch (err: any) {
+              console.warn('[VK replyWithPhoto] local upload failed:', err.message);
+            }
+          }
 
-        const handler = config.commands[commandToExecute || ''];
-        if (handler) {
-          await handler(uctx);
-        } else if (uctx.chatType === 'private' && config.unknownCommandPhrase) {
-          const buttons = config.getButtonsForUnknown?.() ?? [];
-          await uctx.reply(config.unknownCommandPhrase('vk'), {
-            replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
+          try {
+            const filename = path.basename(new URL(photoUrl).pathname) || 'photo.jpg';
+            console.log(`[VK replyWithPhoto] url: ${photoUrl}`);
+            const res = await fetch(photoUrl, { headers: { 'User-Agent': 'VerseBot/1.0' } });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            await uploadAndSend(Buffer.from(await res.arrayBuffer()), filename);
+            return;
+          } catch (err: any) {
+            console.warn('[VK replyWithPhoto] url upload failed:', err.message);
+          }
+
+          const fallbackText = [caption, photoUrl].filter(Boolean).join('\n\n');
+          await ctx.send(fallbackText || '📷', {
+            keyboard,
+            random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
           });
-        }
-      });
-    });
+        },
+      };
 
-    await next();
+      await authMw(uctx, async () => {
+        await logMw(uctx, async () => {
+          let commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
+
+          const cmd = commandToExecute ?? text;
+          const contentMatch = cmd.match(/^\/?content_(\d+)$/i);
+          if (contentMatch && config.contentCommand) {
+            return config.contentCommand(uctx, parseInt(contentMatch[1], 10));
+          }
+          const logMatch = cmd.match(/^\/?userlog_(\d+)$/i);
+          if (logMatch && config.userLogCommand) {
+            return config.userLogCommand(uctx, parseInt(logMatch[1], 10));
+          }
+
+          const handler = config.commands[commandToExecute || ''];
+          if (handler) {
+            await handler(uctx);
+          } else if (uctx.chatType === 'private' && config.unknownCommandPhrase) {
+            const buttons = config.getButtonsForUnknown?.() ?? [];
+            await uctx.reply(config.unknownCommandPhrase('vk'), {
+              replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
+            });
+          }
+        });
+      });
+    } catch (err) {
+      console.error('[VK Bot] message_new handler error:', err);
+    }
   });
 
   return vk;

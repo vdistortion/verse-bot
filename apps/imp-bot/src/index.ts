@@ -76,6 +76,7 @@ if (TELEGRAM_BOT_TOKEN) {
     contentCommand: contentCommand,
     userLogCommand: userLogCommand,
     contentDir: CONTENT_DIR,
+    unknownCommandPhrase: phrases.unknownCommand,
   });
   tgBot.start();
   console.log('🚀 Telegram bot started');

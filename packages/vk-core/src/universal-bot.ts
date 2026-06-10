@@ -89,7 +89,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         reply: async (replyText: string, options?: UniversalReplyOptions) => {
           let keyboard: string | undefined;
           if (options?.replyKeyboard) {
-            keyboard = createVKKeyboard(options.replyKeyboard, (options as any).one_time);
+            keyboard = createVKKeyboard(options.replyKeyboard, options.one_time);
           } else if (options?.inlineKeyboard) {
             keyboard = createVKInlineKeyboard(options.inlineKeyboard);
           }
@@ -173,7 +173,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
 
       await authMw(uctx, async () => {
         await logMw(uctx, async () => {
-          let commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
+          const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
 
           const cmd = commandToExecute ?? text;
           const contentMatch = cmd.match(/^\/?content_(\d+)$/i);

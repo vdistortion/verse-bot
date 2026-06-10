@@ -3,7 +3,7 @@ import { code } from '@verse-bot/format';
 import { phrases } from '../locales/ru.js';
 import { PUBLIC_URL } from '../env.js';
 
-interface BotContentItem {
+export interface BotContentItem {
   id: number;
   image_url?: string;
   text_content?: string;
@@ -69,6 +69,6 @@ export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumb
     return;
   }
 
-  const requestedItem = allContent[itemIndex];
+  const requestedItem: BotContentItem = allContent[itemIndex];
   await sendContentItem(ctx, requestedItem, itemNumber);
 }, phrases);

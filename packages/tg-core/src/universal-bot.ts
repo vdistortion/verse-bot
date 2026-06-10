@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
-import { Bot, InputFile } from 'grammy';
+import { type Bot, InputFile } from 'grammy';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,

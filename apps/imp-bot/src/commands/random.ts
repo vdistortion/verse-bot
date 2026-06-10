@@ -1,5 +1,5 @@
 import { catchErrors, type UniversalReplyOptions } from '@verse-bot/core';
-import { sendContentItem } from './content.js';
+import { type BotContentItem, sendContentItem } from './content.js';
 import { getButtons, getInlineButton, phrases } from '../locales/ru.js';
 
 export const randomCommand = catchErrors(async (ctx) => {
@@ -16,7 +16,7 @@ export const randomCommand = catchErrors(async (ctx) => {
   }
 
   const randomIndex = Math.floor(Math.random() * allContent.length);
-  const randomItem = allContent[randomIndex];
+  const randomItem: BotContentItem = allContent[randomIndex];
   const itemNumber = randomIndex + 1;
   const extra: UniversalReplyOptions = {};
 

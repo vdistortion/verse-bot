@@ -51,6 +51,8 @@ const uniqueButtonsForRegistration = Array.from(
   new Map(allPossibleButtonsForRegistration.map((b) => [b.command + b.label, b])).values(),
 );
 
+const botsToStart: { name: string; start: () => Promise<void> }[] = [];
+
 // Telegram
 if (TELEGRAM_BOT_TOKEN) {
   const tgBot = createUniversalTelegramBot({
@@ -78,8 +80,7 @@ if (TELEGRAM_BOT_TOKEN) {
     contentDir: CONTENT_DIR,
     unknownCommandPhrase: phrases.unknownCommand,
   });
-  tgBot.start();
-  console.log('🚀 Telegram bot started');
+  botsToStart.push({ name: 'Telegram', start: () => tgBot.start() });
 }
 
 // VK
@@ -110,6 +111,10 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     getButtonsForUnknown: () => getButtons(false),
     pool: getPool(),
   });
-  vkBot.start();
-  console.log('🚀 VK bot started');
+  botsToStart.push({ name: 'VK', start: () => vkBot.start() });
+}
+
+for (const { name, start } of botsToStart) {
+  start().catch((err) => console.error(`🚨 ${name} bot start failed:`, err));
+  console.log(`🚀 ${name} bot started`);
 }

@@ -1,4 +1,11 @@
-import { BoldToken, CodeToken, LinkToken, RawToken, SpoilerToken, FormatToken } from './tokens.js';
+import {
+  BoldToken,
+  CodeToken,
+  LinkToken,
+  RawToken,
+  SpoilerToken,
+  type FormatToken,
+} from './tokens.js';
 
 export const bold = (text: string | FormatToken) => new BoldToken(text);
 export const code = (text: string) => new CodeToken(text);

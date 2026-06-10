@@ -1,6 +1,10 @@
 import type { UniversalContext } from './context.js';
+import type { FormatFn } from './types.js';
 
 export type CommandHandler = (ctx: UniversalContext, ...args: any[]) => Promise<void>;
+export interface Phrases {
+  errorDefault: (format: FormatFn) => string;
+}
 
 export function requireAdmin(handler: CommandHandler) {
   return async (ctx: UniversalContext, ...args: any[]) => {
@@ -17,7 +21,7 @@ export function requirePrivateChat(handler: CommandHandler) {
   };
 }
 
-export function catchErrors(handler: CommandHandler, phrases: any) {
+export function catchErrors(handler: CommandHandler, phrases: Phrases) {
   return async (ctx: UniversalContext, ...args: any[]) => {
     try {
       return await handler(ctx, ...args);

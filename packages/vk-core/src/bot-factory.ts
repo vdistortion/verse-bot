@@ -49,7 +49,7 @@ export class VKBot {
    * Поддерживаемые типы: «message_new», «message_event».
    * Контекст vk-io адаптируется к VKContext для обратной совместимости.
    */
-  on(event: 'message_new' | 'message_event' | string, handler: UpdateHandler): this {
+  on(event: 'message_new' | 'message_event', handler: UpdateHandler): this {
     if (event === 'message_new') {
       this.vk.updates.on('message_new', async (ctx: MessageContext, next) => {
         try {

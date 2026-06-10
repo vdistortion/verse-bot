@@ -17,4 +17,7 @@ export interface UniversalReplyOptions {
   link_preview_options?: { is_disabled: boolean };
   replyKeyboard?: UniversalKeyboardButton[][];
   inlineKeyboard?: UniversalKeyboardButton[][];
+  one_time?: boolean;
 }
+
+export type FormatFn = (strings: TemplateStringsArray, ...values: any[]) => string;

@@ -1,10 +1,8 @@
-import type { UniversalContext, UniversalReplyOptions } from '@verse-bot/core';
+import type { UniversalContext } from '@verse-bot/core';
 import { getButtons, phrases } from '../locales/ru.js';
 
 export async function startCommand(ctx: UniversalContext) {
   const profile = await ctx.getUserProfile();
-  const firstName = profile?.firstName ?? 'гость';
-
   const buttons = getButtons(false);
   // группируем в ряды по 2 кнопки
   const universalKeyboard = [];
@@ -14,16 +12,13 @@ export async function startCommand(ctx: UniversalContext) {
     );
   }
 
-  const extra: UniversalReplyOptions = {};
-  let message = '';
-
   if (ctx.chatType === 'private') {
-    message = phrases.start.personal(ctx.format, firstName);
-    extra.replyKeyboard = universalKeyboard;
+    await ctx.replySafe(phrases.start.personal(ctx.format, profile?.firstName ?? 'гость'), {
+      replyKeyboard: universalKeyboard,
+    });
   } else {
-    message = phrases.start.group(ctx.format, ctx.chatTitle ?? 'группа');
-    extra.inlineKeyboard = universalKeyboard;
+    await ctx.replySafe(phrases.start.group(ctx.format, ctx.chatTitle ?? 'группа'), {
+      inlineKeyboard: universalKeyboard,
+    });
   }
-
-  await ctx.replySafe(message, extra);
 }

@@ -44,7 +44,7 @@ export class RawToken extends FormatToken {
   constructor(private content: string) {
     super();
   }
-  render(platform: Platform): string {
+  render(): string {
     return this.content;
   }
 }

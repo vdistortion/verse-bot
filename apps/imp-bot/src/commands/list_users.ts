@@ -1,5 +1,7 @@
+import type { Api } from 'grammy';
 import { requireAdmin, catchErrors, type UserProfile } from '@verse-bot/core';
 import { getAllUsers, type DbUser } from '@verse-bot/db';
+import type { VKBot } from '@verse-bot/vk-core';
 import { link, bold } from '@verse-bot/format';
 import { phrases } from '../locales/ru.js';
 
@@ -32,7 +34,7 @@ export const listUsersCommand = requireAdmin(
     for (const user of users) {
       let profile: UserProfile | null = null;
       if (user.tg_id && ctx.platform === 'telegram' && ctx.platformApi) {
-        const api = ctx.platformApi as import('grammy').Api;
+        const api = ctx.platformApi as Api;
         try {
           const tgChat = await api.getChat(Number(user.tg_id));
           profile = {
@@ -42,7 +44,7 @@ export const listUsersCommand = requireAdmin(
           };
         } catch {}
       } else if (user.vk_id && ctx.platform === 'vk' && ctx.platformApi) {
-        const api = ctx.platformApi as import('@verse-bot/vk-core').VKBot;
+        const api = ctx.platformApi as VKBot;
         try {
           const result = (await api.request('users.get', {
             user_ids: user.vk_id,

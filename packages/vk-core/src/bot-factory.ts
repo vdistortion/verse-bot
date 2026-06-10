@@ -1,5 +1,6 @@
+import { VK, type MessageContext, type MessageEventContext } from 'vk-io';
 import { VK_MAX_RANDOM_ID } from './vk-constants.js';
-import type { VKContext, VKUpdate } from './types/index.js';
+import type { VKContext } from './types/index.js';
 
 type UpdateHandler = (ctx: VKContext) => void | Promise<void>;
 
@@ -9,167 +10,113 @@ export interface VKBotFactoryOptions {
   useLogger?: boolean;
 }
 
-interface LongPollResponse {
-  ts: number;
-  updates?: VKUpdate[];
-  failed?: number;
-}
-
 export class VKBot {
-  private token: string;
-  private groupId: number;
-  private ts: number = 0;
-  private handlers: Map<string, UpdateHandler[]> = new Map();
+  private readonly vk: VK;
+  private readonly groupId: number;
   private isRunning = false;
 
+  /** vk-io API — прямые вызовы методов VK API (vk.api.users.get и т.д.) */
+  public get api() {
+    return this.vk.api;
+  }
+  /** vk-io Upload — загрузка медиафайлов (vk.upload.messagePhoto и т.д.) */
+  public get upload() {
+    return this.vk.upload;
+  }
+  /** vk-io Updates — прямая подписка на события и управление Long Poll */
+  public get updates() {
+    return this.vk.updates;
+  }
+
   constructor(options: VKBotFactoryOptions) {
-    this.token = options.token;
+    this.vk = new VK({
+      token: options.token,
+      pollingGroupId: options.groupId,
+    });
     this.groupId = options.groupId;
   }
 
+  /**
+   * Вызов произвольного метода VK API.
+   * Метод передаётся строкой формата «section.method», например «users.get».
+   */
   public async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
-    const url = new URL(`https://api.vk.com/method/${method}`);
-    url.searchParams.set('access_token', this.token);
-    url.searchParams.set('v', '5.131');
-
-    for (const [key, value] of Object.entries(params)) {
-      url.searchParams.set(key, String(value));
-    }
-
-    const fetchOptions: RequestInit = {};
-    const response = await fetch(url.toString(), fetchOptions);
-    const data = (await response.json()) as { error?: unknown; response?: unknown };
-
-    if ('error' in data) {
-      throw new Error(JSON.stringify(data.error));
-    }
-
-    return data.response;
+    return this.vk.api.call(method, params);
   }
 
-  private async getLongPollServer(): Promise<{ server: string; key: string; ts: number }> {
-    const response = (await this.request('groups.getLongPollServer', {
-      group_id: this.groupId,
-    })) as { server: string; key: string; ts: number };
-
-    return response;
+  /**
+   * Подписка на события VK.
+   * Поддерживаемые типы: «message_new», «message_event».
+   * Контекст vk-io адаптируется к VKContext для обратной совместимости.
+   */
+  on(event: 'message_new' | 'message_event' | string, handler: UpdateHandler): this {
+    if (event === 'message_new') {
+      this.vk.updates.on('message_new', async (ctx: MessageContext, next) => {
+        try {
+          await handler(this.adaptMessageContext(ctx));
+        } catch (err) {
+          console.error('[VK Bot] message_new handler error:', err);
+        }
+        await next();
+      });
+    } else if (event === 'message_event') {
+      this.vk.updates.on('message_event', async (ctx: MessageEventContext, next) => {
+        try {
+          await handler(this.adaptEventContext(ctx));
+        } catch (err) {
+          console.error('[VK Bot] message_event handler error:', err);
+        }
+        await next();
+      });
+    }
+    return this;
   }
 
+  /**
+   * Конвертирует MessageContext из vk-io в VKContext.
+   */
+  private adaptMessageContext(ctx: MessageContext): VKContext {
+    return {
+      update: ctx as any, // MessageContext хранится за полем update: VKUpdate
+      message: (ctx as any).message, // message — protected в vk-io; сначала ctx → any
+      peerId: ctx.peerId,
+      userId: ctx.senderId,
+      text: ctx.text ?? '',
+      payload: ctx.hasMessagePayload ? JSON.stringify(ctx.messagePayload) : undefined,
+      sendMessage: this.sendMessage.bind(this),
+    };
+  }
+
+  /**
+   * Конвертирует MessageEventContext из vk-io в VKContext.
+   */
+  private adaptEventContext(ctx: MessageEventContext): VKContext {
+    return {
+      update: ctx as any, // аналогично
+      message: undefined,
+      peerId: ctx.peerId,
+      userId: ctx.userId,
+      text: '',
+      payload: ctx.eventPayload != null ? JSON.stringify(ctx.eventPayload) : undefined,
+      eventId: ctx.eventId,
+      sendMessage: this.sendMessage.bind(this),
+    };
+  }
+
+  /**
+   * Запускает Long Poll через vk-io.
+   * vk-io автоматически управляет переподключением и ротацией TS.
+   */
   async start(): Promise<void> {
     if (this.isRunning) return;
     this.isRunning = true;
-
     console.log(`[VK Bot] Starting... Group ID: ${this.groupId}`);
-
-    let server: string;
-    let key: string;
-    let ts: number;
-
-    try {
-      ({ server, key, ts } = await this.getLongPollServer());
-      this.ts = ts;
-      console.log(`[VK Bot] Initial LongPoll server obtained. TS: ${this.ts}`);
-    } catch (initErr) {
-      console.error('[VK Bot] Failed to get initial LongPoll server:', initErr);
-      this.isRunning = false;
-      return;
-    }
-
-    while (this.isRunning) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-      try {
-        const url = `${server}?act=a_check&key=${key}&ts=${this.ts}&wait=25&mode=2&version=10`;
-
-        const fetchOptions: RequestInit = { signal: controller.signal };
-        const response = await fetch(url, fetchOptions);
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = (await response.json()) as LongPollResponse;
-
-        if (data.failed) {
-          console.warn(
-            `[VK Bot] LongPoll returned 'failed': ${data.failed}. Re-fetching server...`,
-          );
-          ({ server, key, ts } = await this.getLongPollServer());
-          this.ts = ts;
-          continue; // Начинаем новый цикл с новым сервером
-        }
-
-        if (data.ts) {
-          this.ts = data.ts;
-        }
-
-        for (const update of data.updates ?? []) {
-          try {
-            await this.handleUpdate(update);
-          } catch (err) {
-            console.error('[VK Bot] Error processing update:', err);
-          }
-        }
-      } catch (err: any) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-          console.warn('[VK Bot] Long poll request timed out (30s). Reconnecting...');
-        } else {
-          console.error('[VK Bot] Long poll error:', err);
-        }
-
-        await new Promise((r) => setTimeout(r, 3000));
-
-        try {
-          ({ server, key, ts } = await this.getLongPollServer());
-          this.ts = ts;
-          console.log(`[VK Bot] Reconnected to LongPoll server. New TS: ${this.ts}`);
-        } catch (reconnectErr) {
-          console.error('[VK Bot] Reconnect failed:', reconnectErr);
-          await new Promise((r) => setTimeout(r, 5000));
-        }
-      }
-    }
+    await this.vk.updates.start();
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     this.isRunning = false;
-  }
-
-  async processUpdate(update: VKUpdate): Promise<void> {
-    await this.handleUpdate(update);
-  }
-
-  private async handleUpdate(update: VKUpdate): Promise<void> {
-    const ctx: VKContext = {
-      update,
-      message: update.object.message,
-      peerId: update.object.peer_id ?? update.object.message?.peer_id ?? 0,
-      userId: update.object.user_id ?? update.object.message?.from_id ?? 0,
-      text: update.object.message?.text ?? '',
-      payload: update.object.message?.payload ?? update.object.payload,
-      eventId: update.object.event_id,
-      sendMessage: this.sendMessage.bind(this),
-    };
-
-    // Обработчики
-    const handlers = this.handlers.get(update.type) ?? [];
-    for (const handler of handlers) {
-      try {
-        await handler(ctx);
-      } catch (err) {
-        console.error('[VK Bot] Handler error:', err);
-      }
-    }
-  }
-
-  on(event: string, handler: UpdateHandler): this {
-    const handlers = this.handlers.get(event) ?? [];
-    handlers.push(handler);
-    this.handlers.set(event, handlers);
-    return this;
+    await this.vk.updates.stop();
   }
 
   async sendMessage(
@@ -184,16 +131,10 @@ export class VKBot {
       random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
     };
 
-    if (keyboard) {
-      params.keyboard = keyboard;
-    }
+    if (keyboard) params.keyboard = keyboard;
+    if (attachment) params.attachment = attachment;
 
-    if (attachment) {
-      params.attachment = attachment;
-    }
-
-    const response = await this.request('messages.send', params);
-    return response as number;
+    return this.vk.api.call<number>('messages.send', params);
   }
 }
 

@@ -87,6 +87,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     token: VK_GROUP_TOKEN,
     groupId: VK_GROUP_ID,
     adminId: VK_ADMIN_ID,
+    contentDir: CONTENT_DIR,
     commands: {
       start: startCommand,
       cat: catCommand,

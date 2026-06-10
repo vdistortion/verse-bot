@@ -1,8 +1,6 @@
-import type { VKContext } from '../types/index.js';
-
 export function createErrorHandler() {
-  return (err: Error, ctx: VKContext) => {
-    console.error(`[Error] User ${ctx.userId}:`);
+  return (err: Error) => {
+    console.error(`[VK Error] ${err.message}`);
     console.error(err);
   };
 }

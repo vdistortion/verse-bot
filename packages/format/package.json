@@ -1,0 +1,26 @@
+{
+  "name": "@verse-bot/format",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Formatting utilities for Telegram MarkdownV2 and VK Markdown",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "peerDependencies": {
+    "@verse-bot/core": "^0.1.0"
+  }
+}

@@ -1,4 +1,4 @@
-import { initPool, getPool } from '@verse-bot/shared';
+import { initPool, getPool } from '@verse-bot/db';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';
 import {
@@ -51,6 +51,8 @@ const uniqueButtonsForRegistration = Array.from(
   new Map(allPossibleButtonsForRegistration.map((b) => [b.command + b.label, b])).values(),
 );
 
+const botsToStart: { name: string; start: () => Promise<void> }[] = [];
+
 // Telegram
 if (TELEGRAM_BOT_TOKEN) {
   const tgBot = createUniversalTelegramBot({
@@ -76,9 +78,9 @@ if (TELEGRAM_BOT_TOKEN) {
     contentCommand: contentCommand,
     userLogCommand: userLogCommand,
     contentDir: CONTENT_DIR,
+    unknownCommandPhrase: phrases.unknownCommand,
   });
-  tgBot.start();
-  console.log('🚀 Telegram bot started');
+  botsToStart.push({ name: 'Telegram', start: () => tgBot.start() });
 }
 
 // VK
@@ -87,6 +89,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     token: VK_GROUP_TOKEN,
     groupId: VK_GROUP_ID,
     adminId: VK_ADMIN_ID,
+    contentDir: CONTENT_DIR,
     commands: {
       start: startCommand,
       cat: catCommand,
@@ -108,6 +111,10 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     getButtonsForUnknown: () => getButtons(false),
     pool: getPool(),
   });
-  vkBot.start();
-  console.log('🚀 VK bot started');
+  botsToStart.push({ name: 'VK', start: () => vkBot.start() });
+}
+
+for (const { name, start } of botsToStart) {
+  start().catch((err) => console.error(`🚨 ${name} bot start failed:`, err));
+  console.log(`🚀 ${name} bot started`);
 }

@@ -8,10 +8,13 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:

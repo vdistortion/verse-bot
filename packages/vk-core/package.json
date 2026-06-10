@@ -22,6 +22,9 @@
     "lint": "tsc --noemit"
   },
   "dependencies": {
-    "@verse-bot/shared": "^0.1.0"
+    "@verse-bot/core": "^0.1.0",
+    "@verse-bot/db": "^0.1.0",
+    "@verse-bot/format": "^0.1.0",
+    "vk-io": "^4.10.1"
   }
 }

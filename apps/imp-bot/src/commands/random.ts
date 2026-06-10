@@ -1,22 +1,22 @@
-import { catchErrors, format, type UniversalReplyOptions } from '@verse-bot/shared';
-import { sendContentItem } from './content.js';
+import { catchErrors, type UniversalReplyOptions } from '@verse-bot/core';
+import { type BotContentItem, sendContentItem } from './content.js';
 import { getButtons, getInlineButton, phrases } from '../locales/ru.js';
 
 export const randomCommand = catchErrors(async (ctx) => {
   if (!ctx.db) {
-    await ctx.replySafe(format(ctx.platform)`❌ База данных недоступна.`);
+    await ctx.replySafe(ctx.format`❌ База данных недоступна.`);
     return;
   }
 
   const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
   if (!allContent || allContent.length === 0) {
-    await ctx.replySafe(format(ctx.platform)`В базе данных нет контента.`);
+    await ctx.replySafe(ctx.format`В базе данных нет контента.`);
     return;
   }
 
   const randomIndex = Math.floor(Math.random() * allContent.length);
-  const randomItem = allContent[randomIndex];
+  const randomItem: BotContentItem = allContent[randomIndex];
   const itemNumber = randomIndex + 1;
   const extra: UniversalReplyOptions = {};
 

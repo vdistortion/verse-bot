@@ -1,27 +1,17 @@
-import { Bot, session } from 'grammy';
+import { Bot } from 'grammy';
 import { errorHandler, loggerMiddleware } from './middleware/index.js';
-import type { BotContext, SessionData } from './types/index.js';
+import type { BotContext } from './types/index.js';
 
 export interface BotFactoryOptions {
   token: string;
   useLogger?: boolean;
-  useSession?: boolean;
 }
 
 export function createBot(options: BotFactoryOptions): Bot<BotContext> {
-  const { token, useLogger = true, useSession = false } = options;
-
+  const { token, useLogger = true } = options;
   const bot = new Bot<BotContext>(token);
 
   bot.catch(errorHandler);
-
-  if (useSession) {
-    bot.use(
-      session<SessionData, BotContext>({
-        initial: (): SessionData => ({}),
-      }),
-    );
-  }
 
   if (useLogger) {
     bot.use(loggerMiddleware);

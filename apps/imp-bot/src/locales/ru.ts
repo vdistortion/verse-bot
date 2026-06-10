@@ -1,14 +1,5 @@
-import {
-  format,
-  bold,
-  code,
-  link,
-  raw,
-  spoiler,
-  type Platform,
-  FormatToken,
-  type UniversalKeyboardButton,
-} from '@verse-bot/shared';
+import type { Platform, UniversalKeyboardButton } from '@verse-bot/core';
+import { type Format, bold, code, link, raw, spoiler } from '@verse-bot/format';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
 
 export interface CommandDef {
@@ -126,7 +117,7 @@ export function getInlineButton(command: string, label: string): UniversalKeyboa
   return [[{ label, command: `/${command}` }]];
 }
 
-export function getHelpLines(platform: Platform): string {
+export function getHelpLines(fmt: Format): string {
   let lines = '';
   for (const cmd of Object.values(commands)) {
     if (cmd.hidden || !cmd.help) continue;
@@ -134,7 +125,7 @@ export function getHelpLines(platform: Platform): string {
     if (cmd.command === 'random' && Math.random() < 0.2) continue;
     if (cmd.command === 'advice' && Math.random() < 0.1) continue;
     const cmdText = `/${cmd.command}`;
-    lines += format(platform)`${cmdText} — ${cmd.help}\n`;
+    lines += fmt`${cmdText} — ${cmd.help}\n`;
   }
   return lines;
 }
@@ -142,44 +133,41 @@ export function getHelpLines(platform: Platform): string {
 export const phrases = {
   commands,
   start: {
-    personal: (platform: Platform, firstName: string) =>
-      format(platform)`Будь как дома, ${firstName}...`,
-    group: (platform: Platform, title: string) =>
-      format(platform)`Группа ${title} подключена к системе.`,
+    personal: (fmt: Format, firstName: string) => fmt`Будь как дома, ${firstName}...`,
+    group: (fmt: Format, title: string) => fmt`Группа ${title} подключена к системе.`,
   },
 
-  stop: (platform: Platform) => format(platform)`Всё забыто...`,
+  stop: (fmt: Format) => fmt`Всё забыто...`,
 
   help: {
-    getMessage: (platform: Platform) => {
-      const f = format(platform);
+    getMessage: (fmt: Format, platform: Platform) => {
       const vkGroupLink = VK_GROUP_TOKEN ? VK_GROUP_ID : undefined;
       const tgUsername = TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_USERNAME : undefined;
-      const header = f`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${raw(getHelpLines(platform))}`;
+      const header = fmt`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${raw(getHelpLines(fmt))}`;
 
       const renderedLinks = [];
       if (platform === 'telegram' && vkGroupLink) {
         const botVk = link('Бот ВКонтакте', `https://vk.com/club${vkGroupLink}`);
-        renderedLinks.push(f`${botVk} — Не обязательно использовать`);
+        renderedLinks.push(fmt`${botVk} — Не обязательно использовать`);
       } else if (platform !== 'telegram' && tgUsername) {
         const botTg = link('Бот в Telegram', `https://t.me/${tgUsername}`);
-        renderedLinks.push(f`${botTg} — Не обязательно использовать`);
+        renderedLinks.push(fmt`${botTg} — Не обязательно использовать`);
       }
       renderedLinks.push(
-        f`${link('Исходный код', 'https://github.com/vdistortion/verse-bot')} — Не обязательно понимать.`,
+        fmt`${link('Исходный код', 'https://github.com/vdistortion/verse-bot')} — Не обязательно понимать.`,
       );
       const linksSection = renderedLinks.length
-        ? f`\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
+        ? fmt`\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
         : '';
 
-      const footer = f`\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
+      const footer = fmt`\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
-      return f`${raw(header)}${raw(linksSection)}${raw(footer)}`;
+      return fmt`${raw(header)}${raw(linksSection)}${raw(footer)}`;
     },
   },
 
   admin: {
-    message: (platform: Platform, dbUserId?: number) => {
+    message: (fmt: Format, platform: Platform, dbUserId?: number) => {
       const userIdPlaceholder = dbUserId !== undefined ? String(dbUserId) : '<id>';
       if (platform === 'telegram') {
         const tgCmds =
@@ -188,10 +176,10 @@ export const phrases = {
           `/list\\_users – 👥 Список активных пользователей\n` +
           `/stats – 📊 Статистика команд\n` +
           `/userlog\\_${userIdPlaceholder} – 📋 Логи пользователя`;
-        return format(platform)`👑 ${bold('Административные команды:')}\n${raw(tgCmds)}`;
+        return fmt`👑 ${bold('Административные команды:')}\n${raw(tgCmds)}`;
       } else {
         return (
-          format(platform)`👑 Административные команды:\n` +
+          fmt`👑 Административные команды:\n` +
           `/list_users – 👥 Список активных пользователей\n` +
           `/stats – 📊 Статистика команд\n` +
           `/userlog_${userIdPlaceholder} – 📋 Логи пользователя`
@@ -201,22 +189,20 @@ export const phrases = {
   },
 
   id: {
-    message: (platform: Platform, userId: string) =>
-      format(platform)`🆔 ${bold('Ваш бесполезный ID:')} ${code(String(userId))}`,
-    chatId: (platform: Platform, chatId: number | string) =>
-      format(platform)`🆔 ${bold('ID чата:')} ${code(String(chatId))}`,
+    message: (fmt: Format, userId: string) =>
+      fmt`🆔 ${bold('Ваш бесполезный ID:')} ${code(String(userId))}`,
+    chatId: (fmt: Format, chatId: number | string) =>
+      fmt`🆔 ${bold('ID чата:')} ${code(String(chatId))}`,
   },
 
   cat: {
-    caption: (platform: Platform) => format(platform)`Мяу! 🐾`,
-    notFound: (platform: Platform) => format(platform)`Кот убежал в сервера. Попробуй позже 🐾`,
+    caption: (fmt: Format) => fmt`Мяу! 🐾`,
+    notFound: (fmt: Format) => fmt`Кот убежал в сервера. Попробуй позже 🐾`,
   },
 
-  contentHint: (platform: Platform, number: number) => format(platform)`/content_${String(number)}`,
+  contentHint: (fmt: Format, number: number) => fmt`/content_${String(number)}`,
 
-  unknownCommand: (platform: Platform) =>
-    format(
-      platform,
-    )`Команда потеряна, контекст утрачен.\nПопробуй /start. Или не пробуй.\nСистема всё равно одинока.`,
-  errorDefault: (platform: Platform) => format(platform)`⚠️ Настройки нестабильны`,
+  unknownCommand: (fmt: Format) =>
+    fmt`Команда потеряна, контекст утрачен.\nПопробуй /start. Или не пробуй.\nСистема всё равно одинока.`,
+  errorDefault: (fmt: Format) => fmt`⚠️ Настройки нестабильны`,
 };

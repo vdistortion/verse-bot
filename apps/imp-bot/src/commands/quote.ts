@@ -1,13 +1,8 @@
-import { bold, catchErrors, type UniversalReplyOptions } from '@verse-bot/shared';
-import { getQuote } from '../data-sources/index.js';
+import { catchErrors, type UniversalReplyOptions } from '@verse-bot/core';
 import { getInlineButton, phrases } from '../locales/ru.js';
 
 export const quoteCommand = catchErrors(async (ctx) => {
-  const { quoteText, quoteAuthor } = await getQuote();
-  const text = quoteAuthor
-    ? ctx.format`${quoteText}\n\n${bold(quoteAuthor)}`
-    : ctx.format`${quoteText}`;
-
+  const text = ctx.format`Даже цитаты сегодня молчат. Попробуй позже.`;
   const extra: UniversalReplyOptions = {};
 
   if (ctx.chatType !== 'private') {

@@ -1,281 +1,205 @@
-import { type Pool } from 'pg';
+import path from 'node:path';
+import { createReadStream, existsSync } from 'node:fs';
+import type { Pool } from 'pg';
+import type { MessageContext } from 'vk-io';
 import {
-  findOrCreateUser,
-  format,
-  logCommand,
-  mdOpts,
-  createVKKeyboard,
-  createVKInlineKeyboard,
-  userExists,
-  type Platform,
+  createAuthMiddleware,
+  createLoggingMiddleware,
   type UniversalContext,
   type UniversalReplyOptions,
-} from '@verse-bot/shared';
-import { VK_PEER_CHAT_OFFSET } from './vk-constants.js';
+  type UserProfile,
+} from '@verse-bot/core';
+import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
+import { type Format, format, createVKKeyboard, createVKInlineKeyboard } from '@verse-bot/format';
+import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';
-import type { VKContext } from './types/index.js';
 
 export interface VKBotConfig {
   token: string;
   groupId: number;
   adminId?: number;
   pool?: Pool;
-  /** Обработчики команд (без слеша). Ключ – команда, например "start", "cat" */
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
-  /** Кнопки для регистрации. label – текст кнопки, command – команда (без слеша) */
   buttons: { command: string; label: string }[];
-  /** Опциональный обработчик /content_ */
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
-  /** Опциональный обработчик /userlog_ */
   userLogCommand?: (ctx: UniversalContext, userId: number) => Promise<void>;
-  /** Кастомный метод отправки фото */
+  contentDir?: string;
   onReplyWithPhoto?: (
     ctx: UniversalContext,
     photoUrl: string,
     caption?: string,
     extra?: UniversalReplyOptions,
   ) => Promise<void>;
-  /** Фраза для неизвестных команд (если нужно показывать клавиатуру) */
-  unknownCommandPhrase?: (platform: Platform) => string;
-  /** Функция получения кнопок для неизвестных команд (чтобы показать клавиатуру) */
+  unknownCommandPhrase?: (format: Format) => string;
   getButtonsForUnknown?: () => { label: string; command: string }[];
 }
 
 export function createUniversalVKBot(config: VKBotConfig): VKBot {
-  const bot = createVKBot({ token: config.token, groupId: config.groupId });
+  const vk = createVKBot({
+    token: config.token,
+    groupId: config.groupId,
+  });
 
-  // Карта преобразования текстовых кнопок в команды
   const buttonToCommand = new Map<string, string>();
   for (const { command, label } of config.buttons) {
     buttonToCommand.set(label, command);
   }
 
-  // Общая логика обработки команды
-  async function processCommand(ctx: VKContext, commandToExecute: string) {
-    // Системная кнопка «Начать» в VK
-    if (commandToExecute === 'Начать') {
-      commandToExecute = '/start';
-    }
+  const authMw = createAuthMiddleware({ findOrCreateUser, userExists });
+  const logMw = createLoggingMiddleware({ logCommand });
 
-    // Если текст – это кнопка, преобразуем в команду со слешем
-    if (!commandToExecute.startsWith('/') && buttonToCommand.has(commandToExecute)) {
-      commandToExecute = '/' + buttonToCommand.get(commandToExecute)!;
-    }
+  vk.on('message_new', async (vctx) => {
+    console.log(`[${new Date().toISOString()}] VK @${vctx.userId}: ${vctx.text || '(no text)'}`);
 
-    // --- БД: только если pool доступен ---
-    let dbUserId: number | undefined;
-    let vkFirstName: string | undefined;
-    let vkLastName: string | undefined;
-    let vkUsername: string | undefined;
+    try {
+      const ctx = vctx.update as unknown as MessageContext;
+      if (ctx.isOutbox || ctx.isGroup) return;
 
-    if (config.pool) {
-      const isStart = commandToExecute.startsWith('/start');
+      let text = ctx.text?.trim() ?? '';
+      if (text === 'Начать') text = '/start';
 
-      let dbUser;
-      if (isStart) {
-        // Для /start всегда создаём или обновляем пользователя
-        dbUser = await findOrCreateUser('vk', String(ctx.userId));
-      } else {
-        // Для остальных команд проверяем существование, не создавая
-        const exists = await userExists('vk', String(ctx.userId));
-        if (!exists) {
-          // Пользователь был удалён – молча выходим
-          return;
-        }
-        // Получаем запись (чтобы обновить updated_at и получить id)
-        dbUser = await findOrCreateUser('vk', String(ctx.userId));
+      const payload = ctx.messagePayload;
+      if (payload?.command) {
+        text = payload.command;
       }
 
-      if (!dbUser) {
-        console.error(`Failed to find/create VK user ${ctx.userId}`);
-        return;
-      }
-      dbUserId = dbUser.id;
+      const isChat = ctx.peerId >= VK_PEER_CHAT_OFFSET;
 
-      if (!isStart) {
-        await logCommand(dbUser.id, 'vk', commandToExecute);
-      }
+      const uctx: UniversalContext = {
+        platform: 'vk',
+        userId: String(ctx.senderId),
+        peerId: ctx.peerId,
+        text,
+        isAdmin: ctx.senderId === config.adminId,
+        chatType: isChat ? 'group' : 'private',
+        chatTitle: isChat ? 'Беседа' : undefined,
+        db: config.pool,
+        platformApi: vk,
+        format: format('vk'),
 
-      // users.get только для зарегистрированных пользователей с pool
-      try {
-        const usersGetResult = await bot.request('users.get', {
-          user_ids: ctx.userId,
-          fields: 'first_name,last_name,screen_name',
-        });
-        if (Array.isArray(usersGetResult) && usersGetResult.length > 0) {
-          const vkUser = usersGetResult[0] as {
-            first_name: string;
-            last_name?: string;
-            screen_name?: string;
+        getUserProfile: async (): Promise<UserProfile | null> => {
+          const [user] = await vk.api.users.get({ user_ids: [ctx.senderId] });
+          if (!user) return null;
+          return {
+            firstName: user.first_name,
+            lastName: user.last_name,
           };
-          vkFirstName = vkUser.first_name;
-          vkLastName = vkUser.last_name;
-          vkUsername = vkUser.screen_name;
-        }
-      } catch (vkErr) {
-        console.error(`[VK Bot] Error fetching user details for ${ctx.userId}:`, vkErr);
-      }
-    }
-    // Если pool нет — пропускаем всю регистрацию/логирование,
-    // обрабатываем команду для всех входящих
+        },
 
-    const result = (await bot.request('messages.getConversationsById', {
-      peer_ids: ctx.peerId,
-    })) as {
-      count: number;
-      items: Array<{
-        peer: { id: number; type: string };
-        chat_settings?: { title: string };
-      }>;
-    };
+        reply: async (replyText: string, options?: UniversalReplyOptions) => {
+          let keyboard: string | undefined;
+          if (options?.replyKeyboard) {
+            keyboard = createVKKeyboard(options.replyKeyboard, options.one_time);
+          } else if (options?.inlineKeyboard) {
+            keyboard = createVKInlineKeyboard(options.inlineKeyboard);
+          }
+          await ctx.send(replyText, {
+            keyboard,
+            random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
+          });
+        },
 
-    // Формируем UniversalContext
-    const uctx: UniversalContext = {
-      platform: 'vk',
-      userId: String(ctx.userId),
-      peerId: ctx.peerId,
-      text: commandToExecute,
-      isAdmin: ctx.userId === Number(config.adminId),
-      db: config.pool,
-      dbUserId,
-      vkApi: bot,
-      firstName: vkFirstName,
-      lastName: vkLastName,
-      username: vkUsername,
-      chatTitle: result.items?.[0]?.chat_settings?.title,
-      chatType: ctx.peerId > VK_PEER_CHAT_OFFSET ? 'group' : 'private',
-      format: format('vk'),
-      replySafe: async (text, extra) => uctx.reply(text, { ...mdOpts('vk'), ...extra }),
-      reply: async (msg, extra) => {
-        let vkKeyboardJson: string | undefined;
-        if (extra?.remove_keyboard) {
-          vkKeyboardJson = JSON.stringify({ buttons: [] });
-        } else if (extra?.inlineKeyboard) {
-          // Приоритет инлайн-клавиатуры для VK
-          vkKeyboardJson = createVKInlineKeyboard(extra.inlineKeyboard);
-        } else if (extra?.replyKeyboard) {
-          vkKeyboardJson = createVKKeyboard(extra.replyKeyboard);
-        }
-        await bot.sendMessage(ctx.peerId, msg, vkKeyboardJson);
-      },
-      replyWithPhoto: config.onReplyWithPhoto
-        ? (photoUrl, caption, extra) => config.onReplyWithPhoto!(uctx, photoUrl, caption, extra)
-        : async (photoUrl, caption, extra) => {
-            let vkKeyboardJson: string | undefined;
-            if (extra?.inlineKeyboard) {
-              // Приоритет инлайн-клавиатуры для VK
-              vkKeyboardJson = createVKInlineKeyboard(extra.inlineKeyboard);
-            } else if (extra?.replyKeyboard) {
-              vkKeyboardJson = createVKKeyboard(extra.replyKeyboard);
-            }
+        replySafe: async (replyText: string, options?: UniversalReplyOptions) => {
+          const safeOptions = { ...options };
+          if (uctx.chatType !== 'private') {
+            delete safeOptions.replyKeyboard;
+          }
+          await uctx.reply(replyText, safeOptions);
+        },
+
+        replyWithPhoto: async (
+          photoUrl: string,
+          caption?: string,
+          options?: UniversalReplyOptions,
+        ) => {
+          if (config.onReplyWithPhoto) {
+            return config.onReplyWithPhoto(uctx, photoUrl, caption, options);
+          }
+
+          let keyboard: string | undefined;
+          if (options?.inlineKeyboard) {
+            keyboard = createVKInlineKeyboard(options.inlineKeyboard);
+          } else if (options?.replyKeyboard) {
+            keyboard = createVKKeyboard(options.replyKeyboard);
+          }
+
+          const uploadAndSend = async (
+            stream: NodeJS.ReadableStream | Buffer,
+            filename: string,
+          ): Promise<void> => {
+            const photo = await vk.upload.messagePhoto({
+              peer_id: ctx.peerId,
+              source: { value: stream, filename },
+            });
+            await ctx.send(caption ?? '', {
+              attachment: `photo${photo.ownerId}_${photo.id}`,
+              keyboard,
+              random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
+            });
+          };
+
+          if (config.contentDir) {
             try {
-              // 1. Получаем URL загрузки фото от VK
-              const uploadServer = (await bot.request('photos.getMessagesUploadServer', {
-                peer_id: ctx.peerId,
-              })) as { upload_url: string };
-
-              // 2. Скачиваем изображение по URL
-              const imageRes = await fetch(photoUrl);
-              if (!imageRes.ok) throw new Error(`Image fetch failed: ${imageRes.status}`);
-              const imageBytes = await imageRes.arrayBuffer();
-
-              // 3. Загружаем на сервер VK (multipart/form-data)
-              const filename = photoUrl.split('/').pop()?.split('?')[0] ?? 'photo.jpg';
-              const formData = new FormData();
-              formData.append('photo', new Blob([imageBytes]), filename);
-
-              const uploadRes = await fetch(uploadServer.upload_url, {
-                method: 'POST',
-                body: formData,
-              });
-              const uploadData = (await uploadRes.json()) as {
-                server: number;
-                photo: string;
-                hash: string;
-              };
-
-              // 4. Сохраняем фото в VK и получаем attachment-строку
-              const saved = (await bot.request('photos.saveMessagesPhoto', {
-                server: uploadData.server,
-                photo: uploadData.photo,
-                hash: uploadData.hash,
-              })) as Array<{ owner_id: number; id: number }>;
-
-              if (!saved.length) throw new Error('photos.saveMessagesPhoto returned empty array');
-
-              const attachment = `photo${saved[0].owner_id}_${saved[0].id}`;
-              await bot.sendMessage(ctx.peerId, caption ?? '', vkKeyboardJson, attachment);
-            } catch (error) {
-              console.error('[VK] replyWithPhoto error:', error);
-              // Fallback: текст со ссылкой на изображение
-              await bot.sendMessage(
-                ctx.peerId,
-                `${caption ?? ''}\n\n📷 ${photoUrl}`,
-                vkKeyboardJson,
-              );
+              const filename = decodeURIComponent(path.basename(new URL(photoUrl).pathname));
+              const localPath = path.join(config.contentDir, filename);
+              if (existsSync(localPath)) {
+                console.log(`[VK replyWithPhoto] local: ${localPath}`);
+                await uploadAndSend(createReadStream(localPath), filename);
+                return;
+              }
+            } catch (err: any) {
+              console.warn('[VK replyWithPhoto] local upload failed:', err.message);
             }
-          },
-    };
+          }
 
-    // Выполнение команды
-    const commandName = commandToExecute.startsWith('/')
-      ? commandToExecute.slice(1)
-      : commandToExecute;
-    const handler = config.commands[commandName];
-    if (handler) {
-      await handler(uctx);
-      return;
+          try {
+            const filename = path.basename(new URL(photoUrl).pathname) || 'photo.jpg';
+            console.log(`[VK replyWithPhoto] url: ${photoUrl}`);
+            const res = await fetch(photoUrl, { headers: { 'User-Agent': 'VerseBot/1.0' } });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            await uploadAndSend(Buffer.from(await res.arrayBuffer()), filename);
+            return;
+          } catch (err: any) {
+            console.warn('[VK replyWithPhoto] url upload failed:', err.message);
+          }
+
+          const fallbackText = [caption, photoUrl].filter(Boolean).join('\n\n');
+          await ctx.send(fallbackText || '📷', {
+            keyboard,
+            random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
+          });
+        },
+      };
+
+      await authMw(uctx, async () => {
+        await logMw(uctx, async () => {
+          const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
+
+          const cmd = commandToExecute ?? text;
+          const contentMatch = cmd.match(/^\/?content_(\d+)$/i);
+          if (contentMatch && config.contentCommand) {
+            return config.contentCommand(uctx, parseInt(contentMatch[1], 10));
+          }
+          const logMatch = cmd.match(/^\/?userlog_(\d+)$/i);
+          if (logMatch && config.userLogCommand) {
+            return config.userLogCommand(uctx, parseInt(logMatch[1], 10));
+          }
+
+          const handler = config.commands[commandToExecute || ''];
+          if (handler) {
+            await handler(uctx);
+          } else if (uctx.chatType === 'private' && config.unknownCommandPhrase) {
+            const buttons = config.getButtonsForUnknown?.() ?? [];
+            await uctx.reply(config.unknownCommandPhrase(uctx.format), {
+              replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
+            });
+          }
+        });
+      });
+    } catch (err) {
+      console.error('[VK Bot] message_new handler error:', err);
     }
-
-    // Динамические команды
-    const contentMatch = commandToExecute.match(/^\/content_(\d+)$/i);
-    if (contentMatch && config.contentCommand) {
-      const itemNumber = parseInt(contentMatch[1], 10);
-      if (!isNaN(itemNumber) && itemNumber > 0) {
-        await config.contentCommand(uctx, itemNumber);
-        return;
-      }
-    }
-
-    const userlogMatch = commandToExecute.match(/^\/userlog_(\d+)$/i);
-    if (userlogMatch && config.userLogCommand) {
-      const userId = parseInt(userlogMatch[1], 10);
-      if (!isNaN(userId)) {
-        await config.userLogCommand(uctx, userId);
-        return;
-      }
-    }
-
-    // Неизвестная команда
-    if (config.unknownCommandPhrase && config.getButtonsForUnknown) {
-      const phrase = config.unknownCommandPhrase('vk');
-      const buttons = config.getButtonsForUnknown();
-      const rows = [];
-      for (let i = 0; i < buttons.length; i += 2) {
-        rows.push(buttons.slice(i, i + 2).map((b) => ({ label: b.label, command: b.command })));
-      }
-      await bot.sendMessage(ctx.peerId, phrase, createVKKeyboard(rows));
-    }
-  }
-
-  // Обработка новых сообщений (в том числе нажатий на инлайн-кнопки, которые теперь текстовые)
-  bot.on('message_new', async (ctx: VKContext) => {
-    let commandToExecute = ctx.text?.trim() ?? '';
-
-    // Извлечение команды из payload (инлайн-кнопки передают команду в payload)
-    if (ctx.payload) {
-      try {
-        const parsedPayload = JSON.parse(ctx.payload);
-        if (parsedPayload.command) {
-          commandToExecute = parsedPayload.command;
-        }
-      } catch (e) {
-        console.warn('Failed to parse VK payload:', e);
-      }
-    }
-
-    await processCommand(ctx, commandToExecute);
   });
 
-  return bot;
+  return vk;
 }

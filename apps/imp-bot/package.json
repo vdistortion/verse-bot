@@ -10,15 +10,16 @@
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js"
   },
-  "devDependencies": {
-    "@types/node": "^25.9.1",
-    "typescript": "^6.0.3"
-  },
   "dependencies": {
-    "@verse-bot/shared": "^0.1.0",
+    "@verse-bot/core": "^0.1.0",
+    "@verse-bot/db": "^0.1.0",
+    "@verse-bot/format": "^0.1.0",
     "@verse-bot/tg-core": "^0.1.0",
     "@verse-bot/vk-core": "^0.1.0",
     "archiver": "^8.0.0",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/archiver": "^8.0.0"
   }
 }

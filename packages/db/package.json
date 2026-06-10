@@ -1,0 +1,31 @@
+{
+  "name": "@verse-bot/db",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Database client, user and command log repositories for Verse Bot Framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "tsc --noemit"
+  },
+  "dependencies": {
+    "@verse-bot/core": "^0.1.0",
+    "pg": "^8.21.0",
+    "postgrator": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0"
+  }
+}

@@ -1,11 +1,13 @@
-import { bold, getUserOwnCommandLogs, requirePrivateChat, catchErrors } from '@verse-bot/shared';
+import { requirePrivateChat, catchErrors } from '@verse-bot/core';
+import { getUserOwnCommandLogs } from '@verse-bot/db';
+import { bold } from '@verse-bot/format';
 import { phrases } from '../locales/ru.js';
 
 export const myLogCommand = requirePrivateChat(
   catchErrors(async (ctx) => {
     const dbUserId = ctx.dbUserId;
     if (!dbUserId) {
-      await ctx.replySafe(phrases.errorDefault(ctx.platform));
+      await ctx.replySafe(phrases.errorDefault(ctx.format));
       return;
     }
 

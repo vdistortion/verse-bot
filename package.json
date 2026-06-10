@@ -2,6 +2,7 @@
   "name": "verse-bot-monorepo",
   "description": "Universal bot framework – write commands once, run on Telegram and VK",
   "private": true,
+  "type": "module",
   "scripts": {
     "docker:dev:up": "docker compose -f apps/imp-bot/docker-compose.yml up -d",
     "docker:dev:down": "docker compose -f apps/imp-bot/docker-compose.yml down",
@@ -16,7 +17,11 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:ci": "eslint . --max-warnings 0",
+    "test": "vitest run"
   },
   "prettier": {
     "singleQuote": true,
@@ -30,13 +35,19 @@
     "apps/*"
   ],
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/debug": "^4.1.13",
     "@types/node": "^25.9.1",
     "debug": "^4.4.3",
     "dotenv-cli": "^11.0.0",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
     "prettier": "3.8.3",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
-    "vitepress": "^1.6.4"
+    "typescript-eslint": "^8.61.0",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.8"
   }
 }

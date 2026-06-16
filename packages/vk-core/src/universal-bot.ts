@@ -10,7 +10,8 @@ import {
   type UserProfile,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
-import { type Format, format, createVKKeyboard, createVKInlineKeyboard } from '@verse-bot/format';
+import { type Format, format } from '@verse-bot/format';
+import { createVKKeyboard, createVKInlineKeyboard } from './keyboards.js';
 import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';
 

@@ -6,7 +6,6 @@
     { "path": "./packages/db" },
     { "path": "./packages/tg-core" },
     { "path": "./packages/vk-core" },
-    { "path": "./packages/format" },
     { "path": "./apps/imp-bot" }
   ],
   "compilerOptions": {

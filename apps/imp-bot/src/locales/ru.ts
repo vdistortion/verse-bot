@@ -1,6 +1,8 @@
-import type { Platform, UniversalKeyboardButton } from '@verse-bot/core';
-import { type Format, bold, code, link, raw, spoiler } from '@verse-bot/format';
+import type { FormatFn, Platform, RichMessage, UniversalKeyboardButton } from '@verse-bot/core';
+import { bold, code, link, spoiler } from 'tg-rich-messages';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
+
+type Format = FormatFn;
 
 export interface CommandDef {
   command: string;
@@ -117,7 +119,7 @@ export function getInlineButton(command: string, label: string): UniversalKeyboa
   return [[{ label, command: `/${command}` }]];
 }
 
-export function getHelpLines(fmt: Format): string {
+export function getHelpLines(): string {
   let lines = '';
   for (const cmd of Object.values(commands)) {
     if (cmd.hidden || !cmd.help) continue;
@@ -125,7 +127,7 @@ export function getHelpLines(fmt: Format): string {
     if (cmd.command === 'random' && Math.random() < 0.2) continue;
     if (cmd.command === 'advice' && Math.random() < 0.1) continue;
     const cmdText = `/${cmd.command}`;
-    lines += fmt`${cmdText} — ${cmd.help}\n`;
+    lines += `${cmdText} — ${cmd.help}\n`;
   }
   return lines;
 }
@@ -143,26 +145,23 @@ export const phrases = {
     getMessage: (fmt: Format, platform: Platform) => {
       const vkGroupLink = VK_GROUP_TOKEN ? VK_GROUP_ID : undefined;
       const tgUsername = TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_USERNAME : undefined;
-      const header = fmt`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${raw(getHelpLines(fmt))}`;
+      const header = fmt`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${getHelpLines()}`;
 
-      const renderedLinks = [];
+      const sourceCode = link('Исходный код', 'https://github.com/vdistortion/verse-bot');
+      let linksSection: RichMessage;
       if (platform === 'telegram' && vkGroupLink) {
         const botVk = link('Бот ВКонтакте', `https://vk.com/club${vkGroupLink}`);
-        renderedLinks.push(fmt`${botVk} — Не обязательно использовать`);
+        linksSection = fmt`\n🔗 ${bold('Ссылки')}:\n${botVk} — Не обязательно использовать\n${sourceCode} — Не обязательно понимать.`;
       } else if (platform !== 'telegram' && tgUsername) {
         const botTg = link('Бот в Telegram', `https://t.me/${tgUsername}`);
-        renderedLinks.push(fmt`${botTg} — Не обязательно использовать`);
+        linksSection = fmt`\n🔗 ${bold('Ссылки')}:\n${botTg} — Не обязательно использовать\n${sourceCode} — Не обязательно понимать.`;
+      } else {
+        linksSection = fmt`\n🔗 ${bold('Ссылки')}:\n${sourceCode} — Не обязательно понимать.`;
       }
-      renderedLinks.push(
-        fmt`${link('Исходный код', 'https://github.com/vdistortion/verse-bot')} — Не обязательно понимать.`,
-      );
-      const linksSection = renderedLinks.length
-        ? fmt`\n🔗 ${bold('Ссылки')}:\n${raw(renderedLinks.join('\n'))}`
-        : '';
 
       const footer = fmt`\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
-      return fmt`${raw(header)}${raw(linksSection)}${raw(footer)}`;
+      return fmt`${header}${linksSection}${footer}`;
     },
   },
 
@@ -176,14 +175,14 @@ export const phrases = {
           `/list\\_users – 👥 Список активных пользователей\n` +
           `/stats – 📊 Статистика команд\n` +
           `/userlog\\_${userIdPlaceholder} – 📋 Логи пользователя`;
-        return fmt`👑 ${bold('Административные команды:')}\n${raw(tgCmds)}`;
+        return fmt`👑 ${bold('Административные команды:')}\n${tgCmds}`;
       } else {
-        return (
-          fmt`👑 Административные команды:\n` +
-          `/list_users – 👥 Список активных пользователей\n` +
-          `/stats – 📊 Статистика команд\n` +
-          `/userlog_${userIdPlaceholder} – 📋 Логи пользователя`
-        );
+        return fmt`
+👑 Административные команды:
+${`/list_users – 👥 Список активных пользователей
+/stats – 📊 Статистика команд
+/userlog_${userIdPlaceholder} – 📋 Логи пользователя`}
+`;
       }
     },
   },
@@ -200,7 +199,7 @@ export const phrases = {
     notFound: (fmt: Format) => fmt`Кот убежал в сервера. Попробуй позже 🐾`,
   },
 
-  contentHint: (fmt: Format, number: number) => fmt`/content_${String(number)}`,
+  contentHint: (_fmt: Format, number: number) => `/content_${String(number)}`,
 
   unknownCommand: (fmt: Format) =>
     fmt`Команда потеряна, контекст утрачен.\nПопробуй /start. Или не пробуй.\nСистема всё равно одинока.`,

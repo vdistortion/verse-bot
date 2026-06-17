@@ -1,5 +1,11 @@
 import type { Pool } from 'pg'; // временно, позже уберём
-import type { Platform, UserProfile, UniversalReplyOptions } from './types.js';
+import type {
+  FormatFn,
+  Platform,
+  RichMessage,
+  UserProfile,
+  UniversalReplyOptions,
+} from './types.js';
 
 export interface UniversalContext {
   // Идентификация
@@ -16,22 +22,20 @@ export interface UniversalContext {
 
   // Методы, которые реализуют адаптеры
   getUserProfile: () => Promise<UserProfile | null>;
-  reply: (text: string, options?: UniversalReplyOptions) => Promise<void>;
+  reply: (text: RichMessage, options?: UniversalReplyOptions) => Promise<void>;
   replyWithPhoto?: (
     photoUrl: string,
-    caption?: string,
+    caption?: RichMessage,
     options?: UniversalReplyOptions,
   ) => Promise<void>;
   replyWithFile?: (
     buffer: Buffer,
     filename: string,
-    caption?: string,
+    caption?: RichMessage,
     options?: UniversalReplyOptions,
   ) => Promise<void>;
-  replySafe: (text: string, options?: UniversalReplyOptions) => Promise<void>;
-
-  // Форматирование (шаблонная строка с токенами)
-  format: (strings: TemplateStringsArray, ...values: any[]) => string;
+  replySafe: (text: RichMessage, options?: UniversalReplyOptions) => Promise<void>;
+  format: FormatFn;
 
   // База данных (опционально, будет заменено на абстракцию)
   db?: Pool;

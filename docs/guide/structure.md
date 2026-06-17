@@ -7,7 +7,6 @@
 ├── packages/
 │   ├── core/                    # @verse-bot/core – types, context, middleware
 │   ├── db/                      # @verse-bot/db – PostgreSQL helpers, migrations
-│   ├── format/                  # @verse-bot/format – message formatting
 │   ├── tg-core/                 # @verse-bot/tg-core – Telegram adapter (GrammY)
 │   ├── vk-core/                 # @verse-bot/vk-core – VK adapter (Long Poll API)
 │   ├── miniapp/                 # @verse-bot/miniapp – Telegram Mini App utilities

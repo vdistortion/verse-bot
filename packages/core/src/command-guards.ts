@@ -1,9 +1,9 @@
 import type { UniversalContext } from './context.js';
-import type { FormatFn } from './types.js';
+import type { FormatFn, RichMessage } from './types.js';
 
 export type CommandHandler = (ctx: UniversalContext, ...args: any[]) => Promise<void>;
 export interface Phrases {
-  errorDefault: (format: FormatFn) => string;
+  errorDefault: (format: FormatFn) => RichMessage;
 }
 
 export function requireAdmin(handler: CommandHandler) {

@@ -5,15 +5,17 @@ import type { MessageContext } from 'vk-io';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
+  type RichMessage,
   type UniversalContext,
   type UniversalReplyOptions,
   type UserProfile,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
-import { type Format, format } from '@verse-bot/format';
+import { fmtRich, type RichDocument } from 'tg-rich-messages';
 import { createVKKeyboard, createVKInlineKeyboard } from './keyboards.js';
 import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';
+import { renderRich } from './render-rich.js';
 
 export interface VKBotConfig {
   token: string;
@@ -31,8 +33,13 @@ export interface VKBotConfig {
     caption?: string,
     extra?: UniversalReplyOptions,
   ) => Promise<void>;
-  unknownCommandPhrase?: (format: Format) => string;
+  unknownCommandPhrase?: (format: typeof fmtRich) => RichMessage;
   getButtonsForUnknown?: () => { label: string; command: string }[];
+}
+
+function renderVKMessage(message?: RichMessage): string | undefined {
+  if (message === undefined) return undefined;
+  return typeof message === 'string' ? message : renderRich(message);
 }
 
 export function createUniversalVKBot(config: VKBotConfig): VKBot {
@@ -76,7 +83,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         chatTitle: isChat ? 'Беседа' : undefined,
         db: config.pool,
         platformApi: vk,
-        format: format('vk'),
+        format: fmtRich,
 
         getUserProfile: async (): Promise<UserProfile | null> => {
           const [user] = await vk.api.users.get({ user_ids: [ctx.senderId] });
@@ -87,20 +94,23 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
           };
         },
 
-        reply: async (replyText: string, options?: UniversalReplyOptions) => {
+        reply: async (replyText: RichMessage, options?: UniversalReplyOptions) => {
           let keyboard: string | undefined;
           if (options?.replyKeyboard) {
             keyboard = createVKKeyboard(options.replyKeyboard, options.one_time);
           } else if (options?.inlineKeyboard) {
             keyboard = createVKInlineKeyboard(options.inlineKeyboard);
           }
-          await ctx.send(replyText, {
+
+          const textToSend = typeof replyText === 'string' ? replyText : renderRich(replyText);
+
+          await ctx.send(textToSend, {
             keyboard,
             random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
           });
         },
 
-        replySafe: async (replyText: string, options?: UniversalReplyOptions) => {
+        replySafe: async (replyText: RichMessage, options?: UniversalReplyOptions) => {
           const safeOptions = { ...options };
           if (uctx.chatType !== 'private') {
             delete safeOptions.replyKeyboard;
@@ -110,11 +120,12 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
 
         replyWithPhoto: async (
           photoUrl: string,
-          caption?: string,
+          caption?: RichMessage,
           options?: UniversalReplyOptions,
         ) => {
+          const captionText = renderVKMessage(caption);
           if (config.onReplyWithPhoto) {
-            return config.onReplyWithPhoto(uctx, photoUrl, caption, options);
+            return config.onReplyWithPhoto(uctx, photoUrl, captionText, options);
           }
 
           let keyboard: string | undefined;
@@ -132,7 +143,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
               peer_id: ctx.peerId,
               source: { value: stream, filename },
             });
-            await ctx.send(caption ?? '', {
+            await ctx.send(captionText ?? '', {
               attachment: `photo${photo.ownerId}_${photo.id}`,
               keyboard,
               random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
@@ -156,7 +167,10 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
           try {
             const filename = path.basename(new URL(photoUrl).pathname) || 'photo.jpg';
             console.log(`[VK replyWithPhoto] url: ${photoUrl}`);
-            const res = await fetch(photoUrl, { headers: { 'User-Agent': 'VerseBot/1.0' } });
+
+            const res = await fetch(photoUrl, {
+              headers: { 'User-Agent': 'VerseBot/1.0' },
+            });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             await uploadAndSend(Buffer.from(await res.arrayBuffer()), filename);
             return;
@@ -164,7 +178,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
             console.warn('[VK replyWithPhoto] url upload failed:', err.message);
           }
 
-          const fallbackText = [caption, photoUrl].filter(Boolean).join('\n\n');
+          const fallbackText = [captionText, photoUrl].filter(Boolean).join('\n\n');
           await ctx.send(fallbackText || '📷', {
             keyboard,
             random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),

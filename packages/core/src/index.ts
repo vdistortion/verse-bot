@@ -3,6 +3,8 @@ export type {
   UserProfile,
   UniversalKeyboardButton,
   UniversalReplyOptions,
+  FormatFn,
+  RichMessage,
 } from './types.js';
 export type { UniversalContext } from './context.js';
 export { http } from './http.js';

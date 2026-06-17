@@ -7,7 +7,7 @@
 Создайте файл `apps/bot/src/commands/hello.ts`:
 
 ```ts
-import type { UniversalContext } from '@verse-bot/shared';
+import type { UniversalContext } from '@verse-bot/core';
 
 export async function helloCommand(ctx: UniversalContext) {
   await ctx.reply(ctx.format`Привет, ${ctx.firstName ?? 'гость'}!`);

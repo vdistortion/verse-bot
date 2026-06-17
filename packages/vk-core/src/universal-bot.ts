@@ -11,7 +11,7 @@ import {
   type UserProfile,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
-import { fmtRich, type RichDocument } from 'tg-rich-messages';
+import { fmtRich } from 'tg-rich-messages';
 import { createVKKeyboard, createVKInlineKeyboard } from './keyboards.js';
 import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';

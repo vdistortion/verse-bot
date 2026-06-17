@@ -23,7 +23,7 @@
     "directory": "packages/miniapp"
   },
   "license": "Apache-2.0",
-  "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
+  "author": "Valentin <https://github.com/vdistortion>",
   "publishConfig": {
     "access": "public",
     "directory": "dist"

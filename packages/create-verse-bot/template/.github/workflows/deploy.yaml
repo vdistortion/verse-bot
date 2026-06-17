@@ -31,4 +31,4 @@ jobs:
             echo "POSTGRES_USER=postgres" >> .env
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
             echo "POSTGRES_HOST=db" >> .env
-            docker compose -f docker-compose.release.yml up -d --build
+            docker compose -f compose.release.yaml up -d --build

@@ -9,7 +9,7 @@ import {
   type UniversalReplyOptions,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
-import { fmtRich, type RichDocument } from 'tg-rich-messages';
+import { fmtRich } from 'tg-rich-messages';
 import { createBot } from './bot-factory.js';
 import { dbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
@@ -38,10 +38,6 @@ export interface TelegramBotConfig {
   unknownCommandPhrase?: (format: typeof fmtRich) => RichMessage;
 }
 
-function isRichDocument(message: RichMessage): message is RichDocument {
-  return typeof message !== 'string';
-}
-
 function createTelegramExtra(extra?: UniversalReplyOptions): any {
   const telegramExtra: any = {
     ...(extra?.link_preview_options && {
@@ -64,7 +60,11 @@ function renderTelegramCaption(caption?: RichMessage): string | undefined {
   if (caption === undefined) return undefined;
   if (typeof caption === 'string') return caption;
 
-  return caption.toHTML();
+  return caption
+    .toHTML()
+    .replace(/<\/p>\s*<p>/gi, '\n\n')
+    .replace(/<p>/gi, '')
+    .replace(/<\/p>/gi, '');
 }
 
 async function sendTelegramRichMessage(
@@ -75,36 +75,18 @@ async function sendTelegramRichMessage(
 ): Promise<void> {
   const telegramExtra = createTelegramExtra(extra);
 
-  if (!isRichDocument(message)) {
+  if (typeof message === 'string') {
     await api.sendMessage(chatId, message, telegramExtra);
     return;
   }
 
-  const richMessage = message.validate().toInputRichMessage({
-    skipEntityDetection: true,
-  });
+  const html = message
+    .toHTML()
+    .replace(/<\/p>\s*<p>/gi, '\n\n')
+    .replace(/<p>/gi, '')
+    .replace(/<\/p>/gi, '');
 
-  /**
-   * Если grammY ещё не знает sendRichMessage в типах,
-   * вызываем сырой метод.
-   */
-  const anyApi = api as any;
-
-  if (typeof anyApi.callApi === 'function') {
-    await anyApi.callApi('sendRichMessage', {
-      chat_id: chatId,
-      rich_message: richMessage,
-      ...telegramExtra,
-    });
-    return;
-  }
-
-  /**
-   * Fallback на обычный HTML.
-   * Важно: не все rich-теги Telegram принимает в sendMessage.
-   * Это временный запасной путь.
-   */
-  await api.sendMessage(chatId, message.toHTML(), {
+  await api.sendMessage(chatId, html, {
     ...telegramExtra,
     parse_mode: 'HTML',
   });
@@ -115,10 +97,10 @@ function makePhotoHandler(ctx: BotContext, contentDir?: string) {
     const telegramExtra: any = {
       caption: renderTelegramCaption(caption),
     };
-
     if (caption && typeof caption !== 'string') {
       telegramExtra.parse_mode = 'HTML';
     }
+
     // Приоритет инлайн-клавиатуры, если она присутствует
     if (extra?.inlineKeyboard) {
       telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
@@ -171,7 +153,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       chatType: chatType,
       format: fmtRich,
       replySafe: async (text: RichMessage, extra?: UniversalReplyOptions) => {
-        await uctx.reply(text, { ...extra });
+        await uctx.reply(text, extra);
       },
       reply: async (text: RichMessage, extra?: UniversalReplyOptions) => {
         await sendTelegramRichMessage(ctx.api, uctx.peerId, text, extra);
@@ -185,9 +167,6 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         const telegramExtra: any = {
           caption: renderTelegramCaption(caption),
         };
-        if (caption && typeof caption !== 'string') {
-          telegramExtra.parse_mode = 'HTML';
-        }
         if (extra?.inlineKeyboard) {
           // Приоритет инлайн-клавиатуры
           telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);

@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/tests.yaml
 
   deploy:
     needs: test
@@ -49,4 +49,4 @@ jobs:
             export STATIC_PATH_PREFIX="${{ secrets.STATIC_PATH_PREFIX }}"
             export CONTENT_DIR="${{ secrets.CONTENT_DIR }}"
 
-            docker compose -f apps/imp-bot/docker-compose.release.yml up -d --build
+            docker compose -f apps/imp-bot/compose.release.yaml up -d --build

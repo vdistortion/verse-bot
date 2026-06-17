@@ -30,5 +30,5 @@ npm run dev            # start in dev mode
 
 - `src/index.ts` – entry point, bot initialization
 - `src/env.ts` – typed environment variables
-- `docker-compose.yml`, `docker-compose.prod.yml` – dev and production containers
+- `compose.yaml`, `compose.release.yaml` – dev and production containers
 - `.env.example` – environment variables template

@@ -27,13 +27,13 @@
 docker network create caddy
 ```
 
-### 2. Создать директорию и docker-compose.yml
+### 2. Создать директорию и compose.yaml
 
 ```bash
 mkdir ~/infra && cd ~/infra
 ```
 
-**`docker-compose.yml`:**
+**`compose.yaml`:**
 
 ```yaml
 services:
@@ -83,7 +83,7 @@ docker compose logs -f
 
 ## Подключение проектов
 
-В `docker-compose.yml` каждого проекта нужно сделать три вещи:
+В `compose.yaml` каждого проекта нужно сделать три вещи:
 
 1. Добавить сервис в сеть `caddy`
 2. Повесить лейблы с доменом и портом

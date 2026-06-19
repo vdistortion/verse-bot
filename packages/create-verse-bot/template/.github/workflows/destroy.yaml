@@ -20,7 +20,7 @@ jobs:
             # 1. Останавливаем контейнеры, удаляем volumes и образы
             if [ -d "$BOT_PATH" ]; then
               cd "$BOT_PATH"
-              docker compose -f docker-compose.release.yml down -v --rmi all
+              docker compose -f compose.release.yaml down -v --rmi all
               echo "✅ Контейнеры остановлены, volumes и образы удалены"
             else
               echo "⚠️  $BOT_PATH не найден — контейнеры пропускаем"

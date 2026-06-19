@@ -1,14 +1,15 @@
 import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
-import { type Bot, InputFile } from 'grammy';
+import { type Api, type Bot, InputFile } from 'grammy';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
+  type RichMessage,
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
-import { type Format, format, mdOpts } from '@verse-bot/format';
+import { fmtRich } from 'tg-rich-messages';
 import { createBot } from './bot-factory.js';
 import { dbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
@@ -34,15 +35,71 @@ export interface TelegramBotConfig {
   ) => Promise<void>;
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
-  unknownCommandPhrase?: (format: Format) => string;
+  unknownCommandPhrase?: (format: typeof fmtRich) => RichMessage;
+}
+
+function createTelegramExtra(extra?: UniversalReplyOptions): any {
+  const telegramExtra: any = {
+    ...(extra?.link_preview_options && {
+      link_preview_options: extra.link_preview_options,
+    }),
+  };
+
+  if (extra?.remove_keyboard) {
+    telegramExtra.reply_markup = { remove_keyboard: true };
+  } else if (extra?.inlineKeyboard) {
+    telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
+  } else if (extra?.replyKeyboard) {
+    telegramExtra.reply_markup = createTelegramKeyboard(extra.replyKeyboard);
+  }
+
+  return telegramExtra;
+}
+
+function renderTelegramCaption(caption?: RichMessage): string | undefined {
+  if (caption === undefined) return undefined;
+  if (typeof caption === 'string') return caption;
+
+  return caption
+    .toHTML()
+    .replace(/<\/p>\s*<p>/gi, '\n\n')
+    .replace(/<p>/gi, '')
+    .replace(/<\/p>/gi, '');
+}
+
+async function sendTelegramRichMessage(
+  api: Api,
+  chatId: number,
+  message: RichMessage,
+  extra?: UniversalReplyOptions,
+): Promise<void> {
+  const telegramExtra = createTelegramExtra(extra);
+
+  if (typeof message === 'string') {
+    await api.sendMessage(chatId, message, telegramExtra);
+    return;
+  }
+
+  const html = message
+    .toHTML()
+    .replace(/<\/p>\s*<p>/gi, '\n\n')
+    .replace(/<p>/gi, '')
+    .replace(/<\/p>/gi, '');
+
+  await api.sendMessage(chatId, html, {
+    ...telegramExtra,
+    parse_mode: 'HTML',
+  });
 }
 
 function makePhotoHandler(ctx: BotContext, contentDir?: string) {
-  return async (photoUrl: string, caption?: string, extra?: UniversalReplyOptions) => {
+  return async (photoUrl: string, caption?: RichMessage, extra?: UniversalReplyOptions) => {
     const telegramExtra: any = {
-      caption: caption ?? undefined,
-      parse_mode: 'MarkdownV2',
+      caption: renderTelegramCaption(caption),
     };
+    if (caption && typeof caption !== 'string') {
+      telegramExtra.parse_mode = 'HTML';
+    }
 
     // Приоритет инлайн-клавиатуры, если она присутствует
     if (extra?.inlineKeyboard) {
@@ -62,10 +119,10 @@ function makePhotoHandler(ctx: BotContext, contentDir?: string) {
           const buffer = readFileSync(filepath);
           await ctx.replyWithPhoto(new InputFile(buffer, filename), telegramExtra);
         } else {
-          await ctx.api.sendMessage(peerId, caption ?? '', telegramExtra);
+          await ctx.api.sendMessage(peerId, renderTelegramCaption(caption) ?? '', telegramExtra);
         }
       } else {
-        await ctx.api.sendMessage(peerId, caption ?? '', telegramExtra);
+        await ctx.api.sendMessage(peerId, renderTelegramCaption(caption) ?? '', telegramExtra);
       }
     }
   };
@@ -94,37 +151,21 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       platformApi: ctx.api,
       chatTitle: ctx.chat?.title,
       chatType: chatType,
-      format: format('telegram'),
-      replySafe: async (text: string, extra?: UniversalReplyOptions) =>
-        uctx.reply(text, { ...mdOpts('telegram'), ...extra }),
-      reply: async (text: string, extra?: UniversalReplyOptions) => {
-        const telegramExtra: any = {
-          ...(extra?.parse_mode && { parse_mode: extra.parse_mode }),
-          ...(extra?.link_preview_options && {
-            link_preview_options: extra.link_preview_options,
-          }),
-        };
-
-        if (extra?.remove_keyboard) {
-          telegramExtra.reply_markup = { remove_keyboard: true };
-        } else if (extra?.inlineKeyboard) {
-          // Приоритет инлайн-клавиатуры
-          telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
-        } else if (extra?.replyKeyboard) {
-          telegramExtra.reply_markup = createTelegramKeyboard(extra.replyKeyboard);
-        }
-
-        await ctx.api.sendMessage(uctx.peerId, text, telegramExtra);
+      format: fmtRich,
+      replySafe: async (text: RichMessage, extra?: UniversalReplyOptions) => {
+        await uctx.reply(text, extra);
+      },
+      reply: async (text: RichMessage, extra?: UniversalReplyOptions) => {
+        await sendTelegramRichMessage(ctx.api, uctx.peerId, text, extra);
       },
       replyWithFile: async (
         buffer: Buffer,
         filename: string,
-        caption?: string,
+        caption?: RichMessage,
         extra?: UniversalReplyOptions,
       ) => {
         const telegramExtra: any = {
-          caption,
-          parse_mode: 'MarkdownV2',
+          caption: renderTelegramCaption(caption),
         };
         if (extra?.inlineKeyboard) {
           // Приоритет инлайн-клавиатуры
@@ -135,9 +176,9 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         await ctx.replyWithDocument(new InputFile(buffer, filename), telegramExtra);
       },
       replyWithPhoto: config.onReplyWithPhoto
-        ? (photoUrl: string, caption?: string, extra?: UniversalReplyOptions) =>
-            config.onReplyWithPhoto!(photoUrl, caption, extra)
-        : (photoUrl: string, caption?: string, extra?: UniversalReplyOptions) =>
+        ? (photoUrl: string, caption?: RichMessage, extra?: UniversalReplyOptions) =>
+            config.onReplyWithPhoto!(photoUrl, renderTelegramCaption(caption), extra)
+        : (photoUrl: string, caption?: RichMessage, extra?: UniversalReplyOptions) =>
             makePhotoHandler(ctx, config.contentDir)(photoUrl, caption, extra),
       getUserProfile: async () => {
         try {

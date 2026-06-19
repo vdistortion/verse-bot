@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "docker:dev:up": "docker compose -f apps/imp-bot/docker-compose.yml up -d",
-    "docker:dev:down": "docker compose -f apps/imp-bot/docker-compose.yml down",
-    "docker:dev:clean": "docker compose -f apps/imp-bot/docker-compose.yml down -v --rmi all",
+    "dev:up": "docker compose -f apps/imp-bot/compose.yaml up -d",
+    "dev:down": "docker compose -f apps/imp-bot/compose.yaml down",
+    "dev:clean": "docker compose -f apps/imp-bot/compose.yaml down -v --rmi all",
     "prepare": "cp -n .env.example .env",
     "build": "tsc --build",
     "build:miniapp": "npm run build --workspace=@verse-bot/miniapp",
@@ -27,7 +27,7 @@
     "singleQuote": true,
     "printWidth": 100
   },
-  "author": "Valentin <valentin.distortion@gmail.com> (https://github.com/vdistortion)",
+  "author": "Valentin <https://github.com/vdistortion>",
   "homepage": "https://github.com/vdistortion/verse-bot",
   "license": "Apache-2.0",
   "workspaces": [
@@ -49,5 +49,8 @@
     "typescript-eslint": "^8.61.0",
     "vitepress": "^1.6.4",
     "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "tg-rich-messages": "^0.2.0"
   }
 }

@@ -15,7 +15,7 @@ export const catCommand = catchErrors(async (ctx: UniversalContext) => {
       await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(ctx.format), extra);
       return;
     } else {
-      await ctx.replySafe(`${phrases.cat.caption(ctx.format)}\n${catImageUrl}`, extra);
+      await ctx.replySafe(ctx.format`${phrases.cat.caption(ctx.format)}\n${catImageUrl}`, extra);
       return;
     }
   }

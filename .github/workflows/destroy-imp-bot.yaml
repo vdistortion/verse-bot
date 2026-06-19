@@ -21,7 +21,7 @@ jobs:
             PROJECT_PATH=~/projects/${{ github.event.repository.name }}
             if [ -d "$PROJECT_PATH" ]; then
               cd "$PROJECT_PATH"
-              docker compose -f apps/imp-bot/docker-compose.release.yml down -v --rmi all
+              docker compose -f apps/imp-bot/compose.release.yaml down -v --rmi all
               rm -rf "$PROJECT_PATH"
               echo "✅ Репозиторий удалён: $PROJECT_PATH"
             fi

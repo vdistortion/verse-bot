@@ -1,6 +1,5 @@
 import { execSync } from 'node:child_process';
 import { requireAdmin } from '@verse-bot/core';
-import { escapeMarkdownV2 } from '@verse-bot/format';
 import { POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_USER } from '../env.js';
 
 export const backupDbCommand = requireAdmin(async (ctx) => {
@@ -21,11 +20,7 @@ export const backupDbCommand = requireAdmin(async (ctx) => {
     );
 
     const filename = `full_db_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.sql`;
-    await ctx.replyWithFile(
-      dump,
-      filename,
-      escapeMarkdownV2(ctx.format`Вот ваш полный бэкап базы данных 💾`),
-    );
+    await ctx.replyWithFile(dump, filename, ctx.format`Вот ваш полный бэкап базы данных 💾`);
   } catch (pgDumpErr) {
     console.error('[backupDb] pg_dump error:', pgDumpErr);
 
@@ -50,11 +45,7 @@ export const backupDbCommand = requireAdmin(async (ctx) => {
 
       const jsonBuffer = Buffer.from(JSON.stringify(backupData, null, 2), 'utf-8');
       const jsonFilename = `db_backup_${Date.now()}.json`;
-      await ctx.replyWithFile(
-        jsonBuffer,
-        jsonFilename,
-        escapeMarkdownV2('pg_dump недоступен, вот JSON-бэкап'),
-      );
+      await ctx.replyWithFile(jsonBuffer, jsonFilename, 'pg_dump недоступен, вот JSON-бэкап');
       return;
     }
 

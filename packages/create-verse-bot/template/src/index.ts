@@ -1,4 +1,5 @@
-import { initPool, getPool, type UniversalContext } from '@verse-bot/shared';
+import { initPool, getPool } from '@verse-bot/db';
+import type { UniversalContext } from '@verse-bot/core';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';
 import { TELEGRAM_BOT_TOKEN, VK_GROUP_TOKEN, VK_GROUP_ID } from './env.js';

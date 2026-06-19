@@ -1,9 +1,10 @@
 import type { Api } from 'grammy';
-import { requireAdmin, catchErrors, type UserProfile } from '@verse-bot/core';
+import { requireAdmin, catchErrors, type UserProfile, type RichMessage } from '@verse-bot/core';
 import { getAllUsers, type DbUser } from '@verse-bot/db';
 import type { VKBot } from '@verse-bot/vk-core';
-import { link, bold } from '@verse-bot/format';
+import { link, bold } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
+import { concatRich } from '../rich-utils.js';
 
 function formatDate(dateStr: string): string {
   // Форматируем дату без информации о часовом поясе, чтобы избежать скобок
@@ -29,7 +30,9 @@ export const listUsersCommand = requireAdmin(
       return;
     }
 
-    let message = ctx.format`${bold(`👥 Список активных пользователей (${users.length}):`)}\n\n`;
+    const messageParts: RichMessage[] = [
+      ctx.format`${bold(`👥 Список активных пользователей (${users.length}):`)}\n\n`,
+    ];
 
     for (const user of users) {
       let profile: UserProfile | null = null;
@@ -84,9 +87,13 @@ export const listUsersCommand = requireAdmin(
 
       const isTg = ctx.platform === 'telegram';
       const namePart = profileUrl ? link(fullName, profileUrl) : isTg ? bold(fullName) : fullName;
-      message += ctx.format`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`;
+      messageParts.push(
+        ctx.format`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`,
+      );
     }
 
-    await ctx.replySafe(message, { link_preview_options: { is_disabled: true } });
+    await ctx.replySafe(concatRich(ctx.format, messageParts), {
+      link_preview_options: { is_disabled: true },
+    });
   }, phrases),
 );

@@ -1,7 +1,8 @@
-import { requireAdmin, catchErrors } from '@verse-bot/core';
+import { requireAdmin, catchErrors, type RichMessage } from '@verse-bot/core';
 import { getCommandStats } from '@verse-bot/db';
-import { bold } from '@verse-bot/format';
+import { bold } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
+import { concatRich } from '../rich-utils.js';
 
 export const statsCommand = requireAdmin(
   catchErrors(async (ctx) => {
@@ -19,14 +20,15 @@ export const statsCommand = requireAdmin(
       else if (s.platform === 'vk') grouped[s.command].vk += s.count;
     }
 
-    let message = ctx.format`${bold('📊 Статистика команд')}\n\n`;
+    const messageParts: RichMessage[] = [];
+    messageParts.push(ctx.format`${bold('📊 Статистика команд')}\n\n`);
     for (const [cmd, counts] of Object.entries(grouped)) {
       const parts: string[] = [];
       if (counts.tg > 0) parts.push(`TG: ${counts.tg}`);
       if (counts.vk > 0) parts.push(`VK: ${counts.vk}`);
-      message += ctx.format`${bold(cmd)} — ${parts.join(', ')}\n`;
+      messageParts.push(ctx.format`${bold(cmd)} — ${parts.join(', ')}\n`);
     }
 
-    await ctx.replySafe(message);
+    await ctx.replySafe(concatRich(ctx.format, messageParts));
   }, phrases),
 );

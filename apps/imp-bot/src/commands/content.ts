@@ -1,7 +1,13 @@
-import { catchErrors, type UniversalContext, type UniversalReplyOptions } from '@verse-bot/core';
-import { code } from '@verse-bot/format';
+import {
+  catchErrors,
+  type RichMessage,
+  type UniversalContext,
+  type UniversalReplyOptions,
+} from '@verse-bot/core';
+import { code, link } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
 import { PUBLIC_URL } from '../env.js';
+import { concatRich } from '../rich-utils.js';
 
 export interface BotContentItem {
   id: number;
@@ -21,30 +27,36 @@ export async function sendContentItem(
   extra?: UniversalReplyOptions,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const hintLine = ctx.format`\n\n${code(phrases.contentHint(ctx.format, itemNumber))}`;
+  const hintText = phrases.contentHint(ctx.format, itemNumber);
+  const hintLine = ctx.format`\n\n${code(hintText)}`;
 
   if (imageUrl && ctx.replyWithPhoto) {
-    let caption = '';
+    const captionParts: RichMessage[] = [];
+
     if (item.text_content) {
-      caption += ctx.format`${item.text_content}`;
+      captionParts.push(ctx.format`${item.text_content}`);
     }
-    caption += ctx.isAdmin && ctx.chatType === 'private' ? hintLine : '';
-    await ctx.replyWithPhoto(imageUrl, caption, extra);
+
+    if (ctx.isAdmin && ctx.chatType === 'private') {
+      captionParts.push(hintLine);
+    }
+
+    await ctx.replyWithPhoto(imageUrl, concatRich(ctx.format, captionParts), extra);
     return;
   }
 
-  let message = '';
+  const messageParts: RichMessage[] = [];
   if (item.text_content) {
-    message += ctx.format`${item.text_content}`;
+    messageParts.push(ctx.format`${item.text_content}`);
   }
   if (imageUrl) {
-    message +=
-      ctx.platform === 'telegram'
-        ? `\n\n[📷 Смотреть изображение](${imageUrl})`
-        : `\n\n${imageUrl}`;
+    messageParts.push(ctx.format`${link('📷 Смотреть изображение', imageUrl)}`);
   }
-  message += hintLine;
-  await ctx.replySafe(message, extra);
+  if (ctx.isAdmin && ctx.chatType === 'private') {
+    messageParts.push(hintLine);
+  }
+
+  await ctx.replySafe(concatRich(ctx.format, messageParts), extra);
 }
 
 export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumber: number) => {

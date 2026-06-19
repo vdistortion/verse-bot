@@ -1,3 +1,5 @@
+import type { fmtRich, RichDocument } from 'tg-rich-messages';
+
 export type Platform = 'telegram' | 'vk';
 
 export interface UserProfile {
@@ -12,7 +14,6 @@ export interface UniversalKeyboardButton {
 }
 
 export interface UniversalReplyOptions {
-  parse_mode?: 'MarkdownV2';
   remove_keyboard?: boolean;
   link_preview_options?: { is_disabled: boolean };
   replyKeyboard?: UniversalKeyboardButton[][];
@@ -20,4 +21,6 @@ export interface UniversalReplyOptions {
   one_time?: boolean;
 }
 
-export type FormatFn = (strings: TemplateStringsArray, ...values: any[]) => string;
+export type FormatFn = typeof fmtRich;
+
+export type RichMessage = string | RichDocument;

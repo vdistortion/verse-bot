@@ -7,7 +7,7 @@
 Создайте файл `apps/bot/src/commands/hello.ts`:
 
 ```ts
-import type { UniversalContext } from '@verse-bot/shared';
+import type { UniversalContext } from '@verse-bot/core';
 
 export async function helloCommand(ctx: UniversalContext) {
   await ctx.reply(ctx.format`Привет, ${ctx.firstName ?? 'гость'}!`);
@@ -24,7 +24,7 @@ export { helloCommand } from './hello';
 
 ## Форматирование
 
-Используйте тегированный шаблон `ctx.format`, который автоматически экранирует MarkdownV2 для Telegram и оставляет обычный текст для VK. Можно использовать токены:
+Используйте тегированный шаблон `ctx.format`, который автоматически форматирует разметку для Telegram и оставляет обычный текст для VK. Можно использовать токены:
 
 ```ts
 ctx.format`${bold('Жирный текст')}`;
@@ -40,6 +40,6 @@ ctx.format`${link('Нажми', 'https://example.com')}`;
 Для создания клавиатур используйте:
 
 - Telegram: `createTelegramKeyboard` из `@verse-bot/tg-core`.
-- VK: `createVKKeyboard` из `@verse-bot/shared`.
+- VK: `createVKKeyboard` из `@verse-bot/vk-core`.
 
 Примеры смотрите в команде startCommand.

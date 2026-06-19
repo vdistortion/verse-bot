@@ -50,7 +50,7 @@ async function main() {
   const resolvePackage = (name: string) =>
     useLocal ? `file:${path.resolve(__dirname, '../..', name.split('/')[1])}` : 'latest';
 
-  deps['@verse-bot/shared'] = resolvePackage('@verse-bot/shared');
+  deps['@verse-bot/core'] = resolvePackage('@verse-bot/core');
   if (platforms.includes('telegram')) {
     deps['@verse-bot/tg-core'] = resolvePackage('@verse-bot/tg-core');
   }

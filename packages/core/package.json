@@ -20,7 +20,6 @@
     "dev": "tsc --watch"
   },
   "devDependencies": {
-    "@types/pg": "^8.20.0",
-    "typescript": "^6.0.3"
+    "@types/pg": "^8.20.0"
   }
 }

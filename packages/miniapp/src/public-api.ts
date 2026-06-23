@@ -1,1 +1,1 @@
-export { TelegramApi, telegramApi, type TelegramApiOptions } from './telegram-api.service.js';
+export { TelegramApi, telegramApi, type TelegramApiOptions } from './telegram-api.js';

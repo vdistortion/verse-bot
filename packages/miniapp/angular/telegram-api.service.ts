@@ -1,27 +1,47 @@
-import { inject, Injectable } from '@angular/core';
-import { Location } from '@angular/common';
-import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
-import { telegramApi } from '@verse-bot/miniapp';
+import {
+  EnvironmentProviders,
+  Injectable,
+  InjectionToken,
+  inject,
+  makeEnvironmentProviders,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
+import { TelegramApi, type TelegramApiOptions } from '@verse-bot/miniapp';
 
-@Injectable({ providedIn: 'root' })
-export class TelegramApiService {
-  private location = inject(Location);
-  private router = inject(Router);
+export const TELEGRAM_API_CONFIG = new InjectionToken<TelegramApiOptions>('TELEGRAM_API_CONFIG');
 
-  readonly isMiniApp$ = new BehaviorSubject(false);
-  readonly api = telegramApi;
+@Injectable()
+export class TelegramApiService extends TelegramApi {
+  private config = inject(TELEGRAM_API_CONFIG, { optional: true });
+  private platformId = inject(PLATFORM_ID);
+  readonly isApp = signal(false);
 
-  async init(): Promise<void> {
-    const ok = await telegramApi.init({
-      onBack: () => this.location.back(),
-      onSettings: () => this.router.navigateByUrl('/settings').catch(console.error),
-    });
-    this.isMiniApp$.next(ok);
+  private get isBrowser(): boolean {
+    return this.platformId === 'browser';
   }
 
-  destroy(): void {
-    telegramApi.destroy();
-    this.isMiniApp$.next(false);
+  override async init(options?: TelegramApiOptions): Promise<boolean> {
+    if (!this.isBrowser) return false;
+    const mergedOptions = { ...this.config, ...options };
+    const result = await super.init(mergedOptions);
+    this.isApp.set(this.isMiniApp);
+    return result;
   }
+
+  override destroy(): void {
+    if (!this.isBrowser) return;
+    super.destroy();
+    this.isApp.set(false);
+  }
+}
+
+export function provideTelegramApi(config?: TelegramApiOptions): EnvironmentProviders {
+  return makeEnvironmentProviders([
+    {
+      provide: TELEGRAM_API_CONFIG,
+      useValue: config ?? {},
+    },
+    TelegramApiService,
+  ]);
 }

@@ -10,7 +10,6 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "rootDir": ".",
-    "types": [],
     "paths": {
       "@verse-bot/miniapp": ["./src/public-api.ts"]
     }

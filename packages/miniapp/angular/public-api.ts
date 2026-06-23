@@ -1,1 +1,5 @@
-export { TelegramApiService } from './telegram-api.service';
+export {
+  TelegramApiService,
+  provideTelegramApi,
+  TELEGRAM_API_CONFIG,
+} from './telegram-api.service.js';

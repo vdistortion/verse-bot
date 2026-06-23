@@ -1,7 +1,7 @@
 {
   "name": "@verse-bot/miniapp",
   "type": "module",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Telegram Mini App integration utilities — framework-agnostic core with Angular support",
   "keywords": [
     "telegram",
@@ -34,33 +34,18 @@
     "pack": "npm run build && cd dist && npm pack --pack-destination .."
   },
   "peerDependencies": {
-    "@angular/common": ">=14.0.0 <23.0.0",
-    "@angular/core": ">=14.0.0 <23.0.0",
-    "@angular/router": ">=14.0.0 <23.0.0",
-    "rxjs": ">=7.0.0 <9.0.0"
+    "@angular/core": ">=16.0.0"
   },
   "peerDependenciesMeta": {
-    "@angular/common": {
-      "optional": true
-    },
     "@angular/core": {
-      "optional": true
-    },
-    "@angular/router": {
-      "optional": true
-    },
-    "rxjs": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@angular/common": "^22.0.2",
     "@angular/core": "^22.0.2",
-    "@angular/router": "^22.0.2",
-    "ng-packagr": "^22.0.0",
-    "rxjs": "^7.8.2"
+    "ng-packagr": "^22.0.0"
   },
   "dependencies": {
-    "@telegram-apps/sdk": "^3.11.8"
+    "@tma.js/sdk": "^3.2.3"
   }
 }

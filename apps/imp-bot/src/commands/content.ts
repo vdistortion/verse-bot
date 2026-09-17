@@ -8,6 +8,7 @@ import { code, link } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
 import { PUBLIC_URL } from '../env.js';
 import { concatRich } from '../rich-utils.js';
+import { formatFor } from '../format.js';
 
 export interface BotContentItem {
   id: number;
@@ -27,48 +28,48 @@ export async function sendContentItem(
   extra?: UniversalReplyOptions,
 ): Promise<void> {
   const imageUrl = item.image_url ? getImageUrl(item.image_url) : null;
-  const hintText = phrases.contentHint(ctx.format, itemNumber);
-  const hintLine = ctx.format`\n\n${code(hintText)}`;
+  const hintText = phrases.contentHint(formatFor(ctx.platform), itemNumber);
+  const hintLine = formatFor(ctx.platform)`\n\n${code(hintText)}`;
 
   if (imageUrl && ctx.replyWithPhoto) {
     const captionParts: RichMessage[] = [];
 
     if (item.text_content) {
-      captionParts.push(ctx.format`${item.text_content}`);
+      captionParts.push(formatFor(ctx.platform)`${item.text_content}`);
     }
 
     if (ctx.isAdmin && ctx.chatType === 'private') {
       captionParts.push(hintLine);
     }
 
-    await ctx.replyWithPhoto(imageUrl, concatRich(ctx.format, captionParts), extra);
+    await ctx.replyWithPhoto(imageUrl, concatRich(formatFor(ctx.platform), captionParts), extra);
     return;
   }
 
   const messageParts: RichMessage[] = [];
   if (item.text_content) {
-    messageParts.push(ctx.format`${item.text_content}`);
+    messageParts.push(formatFor(ctx.platform)`${item.text_content}`);
   }
   if (imageUrl) {
-    messageParts.push(ctx.format`${link('📷 Смотреть изображение', imageUrl)}`);
+    messageParts.push(formatFor(ctx.platform)`${link('📷 Смотреть изображение', imageUrl)}`);
   }
   if (ctx.isAdmin && ctx.chatType === 'private') {
     messageParts.push(hintLine);
   }
 
-  await ctx.replySafe(concatRich(ctx.format, messageParts), extra);
+  await ctx.replySafe(concatRich(formatFor(ctx.platform), messageParts), extra);
 }
 
 export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumber: number) => {
   if (!ctx.db) {
-    await ctx.replySafe(ctx.format`❌ База данных недоступна.`);
+    await ctx.replySafe(formatFor(ctx.platform)`❌ База данных недоступна.`);
     return;
   }
 
   const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
 
   if (!allContent || allContent.length === 0) {
-    await ctx.replySafe(ctx.format`В базе данных нет контента.`);
+    await ctx.replySafe(formatFor(ctx.platform)`В базе данных нет контента.`);
     return;
   }
 
@@ -76,7 +77,7 @@ export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumb
 
   if (itemIndex < 0 || itemIndex >= allContent.length) {
     await ctx.replySafe(
-      ctx.format`Контент с номером ${String(itemNumber)} не найден. Всего элементов: ${String(allContent.length)}.`,
+      formatFor(ctx.platform)`Контент с номером ${String(itemNumber)} не найден. Всего элементов: ${String(allContent.length)}.`,
     );
     return;
   }

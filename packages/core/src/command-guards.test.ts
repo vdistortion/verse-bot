@@ -1,8 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fmtRich } from 'tg-rich-messages';
 import { requireAdmin, requirePrivateChat, catchErrors } from './command-guards.js';
 import type { UniversalContext } from './context.js';
-import type { FormatFn } from './types.js';
 
 function mockContext(overrides: Partial<UniversalContext> = {}): UniversalContext {
   return {
@@ -12,7 +10,6 @@ function mockContext(overrides: Partial<UniversalContext> = {}): UniversalContex
     text: '/test',
     isAdmin: false,
     chatType: 'private',
-    format: fmtRich,
     replySafe: vi.fn(),
     reply: vi.fn(),
     getUserProfile: vi.fn(),
@@ -68,7 +65,7 @@ describe('catchErrors', () => {
   it('should call handler normally', async () => {
     const handler = vi.fn();
     const phrases = {
-      errorDefault: (fmt: FormatFn) => fmt`custom error`,
+      errorDefault: () => 'custom error',
     };
     const ctx = mockContext();
     const wrapped = catchErrors(handler, phrases);
@@ -79,13 +76,13 @@ describe('catchErrors', () => {
   it('should catch error and reply with error message', async () => {
     const handler = vi.fn().mockRejectedValue(new Error('oops'));
     const phrases = {
-      errorDefault: (fmt: FormatFn) => fmt`custom error`,
+      errorDefault: () => 'custom error',
     };
     const ctx = mockContext();
     const wrapped = catchErrors(handler, phrases);
     await wrapped(ctx);
     expect(ctx.replySafe).toHaveBeenCalledOnce();
     const [message] = vi.mocked(ctx.replySafe).mock.calls[0];
-    expect(typeof message === 'string' ? message : message.toHTML()).toBe('<p>custom error</p>');
+    expect(message).toBe('custom error');
   });
 });

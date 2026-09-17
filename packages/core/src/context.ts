@@ -1,6 +1,5 @@
 import type { Pool } from 'pg'; // временно, позже уберём
 import type {
-  FormatFn,
   Platform,
   RichMessage,
   UserProfile,
@@ -35,7 +34,6 @@ export interface UniversalContext {
     options?: UniversalReplyOptions,
   ) => Promise<void>;
   replySafe: (text: RichMessage, options?: UniversalReplyOptions) => Promise<void>;
-  format: FormatFn;
 
   // База данных (опционально, будет заменено на абстракцию)
   db?: Pool;

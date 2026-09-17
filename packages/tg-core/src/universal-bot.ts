@@ -4,13 +4,11 @@ import { type Api, type Bot, InputFile } from 'grammy';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
-  type FormatFn,
   type RichMessage,
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/postgres';
-import { fmtRich } from 'tg-rich-messages';
 import { createBot } from './bot-factory.js';
 import { dbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
@@ -36,7 +34,7 @@ export interface TelegramBotConfig {
   ) => Promise<void>;
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
-  unknownCommandPhrase?: (format: FormatFn) => RichMessage;
+  unknownCommandPhrase?: (ctx: UniversalContext) => RichMessage;
 }
 
 function createTelegramExtra(extra?: UniversalReplyOptions): any {
@@ -152,7 +150,6 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       platformApi: ctx.api,
       chatTitle: ctx.chat?.title,
       chatType: chatType,
-      format: fmtRich,
       replySafe: async (text: RichMessage, extra?: UniversalReplyOptions) => {
         await uctx.reply(text, extra);
       },
@@ -306,7 +303,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       if (config.buttons.some((b) => b.label === text)) return next();
 
       // Неизвестная команда – отвечаем фразой
-      await uctx.reply(config.unknownCommandPhrase!(uctx.format));
+      await uctx.reply(config.unknownCommandPhrase!(uctx));
       await next();
     });
   }

@@ -3,7 +3,6 @@ export type {
   UserProfile,
   UniversalKeyboardButton,
   UniversalReplyOptions,
-  FormatFn,
   RichMessage,
   RenderableMessage,
 } from './types.js';

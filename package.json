@@ -51,6 +51,6 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
-    "tg-rich-messages": "^0.2.0"
+    "tg-rich-messages": "^0.4.0"
   }
 }

@@ -23,6 +23,4 @@ export interface RenderableMessage {
   toHTML(): string;
 }
 
-export type FormatFn = (strings: TemplateStringsArray, ...values: any[]) => RichMessage;
-
 export type RichMessage = string | RenderableMessage;

@@ -1,14 +1,15 @@
 import { execSync } from 'node:child_process';
 import { requireAdmin } from '@verse-bot/core';
 import { POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_USER } from '../env.js';
+import { formatFor } from '../format.js';
 
 export const backupDbCommand = requireAdmin(async (ctx) => {
   if (!ctx.replyWithFile) {
-    await ctx.replySafe(ctx.format`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`);
+    await ctx.replySafe(formatFor(ctx.platform)`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`);
     return;
   }
 
-  await ctx.replySafe(ctx.format`⏳ Запускаю создание бэкапа...`);
+  await ctx.replySafe(formatFor(ctx.platform)`⏳ Запускаю создание бэкапа...`);
 
   try {
     const dump = execSync(
@@ -20,7 +21,7 @@ export const backupDbCommand = requireAdmin(async (ctx) => {
     );
 
     const filename = `full_db_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.sql`;
-    await ctx.replyWithFile(dump, filename, ctx.format`Вот ваш полный бэкап базы данных 💾`);
+    await ctx.replyWithFile(dump, filename, formatFor(ctx.platform)`Вот ваш полный бэкап базы данных 💾`);
   } catch (pgDumpErr) {
     console.error('[backupDb] pg_dump error:', pgDumpErr);
 
@@ -49,6 +50,6 @@ export const backupDbCommand = requireAdmin(async (ctx) => {
       return;
     }
 
-    await ctx.replySafe(ctx.format`❌ Произошла ошибка при создании бэкапа.`);
+    await ctx.replySafe(formatFor(ctx.platform)`❌ Произошла ошибка при создании бэкапа.`);
   }
 });

@@ -1,8 +1,9 @@
-import type { FormatFn, Platform, RichMessage, UniversalKeyboardButton } from '@verse-bot/core';
+import type { Platform, RichMessage, UniversalContext, UniversalKeyboardButton } from '@verse-bot/core';
 import { bold, code, link, spoiler } from 'tg-rich-messages';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
+import { formatFor, type BotFormat } from '../format.js';
 
-type Format = FormatFn;
+type Format = BotFormat;
 
 export interface CommandDef {
   command: string;
@@ -201,7 +202,7 @@ ${`/list_users – 👥 Список активных пользователей
 
   contentHint: (_fmt: Format, number: number) => `/content_${String(number)}`,
 
-  unknownCommand: (fmt: Format) =>
-    fmt`Команда потеряна, контекст утрачен.\nПопробуй /start. Или не пробуй.\nСистема всё равно одинока.`,
-  errorDefault: (fmt: Format) => fmt`⚠️ Настройки нестабильны`,
+  unknownCommand: (ctx: UniversalContext) =>
+    formatFor(ctx.platform)`Команда потеряна, контекст утрачен.\nПопробуй /start. Или не пробуй.\nСистема всё равно одинока.`,
+  errorDefault: (ctx: UniversalContext) => formatFor(ctx.platform)`⚠️ Настройки нестабильны`,
 };

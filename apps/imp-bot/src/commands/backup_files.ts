@@ -2,23 +2,24 @@ import { existsSync } from 'node:fs';
 import { ZipArchive } from 'archiver';
 import { requireAdmin } from '@verse-bot/core';
 import { CONTENT_DIR } from '../env.js';
+import { formatFor } from '../format.js';
 
 export const backupFilesCommand = requireAdmin(async (ctx) => {
   if (!ctx.replyWithFile) {
-    await ctx.replySafe(ctx.format`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`);
+    await ctx.replySafe(formatFor(ctx.platform)`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`);
     return;
   }
 
   if (!existsSync(CONTENT_DIR)) {
-    await ctx.replySafe(ctx.format`⚠️ Папка с контентом не найдена: ${CONTENT_DIR}`);
+    await ctx.replySafe(formatFor(ctx.platform)`⚠️ Папка с контентом не найдена: ${CONTENT_DIR}`);
     return;
   }
 
-  await ctx.replySafe(ctx.format`⏳ Упаковываю файлы...`);
+  await ctx.replySafe(formatFor(ctx.platform)`⏳ Упаковываю файлы...`);
 
   const buffer = await zipDirectory(CONTENT_DIR);
   const filename = `content_backup_${new Date().toISOString()}.zip`;
-  await ctx.replyWithFile(buffer, filename, ctx.format`📦 Бэкап файлов контента`);
+  await ctx.replyWithFile(buffer, filename, formatFor(ctx.platform)`📦 Бэкап файлов контента`);
 });
 
 function zipDirectory(sourceDir: string): Promise<Buffer> {

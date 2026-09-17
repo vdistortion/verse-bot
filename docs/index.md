@@ -4,6 +4,9 @@ hero:
   name: Verse Bot Framework
   text: Universal bot
   tagline: Write commands once — run on Telegram and VK
+  image:
+    src: https://raw.githubusercontent.com/vdistortion/verse-bot/release/assets/branding/preview.jpg
+    alt: Verse Bot preview
   actions:
     - theme: brand
       text: Get Started

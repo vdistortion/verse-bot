@@ -3,7 +3,7 @@ import { getUserCommandLogs } from '@verse-bot/postgres';
 import { bold } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
 import { concatRich } from '../rich-utils.js';
-import { formatFor } from '../format.js'
+import { formatFor } from '../format.js';
 
 export const userLogCommand = requireAdmin(
   catchErrors(async (ctx, userId: number) => {
@@ -13,7 +13,9 @@ export const userLogCommand = requireAdmin(
       return;
     }
 
-    const messageParts: RichMessage[] = [formatFor(ctx.platform)`${bold(`📋 Логи пользователя ${userId}`)}\n\n`];
+    const messageParts: RichMessage[] = [
+      formatFor(ctx.platform)`${bold(`📋 Логи пользователя ${userId}`)}\n\n`,
+    ];
     for (const entry of logs) {
       const time = `ID: ${entry.id}`;
       const platform = entry.platform === 'telegram' ? 'TG' : 'VK';

@@ -36,7 +36,8 @@ function renderValue(value: FormatValue): string {
 
 function plainFormat(strings: TemplateStringsArray, ...values: FormatValue[]): string {
   return strings.reduce(
-    (result, string, index) => result + string + (index < values.length ? renderValue(values[index]) : ''),
+    (result, string, index) =>
+      result + string + (index < values.length ? renderValue(values[index]) : ''),
     '',
   );
 }

@@ -18,7 +18,9 @@ export const myLogCommand = requirePrivateChat(
       await ctx.replySafe('У вас пока нет логов.');
       return;
     }
-    const messageParts: RichMessage[] = [formatFor(ctx.platform)`${bold('📋 Ваши последние действия')}\n\n`];
+    const messageParts: RichMessage[] = [
+      formatFor(ctx.platform)`${bold('📋 Ваши последние действия')}\n\n`,
+    ];
     for (const entry of logs) {
       const platform = entry.platform === 'telegram' ? 'TG' : 'VK';
       messageParts.push(formatFor(ctx.platform)`• ${entry.command} (${platform})\n`);

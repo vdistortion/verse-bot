@@ -1,10 +1,5 @@
 import type { Pool } from 'pg'; // временно, позже уберём
-import type {
-  Platform,
-  RichMessage,
-  UserProfile,
-  UniversalReplyOptions,
-} from './types.js';
+import type { Platform, RichMessage, UserProfile, UniversalReplyOptions } from './types.js';
 
 export interface UniversalContext {
   // Идентификация

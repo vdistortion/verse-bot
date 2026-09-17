@@ -77,7 +77,9 @@ export const contentCommand = catchErrors(async (ctx: UniversalContext, itemNumb
 
   if (itemIndex < 0 || itemIndex >= allContent.length) {
     await ctx.replySafe(
-      formatFor(ctx.platform)`Контент с номером ${String(itemNumber)} не найден. Всего элементов: ${String(allContent.length)}.`,
+      formatFor(
+        ctx.platform,
+      )`Контент с номером ${String(itemNumber)} не найден. Всего элементов: ${String(allContent.length)}.`,
     );
     return;
   }

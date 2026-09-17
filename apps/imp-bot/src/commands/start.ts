@@ -14,9 +14,12 @@ export async function startCommand(ctx: UniversalContext) {
   }
 
   if (ctx.chatType === 'private') {
-    await ctx.replySafe(phrases.start.personal(formatFor(ctx.platform), profile?.firstName ?? 'гость'), {
-      replyKeyboard: universalKeyboard,
-    });
+    await ctx.replySafe(
+      phrases.start.personal(formatFor(ctx.platform), profile?.firstName ?? 'гость'),
+      {
+        replyKeyboard: universalKeyboard,
+      },
+    );
   } else {
     await ctx.replySafe(phrases.start.group(formatFor(ctx.platform), ctx.chatTitle ?? 'группа'), {
       inlineKeyboard: universalKeyboard,

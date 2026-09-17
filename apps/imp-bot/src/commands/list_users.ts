@@ -46,7 +46,9 @@ export const listUsersCommand = requireAdmin(
             lastName: tgChat.last_name,
             username: tgChat.username,
           };
-        } catch {}
+        } catch {
+          // Telegram profile is optional.
+        }
       } else if (user.vk_id && ctx.platform === 'vk' && ctx.platformApi) {
         const api = ctx.platformApi as VKBot;
         try {
@@ -62,7 +64,9 @@ export const listUsersCommand = requireAdmin(
               username: vkUser.screen_name,
             };
           }
-        } catch {}
+        } catch {
+          // VK profile is optional.
+        }
       }
 
       if (!profile) {
@@ -89,7 +93,9 @@ export const listUsersCommand = requireAdmin(
       const isTg = ctx.platform === 'telegram';
       const namePart = profileUrl ? link(fullName, profileUrl) : isTg ? bold(fullName) : fullName;
       messageParts.push(
-        formatFor(ctx.platform)`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`,
+        formatFor(
+          ctx.platform,
+        )`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`,
       );
     }
 

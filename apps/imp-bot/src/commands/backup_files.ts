@@ -6,7 +6,9 @@ import { formatFor } from '../format.js';
 
 export const backupFilesCommand = requireAdmin(async (ctx) => {
   if (!ctx.replyWithFile) {
-    await ctx.replySafe(formatFor(ctx.platform)`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`);
+    await ctx.replySafe(
+      formatFor(ctx.platform)`❌ Отправка файлов бэкапа не поддерживается на этой платформе.`,
+    );
     return;
   }
 

@@ -5,14 +5,12 @@ import type { MessageContext } from 'vk-io';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
-  type FormatFn,
   type RichMessage,
   type UniversalContext,
   type UniversalReplyOptions,
   type UserProfile,
 } from '@verse-bot/core';
 import { findOrCreateUser, userExists, logCommand } from '@verse-bot/postgres';
-import { fmtRich } from 'tg-rich-messages';
 import { createVKKeyboard, createVKInlineKeyboard } from './keyboards.js';
 import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';
@@ -34,7 +32,7 @@ export interface VKBotConfig {
     caption?: string,
     extra?: UniversalReplyOptions,
   ) => Promise<void>;
-  unknownCommandPhrase?: (format: FormatFn) => RichMessage;
+  unknownCommandPhrase?: (ctx: UniversalContext) => RichMessage;
   getButtonsForUnknown?: () => { label: string; command: string }[];
 }
 
@@ -84,7 +82,6 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         chatTitle: isChat ? 'Беседа' : undefined,
         db: config.pool,
         platformApi: vk,
-        format: fmtRich,
 
         getUserProfile: async (): Promise<UserProfile | null> => {
           const [user] = await vk.api.users.get({ user_ids: [ctx.senderId] });
@@ -206,7 +203,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
             await handler(uctx);
           } else if (uctx.chatType === 'private' && config.unknownCommandPhrase) {
             const buttons = config.getButtonsForUnknown?.() ?? [];
-            await uctx.reply(config.unknownCommandPhrase(uctx.format), {
+            await uctx.reply(config.unknownCommandPhrase(uctx), {
               replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
             });
           }

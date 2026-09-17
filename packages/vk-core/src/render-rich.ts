@@ -1,4 +1,4 @@
-import type { RichDocument } from 'tg-rich-messages';
+import type { RenderableMessage } from '@verse-bot/core';
 
 function decodeHtmlEntities(text: string): string {
   return text
@@ -13,7 +13,7 @@ function stripTags(html: string): string {
   return decodeHtmlEntities(html.replace(/<[^>]+>/g, ''));
 }
 
-export function renderRich(doc: RichDocument): string {
+export function renderRich(doc: RenderableMessage): string {
   let html = doc.toHTML();
 
   /**

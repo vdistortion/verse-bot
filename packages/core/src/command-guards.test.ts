@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { fmtRich } from 'tg-rich-messages';
 import { requireAdmin, requirePrivateChat, catchErrors } from './command-guards.js';
 import type { UniversalContext } from './context.js';
+import type { FormatFn } from './types.js';
 
 function mockContext(overrides: Partial<UniversalContext> = {}): UniversalContext {
   return {
@@ -67,7 +68,7 @@ describe('catchErrors', () => {
   it('should call handler normally', async () => {
     const handler = vi.fn();
     const phrases = {
-      errorDefault: (fmt: typeof fmtRich) => fmt`custom error`,
+      errorDefault: (fmt: FormatFn) => fmt`custom error`,
     };
     const ctx = mockContext();
     const wrapped = catchErrors(handler, phrases);
@@ -78,7 +79,7 @@ describe('catchErrors', () => {
   it('should catch error and reply with error message', async () => {
     const handler = vi.fn().mockRejectedValue(new Error('oops'));
     const phrases = {
-      errorDefault: (fmt: typeof fmtRich) => fmt`custom error`,
+      errorDefault: (fmt: FormatFn) => fmt`custom error`,
     };
     const ctx = mockContext();
     const wrapped = catchErrors(handler, phrases);

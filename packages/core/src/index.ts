@@ -5,6 +5,7 @@ export type {
   UniversalReplyOptions,
   FormatFn,
   RichMessage,
+  RenderableMessage,
 } from './types.js';
 export type { UniversalContext } from './context.js';
 export { http } from './http.js';

@@ -19,9 +19,6 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "dependencies": {
-    "tg-rich-messages": "^0.2.0"
-  },
   "devDependencies": {
     "@types/pg": "^8.20.0"
   }

@@ -4,6 +4,7 @@ import { type Api, type Bot, InputFile } from 'grammy';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
+  type FormatFn,
   type RichMessage,
   type UniversalContext,
   type UniversalReplyOptions,
@@ -35,7 +36,7 @@ export interface TelegramBotConfig {
   ) => Promise<void>;
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
-  unknownCommandPhrase?: (format: typeof fmtRich) => RichMessage;
+  unknownCommandPhrase?: (format: FormatFn) => RichMessage;
 }
 
 function createTelegramExtra(extra?: UniversalReplyOptions): any {

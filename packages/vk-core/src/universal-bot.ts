@@ -5,6 +5,7 @@ import type { MessageContext } from 'vk-io';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
+  type FormatFn,
   type RichMessage,
   type UniversalContext,
   type UniversalReplyOptions,
@@ -33,7 +34,7 @@ export interface VKBotConfig {
     caption?: string,
     extra?: UniversalReplyOptions,
   ) => Promise<void>;
-  unknownCommandPhrase?: (format: typeof fmtRich) => RichMessage;
+  unknownCommandPhrase?: (format: FormatFn) => RichMessage;
   getButtonsForUnknown?: () => { label: string; command: string }[];
 }
 

@@ -1,5 +1,5 @@
 import { requireAdmin, catchErrors, type RichMessage } from '@verse-bot/core';
-import { getUserCommandLogs } from '@verse-bot/db';
+import { getUserCommandLogs } from '@verse-bot/postgres';
 import { bold } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
 import { concatRich } from '../rich-utils.js';

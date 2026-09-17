@@ -8,7 +8,7 @@ import {
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/core';
-import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
+import { findOrCreateUser, userExists, logCommand } from '@verse-bot/postgres';
 import { fmtRich } from 'tg-rich-messages';
 import { createBot } from './bot-factory.js';
 import { dbMiddleware } from './middleware/index.js';

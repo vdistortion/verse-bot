@@ -10,7 +10,7 @@ import {
   type UniversalReplyOptions,
   type UserProfile,
 } from '@verse-bot/core';
-import { findOrCreateUser, userExists, logCommand } from '@verse-bot/db';
+import { findOrCreateUser, userExists, logCommand } from '@verse-bot/postgres';
 import { fmtRich } from 'tg-rich-messages';
 import { createVKKeyboard, createVKInlineKeyboard } from './keyboards.js';
 import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';

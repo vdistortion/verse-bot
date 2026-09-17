@@ -1,5 +1,5 @@
 {
-  "name": "@verse-bot/db",
+  "name": "@verse-bot/postgres",
   "version": "0.1.0",
   "type": "module",
   "description": "Database client, user and command log repositories for Verse Bot Framework",

@@ -1,5 +1,5 @@
 import type { UniversalContext } from '@verse-bot/core';
-import { removeUser } from '@verse-bot/db';
+import { removeUser } from '@verse-bot/postgres';
 import { phrases } from '../locales/ru.js';
 
 export async function stopCommand(ctx: UniversalContext): Promise<void> {

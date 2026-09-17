@@ -1,4 +1,4 @@
-import { initPool, getPool } from '@verse-bot/db';
+import { initPool, getPool } from '@verse-bot/postgres';
 import type { UniversalContext } from '@verse-bot/core';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';

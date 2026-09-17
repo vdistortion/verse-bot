@@ -9,8 +9,7 @@
     ".": {
       "types": "./dist/index.d.ts",
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js"
     }
   },
   "files": [
@@ -24,6 +23,7 @@
   "dependencies": {
     "@verse-bot/core": "^0.1.0",
     "@verse-bot/postgres": "^0.1.0",
+    "tg-rich-messages": "^0.2.0",
     "vk-io": "^4.10.1"
   }
 }

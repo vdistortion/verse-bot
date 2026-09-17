@@ -8,7 +8,7 @@
     "dev:down": "docker compose -f apps/imp-bot/compose.yaml down",
     "dev:clean": "docker compose -f apps/imp-bot/compose.yaml down -v --rmi all",
     "prepare": "cp -n .env.example .env",
-    "build": "tsc --build",
+    "build": "tsc --build && npm run copy-migrations --workspace=@verse-bot/postgres",
     "build:miniapp": "npm run build --workspace=@verse-bot/miniapp",
     "build:release": "tsc --build tsconfig.build.json",
     "dev": "dotenv -- env tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",

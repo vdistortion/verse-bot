@@ -39,6 +39,7 @@ bot.start();
 - `buttons` – button mappings
 - `contentCommand?` – handler for `/content_<N>`
 - `userLogCommand?` – handler for `/userlog_<N>`
+- `unknownCommandPhrase?`, `getButtonsForUnknown?` – optional response for unknown private-chat messages
 - `onReplyWithPhoto?` – custom photo sending
 - `contentDir?` – path to content folder
 

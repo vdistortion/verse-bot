@@ -37,6 +37,7 @@ export interface TelegramBotConfig {
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
   unknownCommandPhrase?: (ctx: UniversalContext) => RichMessage;
+  getButtonsForUnknown?: () => { label: string; command: string }[];
 }
 
 function createTelegramExtra(extra?: UniversalReplyOptions): any {
@@ -278,7 +279,10 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       if (config.buttons.some((b) => b.label === text)) return next();
 
       // Неизвестная команда – отвечаем фразой
-      await uctx.reply(config.unknownCommandPhrase!(uctx));
+      const buttons = config.getButtonsForUnknown?.() ?? [];
+      await uctx.reply(config.unknownCommandPhrase!(uctx), {
+        replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
+      });
       await next();
     });
   }

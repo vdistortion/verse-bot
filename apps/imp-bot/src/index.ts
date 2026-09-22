@@ -85,6 +85,7 @@ if (TELEGRAM_BOT_TOKEN) {
     userLogCommand: userLogCommand,
     contentDir: CONTENT_DIR,
     unknownCommandPhrase: phrases.unknownCommand,
+    getButtonsForUnknown: () => getButtons(false),
   });
   botsToStart.push({ name: 'Telegram', start: () => tgBot.start() });
 }

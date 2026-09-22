@@ -54,6 +54,21 @@ const uniqueButtonsForRegistration = Array.from(
 
 const botsToStart: { name: string; start: () => Promise<void> }[] = [];
 
+const commonCommands = {
+  start: startCommand,
+  cat: catCommand,
+  quote: quoteCommand,
+  advice: adviceCommand,
+  random: randomCommand,
+  help: helpCommand,
+  stop: stopCommand,
+  id: idCommand,
+  mylog: myLogCommand,
+  admin: adminCommand,
+  list_users: listUsersCommand,
+  stats: statsCommand,
+};
+
 // Telegram
 if (TELEGRAM_BOT_TOKEN) {
   const tgBot = createUniversalTelegramBot({
@@ -61,20 +76,9 @@ if (TELEGRAM_BOT_TOKEN) {
     database,
     adminId: TELEGRAM_ADMIN_ID,
     commands: {
-      start: startCommand,
-      cat: catCommand,
-      quote: quoteCommand,
-      advice: adviceCommand,
-      random: randomCommand,
-      help: helpCommand,
-      stop: stopCommand,
-      id: idCommand,
-      mylog: myLogCommand,
-      admin: adminCommand,
+      ...commonCommands,
       backupdb: backupDbCommand,
       backupfiles: backupFilesCommand,
-      list_users: listUsersCommand,
-      stats: statsCommand,
     },
     buttons: uniqueButtonsForRegistration,
     contentCommand: contentCommand,
@@ -93,20 +97,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     adminId: VK_ADMIN_ID,
     database,
     contentDir: CONTENT_DIR,
-    commands: {
-      start: startCommand,
-      cat: catCommand,
-      quote: quoteCommand,
-      advice: adviceCommand,
-      random: randomCommand,
-      help: helpCommand,
-      stop: stopCommand,
-      id: idCommand,
-      mylog: myLogCommand,
-      admin: adminCommand,
-      list_users: listUsersCommand,
-      stats: statsCommand,
-    },
+    commands: commonCommands,
     buttons: uniqueButtonsForRegistration,
     contentCommand: contentCommand,
     userLogCommand: userLogCommand,

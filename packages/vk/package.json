@@ -3,7 +3,20 @@
   "version": "0.1.0",
   "type": "module",
   "license": "Apache-2.0",
+  "author": "Valentin <https://github.com/vdistortion>",
   "description": "VK bot adapter based on vk-io for Verse Bot Framework",
+  "homepage": "https://verse-bot.zvalentin.com",
+  "bugs": {
+    "url": "https://github.com/vdistortion/verse-bot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vdistortion/verse-bot.git",
+    "directory": "packages/vk"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "types": "dist/index.d.ts",
   "exports": {
     ".": {

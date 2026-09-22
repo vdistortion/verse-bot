@@ -3,7 +3,17 @@
   "version": "0.1.0",
   "type": "module",
   "license": "Apache-2.0",
+  "author": "Valentin <https://github.com/vdistortion>",
   "description": "CLI to scaffold a new Verse Bot project",
+  "homepage": "https://verse-bot.zvalentin.com",
+  "bugs": {
+    "url": "https://github.com/vdistortion/verse-bot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vdistortion/verse-bot.git",
+    "directory": "packages/create-verse-bot"
+  },
   "main": "dist/index.js",
   "bin": {
     "create-verse-bot": "./dist/index.js"

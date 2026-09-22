@@ -22,7 +22,7 @@
     "lint:fix": "eslint . --fix",
     "lint:ci": "eslint .",
     "test": "vitest run",
-    "test:packages": "node tools/smoke-test-packages.mjs"
+    "test:packages": "node tools/smoke-test-package-boundaries.mjs && node tools/smoke-test-packages.mjs"
   },
   "prettier": {
     "singleQuote": true,

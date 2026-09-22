@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Handle inline keyboard callbacks in `createUniversalVKBot` through the universal command dispatcher.
 - Renamed the package from `@verse-bot/vk-core` to `@verse-bot/vk`.
 - Made the package ESM-only and removed the source export.
 - Made PostgreSQL integration optional through the neutral `BotDatabase` contract.

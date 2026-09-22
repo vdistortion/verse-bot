@@ -4,4 +4,4 @@
 
 Write commands once — run on Telegram and VK.
 
-📖 [Documentation](https://vdistortion.github.io/verse-bot)
+📖 [Documentation](https://verse-bot.zvalentin.com)

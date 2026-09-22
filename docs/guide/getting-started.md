@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - PostgreSQL (optional, required for user persistence)
 
 ## Installation

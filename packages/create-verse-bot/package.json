@@ -2,6 +2,7 @@
   "name": "create-verse-bot",
   "version": "0.1.0",
   "type": "module",
+  "license": "Apache-2.0",
   "description": "CLI to scaffold a new Verse Bot project",
   "main": "dist/index.js",
   "bin": {
@@ -9,7 +10,8 @@
   },
   "files": [
     "template",
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc",

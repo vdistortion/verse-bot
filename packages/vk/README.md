@@ -47,3 +47,7 @@ bot.start();
 ## VKBot
 
 Exposes `request(method, params)` for VK API calls and `sendMessage`.
+
+## License
+
+Apache-2.0

@@ -1,38 +1,40 @@
 # Configuration
 
-## Переменные окружения
+## Environment variables
 
-Скопируйте `.env.example` в `.env` и заполните:
+Copy `.env.example` to `.env` and fill in the values:
 
-| Переменная           | Описание                                | Обязательно? |
-| -------------------- | --------------------------------------- | ------------ |
-| `TELEGRAM_BOT_TOKEN` | Токен Telegram-бота                     | для TG       |
-| `VK_GROUP_TOKEN`     | Токен группы ВКонтакте                  | для VK       |
-| `VK_GROUP_ID`        | ID группы ВК                            | для VK       |
-| `TELEGRAM_ADMIN_ID`  | Telegram ID администратора              | опционально  |
-| `VK_ADMIN_ID`        | VK ID администратора                    | опционально  |
-| `PUBLIC_URL`         | Публичный URL для статики (изображений) | опционально  |
-| `POSTGRES_*`         | Параметры подключения к БД              | да           |
+| Variable             | Description                    | Required     |
+| -------------------- | ------------------------------ | ------------ |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token             | For Telegram |
+| `VK_GROUP_TOKEN`     | VK group token                 | For VK       |
+| `VK_GROUP_ID`        | VK group ID                    | With VK      |
+| `TELEGRAM_ADMIN_ID`  | Telegram administrator ID      | Optional     |
+| `VK_ADMIN_ID`        | VK administrator ID            | Optional     |
+| `PUBLIC_URL`         | Public URL for static content  | Optional     |
+| `POSTGRES_*`         | PostgreSQL connection settings | Yes          |
 
-## Параметры фабрик
+At least one platform token must be configured. `VK_GROUP_ID` is required when `VK_GROUP_TOKEN` is set.
 
-**TelegramBotConfig**:
+## Factory options
 
-- `token` — строка
-- `adminId` — number
-- `commands` — объект «имя команды → функция-обработчик»
-- `buttons` — массив `{ command, label }` для регистрации кнопок
-- `contentCommand`, `userLogCommand` — опциональные обработчики динамических команд
-- `onReplyWithPhoto` — можно переопределить отправку фото
-- `contentDir` — папка для поиска локальных изображений
+### `TelegramBotConfig`
 
-**VKBotConfig**:
+- `token` — bot token;
+- `adminId` — optional administrator ID;
+- `commands` — a map of command names to handlers;
+- `buttons` — button definitions with `command` and `label`;
+- `contentCommand` and `userLogCommand` — optional dynamic command handlers;
+- `database` — optional `BotDatabase` integration;
+- `onReplyWithPhoto` and `contentDir` — optional content delivery settings;
+- `unknownCommandPhrase` and `getButtonsForUnknown` — optional unknown-command response settings.
 
-- `token`, `groupId`, `adminId`
-- `commands`, `buttons` (аналогично TG)
-- `contentCommand`, `userLogCommand`
-- `onReplyWithPhoto`
-- `pool` — пул БД (обязательно)
-- `unknownCommandPhrase`, `getButtonsForUnknown` — для ответа на нераспознанные сообщения
+### `VKBotConfig`
 
-Оба конфига позволяют гибко настраивать поведение без правки исходников фреймворка.
+- `token`, `groupId` and optional `adminId`;
+- `commands` and `buttons`, shared with Telegram;
+- `contentCommand` and `userLogCommand` — optional dynamic command handlers;
+- `database` — optional `BotDatabase` integration;
+- `onReplyWithPhoto`, `unknownCommandPhrase` and `getButtonsForUnknown` — optional response settings.
+
+Both factories provide the shared behavior while leaving platform-specific API details inside their adapters.

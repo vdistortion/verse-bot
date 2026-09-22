@@ -2,6 +2,7 @@
   "name": "@verse-bot/postgres",
   "version": "0.1.0",
   "type": "module",
+  "license": "Apache-2.0",
   "description": "Database client, user and command log repositories for Verse Bot Framework",
   "types": "dist/index.d.ts",
   "exports": {
@@ -12,7 +13,8 @@
   },
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc && npm run copy-migrations",

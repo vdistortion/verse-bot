@@ -11,7 +11,8 @@ await telegramApi.init({
   onBack: () => window.history.back(),
 });
 
-telegramApi.showMainButton('Submit');
+telegramApi.mainButton.show('Submit');
+telegramApi.mainButton.onClick(() => submit());
 ```
 
 ## Angular
@@ -23,8 +24,8 @@ import { TelegramApiService } from '@verse-bot/miniapp/angular';
 export class AppComponent {
   private tg = inject(TelegramApiService);
 
-  ngOnInit() {
-    this.tg.init();
+  async ngOnInit() {
+    await this.tg.init();
   }
 }
 ```

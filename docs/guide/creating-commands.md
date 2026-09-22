@@ -1,45 +1,48 @@
 # Creating Commands
 
-Команды в Verse – это асинхронные функции, принимающие `UniversalContext`. Они хранятся в `apps/bot/src/commands/` и регистрируются в фабриках ботов.
+Commands are asynchronous functions that receive a `UniversalContext`. Keep them in `src/commands/` and register them in the bot factory configuration.
 
-## Простая команда
+## A simple command
 
-Создайте файл `apps/bot/src/commands/hello.ts`:
+Create `src/commands/hello.ts`:
 
 ```ts
 import type { UniversalContext } from '@verse-bot/core';
 
-export async function helloCommand(ctx: UniversalContext) {
-  await ctx.reply(ctx.format`Привет, ${ctx.firstName ?? 'гость'}!`);
+export async function helloCommand(ctx: UniversalContext): Promise<void> {
+  await ctx.reply('Hello!');
 }
 ```
 
-Добавьте её в `apps/bot/src/commands/index.ts`:
+Register it in the command map:
 
 ```ts
-export { helloCommand } from './hello';
+const commands = {
+  hello: helloCommand,
+};
 ```
 
-Затем зарегистрируйте в `apps/bot/src/index.ts` (в объекте `commands` фабрики) и кнопку (если нужна).
+Pass the map to both platform factories when the command should work on Telegram and VK.
 
-## Форматирование
+## Formatting
 
-Используйте тегированный шаблон `ctx.format`, который автоматически форматирует разметку для Telegram и оставляет обычный текст для VK. Можно использовать токены:
+`@verse-bot/core` accepts strings and neutral `RichMessage` values. Telegram formatting and rich-message conversion remain the responsibility of the application, so a shared command can start with a plain string:
 
 ```ts
-ctx.format`${bold('Жирный текст')}`;
-ctx.format`${link('Нажми', 'https://example.com')}`;
+await ctx.reply('Hello!');
 ```
 
-## Изображения
+For rich Telegram messages, use [`tg-rich-messages`](https://www.npmjs.com/package/tg-rich-messages), a platform-independent HTML message builder. The source code and examples are available on [GitHub](https://github.com/vdistortion/tg-rich-messages). It is the successor to the earlier `@verse-bot/md-format` package and is intentionally kept outside the engine.
 
-Если бот должен отправлять фото, можно использовать `ctx.replyWithPhoto` (может отсутствовать, проверьте через `if (ctx.replyWithPhoto)`).
+## Images and files
 
-## Клавиатуры
+Use `ctx.replyWithPhoto` or `ctx.replyWithFile` when the adapter supports the operation. Check that the method exists before calling it because support depends on the platform and configuration.
 
-Для создания клавиатур используйте:
+## Keyboards
 
-- Telegram: `createTelegramKeyboard` из `@verse-bot/telegram`.
-- VK: `createVKKeyboard` из `@verse-bot/vk`.
+Use the platform helpers when you need a native keyboard:
 
-Примеры смотрите в команде startCommand.
+- Telegram: `createTelegramKeyboard` or `createTelegramInlineKeyboard` from `@verse-bot/telegram`;
+- VK: `createVKKeyboard` or `createVKInlineKeyboard` from `@verse-bot/vk`.
+
+For shared bot configuration, pass `UniversalKeyboardButton[][]` through the adapter options and let the adapter render it for the target platform.

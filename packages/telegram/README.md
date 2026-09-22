@@ -5,7 +5,7 @@ Telegram adapter based on [GrammY](https://grammy.dev/) for Verse Bot Framework.
 ## Install
 
 ```bash
-npm install @verse-bot/telegram grammy
+npm install @verse-bot/telegram
 ```
 
 ## Usage
@@ -47,3 +47,7 @@ bot.start();
 
 - `database` is optional. Pass a database integration such as `createPostgresDatabase(pool)` when user persistence and command logging are needed.
 - `loggerMiddleware` – logs incoming messages
+
+## License
+
+Apache-2.0

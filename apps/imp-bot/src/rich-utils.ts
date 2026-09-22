@@ -1,10 +1,17 @@
-import type { FormatFn, RichMessage } from '@verse-bot/core';
+import type { RichMessage } from '@verse-bot/core';
 import { doc, type RichDocument } from 'tg-rich-messages';
+import type { BotFormat } from './format.js';
 
-export function concatRich(fmt: FormatFn, parts: readonly RichMessage[]): RichDocument {
+export function concatRich(fmt: BotFormat, parts: readonly RichMessage[]): RichMessage {
+  const formatted = parts.map((part) => (typeof part === 'string' ? fmt`${part}` : part));
+
+  if (formatted.every((part): part is string => typeof part === 'string')) {
+    return formatted.join('');
+  }
+
   return doc(
-    ...parts.flatMap((part) => {
-      const rich = typeof part === 'string' ? fmt`${part}` : part;
+    ...formatted.flatMap((part) => {
+      const rich = part as RichDocument;
       return [...rich.blocks];
     }),
   );

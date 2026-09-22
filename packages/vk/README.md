@@ -1,0 +1,53 @@
+# @verse-bot/vk
+
+VKontakte adapter (Long Poll API) for Verse Bot Framework.
+
+## Install
+
+```bash
+npm install @verse-bot/vk
+```
+
+## Usage
+
+```ts
+import { createUniversalVKBot } from '@verse-bot/vk';
+import { createPostgresDatabase, getPool } from '@verse-bot/postgres';
+
+const bot = createUniversalVKBot({
+  token: '...',
+  groupId: 123456789,
+  database: createPostgresDatabase(getPool()),
+  commands: {
+    start: async (ctx) => {
+      await ctx.reply('Hello!');
+    },
+  },
+  buttons: [{ command: 'start', label: 'Start' }],
+});
+
+bot.start();
+```
+
+## API
+
+`createUniversalVKBot(config: VKBotConfig)` returns a `VKBot` instance.
+
+### VKBotConfig
+
+- `token` – group token
+- `groupId` – group ID
+- `adminId?` – VK admin ID
+- `database?` – optional database integration, for example `createPostgresDatabase(pool)` from `@verse-bot/postgres`
+- `commands`, `buttons` – same as Telegram
+- `contentCommand?`, `userLogCommand?`
+- `onReplyWithPhoto?`
+- `unknownCommandPhrase?`, `getButtonsForUnknown?`
+
+## VKBot
+
+Exposes `request(method, params)` for VK API calls and `sendMessage`.
+
+## License
+
+Apache-2.0

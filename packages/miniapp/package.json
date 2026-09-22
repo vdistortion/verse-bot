@@ -13,7 +13,7 @@
     "bot",
     "verse-bot"
   ],
-  "homepage": "https://verse-bot.zvalentin.ru",
+  "homepage": "https://verse-bot.zvalentin.com",
   "bugs": {
     "url": "https://github.com/vdistortion/verse-bot/issues"
   },
@@ -42,10 +42,10 @@
     }
   },
   "devDependencies": {
-    "@angular/core": "^22.0.2",
-    "ng-packagr": "^22.0.0"
+    "@angular/core": "^22.1.7",
+    "ng-packagr": "^22.1.1"
   },
   "dependencies": {
-    "@tma.js/sdk": "^3.2.3"
+    "@tma.js/sdk": "^3.3.0"
   }
 }

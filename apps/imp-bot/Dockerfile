@@ -1,10 +1,12 @@
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY packages/core/package.json ./packages/core/
-COPY packages/db/package.json ./packages/db/
-COPY packages/tg-core/package.json ./packages/tg-core/
-COPY packages/vk-core/package.json ./packages/vk-core/
+COPY packages/create-verse-bot/package.json ./packages/create-verse-bot/
+COPY packages/miniapp/package.json ./packages/miniapp/
+COPY packages/postgres/package.json ./packages/postgres/
+COPY packages/telegram/package.json ./packages/telegram/
+COPY packages/vk/package.json ./packages/vk/
 COPY apps/imp-bot/package.json ./apps/imp-bot/
 RUN npm ci --ignore-scripts
 COPY tsconfig*.json ./
@@ -12,19 +14,19 @@ COPY packages/ ./packages/
 COPY apps/imp-bot/ ./apps/imp-bot/
 RUN npm run build:release
 
-FROM node:22-alpine
+FROM node:24-alpine
 RUN apk add --no-cache postgresql-client
 WORKDIR /app
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/core/package.json ./packages/core/
 COPY --from=builder /app/packages/core/dist ./packages/core/dist
-COPY --from=builder /app/packages/db/package.json ./packages/db/
-COPY --from=builder /app/packages/db/dist ./packages/db/dist
-COPY --from=builder /app/packages/tg-core/package.json ./packages/tg-core/
-COPY --from=builder /app/packages/tg-core/dist ./packages/tg-core/dist
-COPY --from=builder /app/packages/vk-core/package.json ./packages/vk-core/
-COPY --from=builder /app/packages/vk-core/dist ./packages/vk-core/dist
+COPY --from=builder /app/packages/postgres/package.json ./packages/postgres/
+COPY --from=builder /app/packages/postgres/dist ./packages/postgres/dist
+COPY --from=builder /app/packages/telegram/package.json ./packages/telegram/
+COPY --from=builder /app/packages/telegram/dist ./packages/telegram/dist
+COPY --from=builder /app/packages/vk/package.json ./packages/vk/
+COPY --from=builder /app/packages/vk/dist ./packages/vk/dist
 COPY --from=builder /app/apps/imp-bot/package.json ./apps/imp-bot/
 COPY --from=builder /app/apps/imp-bot/dist ./apps/imp-bot/dist
 CMD ["node", "apps/imp-bot/dist/index.js"]

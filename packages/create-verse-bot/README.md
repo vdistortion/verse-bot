@@ -32,3 +32,7 @@ npm run dev            # start in dev mode
 - `src/env.ts` – typed environment variables
 - `compose.yaml`, `compose.release.yaml` – dev and production containers
 - `.env.example` – environment variables template
+
+## License
+
+Apache-2.0

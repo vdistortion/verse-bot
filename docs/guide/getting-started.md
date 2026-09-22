@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - PostgreSQL (optional, required for user persistence)
 
 ## Installation
@@ -25,10 +25,7 @@ cp .env.example .env
 
 ```bash
 npm run dev
-
-# Telegram only
-npm run dev:tg
-
-# VK only
-npm run dev:vk
 ```
+
+The example app starts every bot whose token is configured in `.env`. To run only
+Telegram or only VK, fill in the corresponding token and leave the other one empty.

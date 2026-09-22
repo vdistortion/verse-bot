@@ -1,0 +1,33 @@
+{
+  "name": "@verse-bot/postgres",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Database client, user and command log repositories for Verse Bot Framework",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc && npm run copy-migrations",
+    "copy-migrations": "node scripts/copy-migrations.mjs",
+    "dev": "tsc --watch",
+    "lint": "tsc --noemit"
+  },
+  "dependencies": {
+    "@verse-bot/core": "^0.1.0",
+    "pg": "^8.23.0",
+    "postgrator": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}

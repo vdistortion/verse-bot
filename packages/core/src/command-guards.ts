@@ -1,9 +1,9 @@
 import type { UniversalContext } from './context.js';
-import type { FormatFn, RichMessage } from './types.js';
+import type { RichMessage } from './types.js';
 
 export type CommandHandler = (ctx: UniversalContext, ...args: any[]) => Promise<void>;
 export interface Phrases {
-  errorDefault: (format: FormatFn) => RichMessage;
+  errorDefault: (ctx: UniversalContext) => RichMessage;
 }
 
 export function requireAdmin(handler: CommandHandler) {
@@ -27,7 +27,7 @@ export function catchErrors(handler: CommandHandler, phrases: Phrases) {
       return await handler(ctx, ...args);
     } catch (err) {
       console.error('Command error:', err);
-      await ctx.replySafe(phrases.errorDefault(ctx.format));
+      await ctx.replySafe(phrases.errorDefault(ctx));
     }
   };
 }

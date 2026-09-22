@@ -1,5 +1,6 @@
 import type { UniversalContext } from '@verse-bot/core';
 import { getButtons, phrases } from '../locales/ru.js';
+import { formatFor } from '../format.js';
 
 export async function startCommand(ctx: UniversalContext) {
   const profile = await ctx.getUserProfile();
@@ -13,11 +14,14 @@ export async function startCommand(ctx: UniversalContext) {
   }
 
   if (ctx.chatType === 'private') {
-    await ctx.replySafe(phrases.start.personal(ctx.format, profile?.firstName ?? 'гость'), {
-      replyKeyboard: universalKeyboard,
-    });
+    await ctx.replySafe(
+      phrases.start.personal(formatFor(ctx.platform), profile?.firstName ?? 'гость'),
+      {
+        replyKeyboard: universalKeyboard,
+      },
+    );
   } else {
-    await ctx.replySafe(phrases.start.group(ctx.format, ctx.chatTitle ?? 'группа'), {
+    await ctx.replySafe(phrases.start.group(formatFor(ctx.platform), ctx.chatTitle ?? 'группа'), {
       inlineKeyboard: universalKeyboard,
     });
   }

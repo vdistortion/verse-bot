@@ -6,7 +6,9 @@ node_modules
 .env*
 docs
 data
-packages/miniapp
-packages/create-verse-bot
+packages/miniapp/*
+!packages/miniapp/package.json
+packages/create-verse-bot/*
+!packages/create-verse-bot/package.json
 tools
 *.md

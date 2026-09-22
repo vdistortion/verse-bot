@@ -1,5 +1,6 @@
 {
   "name": "verse-bot-monorepo",
+  "version": "0.0.0",
   "description": "Universal bot framework – write commands once, run on Telegram and VK",
   "private": true,
   "type": "module",
@@ -8,7 +9,7 @@
     "dev:down": "docker compose -f apps/imp-bot/compose.yaml down",
     "dev:clean": "docker compose -f apps/imp-bot/compose.yaml down -v --rmi all",
     "prepare": "cp -n .env.example .env",
-    "build": "tsc --build",
+    "build": "tsc --build && npm run copy-migrations --workspace=@verse-bot/postgres",
     "build:miniapp": "npm run build --workspace=@verse-bot/miniapp",
     "build:release": "tsc --build tsconfig.build.json",
     "dev": "dotenv -- env tsx watch --watch=packages --conditions=source apps/imp-bot/src/index.ts",
@@ -20,8 +21,9 @@
     "format": "prettier . --write",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:ci": "eslint . --max-warnings 0",
-    "test": "vitest run"
+    "lint:ci": "eslint .",
+    "test": "vitest run",
+    "test:packages": "node tools/smoke-test-package-boundaries.mjs && node tools/smoke-test-packages.mjs"
   },
   "prettier": {
     "singleQuote": true,
@@ -37,20 +39,17 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/debug": "^4.1.13",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.6.2",
     "debug": "^4.4.3",
     "dotenv-cli": "^11.0.0",
-    "eslint": "^10.5.0",
+    "eslint": "^10.11.0",
     "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.7.0",
-    "prettier": "^3.8.4",
-    "tsx": "^4.22.4",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.8",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.1",
+    "typescript-eslint": "^8.70.1",
     "vitepress": "^1.6.4",
-    "vitest": "^4.1.9"
-  },
-  "dependencies": {
-    "tg-rich-messages": "^0.2.0"
+    "vitest": "^5.0.1"
   }
 }

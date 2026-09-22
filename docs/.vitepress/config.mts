@@ -7,7 +7,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Packages', link: '/packages/miniapp' },
+      { text: 'Packages', link: '/packages/' },
     ],
     sidebar: {
       '/guide/': [
@@ -24,6 +24,20 @@ export default defineConfig({
           items: [
             { text: 'Creating Commands', link: '/guide/creating-commands' },
             { text: 'Configuration', link: '/guide/configuration' },
+          ],
+        },
+      ],
+      '/packages/': [
+        {
+          text: 'Packages',
+          items: [
+            { text: 'Overview', link: '/packages/' },
+            { text: 'Core', link: '/packages/core' },
+            { text: 'PostgreSQL', link: '/packages/postgres' },
+            { text: 'Telegram', link: '/packages/telegram' },
+            { text: 'VK', link: '/packages/vk' },
+            { text: 'Mini App', link: '/packages/miniapp' },
+            { text: 'CLI', link: '/packages/create-verse-bot' },
           ],
         },
       ],

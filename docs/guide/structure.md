@@ -6,9 +6,9 @@
 │   └── imp-bot/                 # Example bot (uses the framework)
 ├── packages/
 │   ├── core/                    # @verse-bot/core – types, context, middleware
-│   ├── db/                      # @verse-bot/db – PostgreSQL helpers, migrations
-│   ├── tg-core/                 # @verse-bot/tg-core – Telegram adapter (GrammY)
-│   ├── vk-core/                 # @verse-bot/vk-core – VK adapter (Long Poll API)
+│   ├── postgres/                # @verse-bot/postgres – PostgreSQL helpers, migrations
+│   ├── telegram/                # @verse-bot/telegram – Telegram adapter (GrammY)
+│   ├── vk/                      # @verse-bot/vk – VK adapter (Long Poll API)
 │   ├── miniapp/                 # @verse-bot/miniapp – Telegram Mini App utilities
 │   └── create-verse-bot/        # CLI for generating new projects
 └── docs/                        # Documentation (VitePress)

@@ -52,19 +52,19 @@ async function main() {
 
   deps['@verse-bot/core'] = resolvePackage('@verse-bot/core');
   if (platforms.includes('telegram')) {
-    deps['@verse-bot/tg-core'] = resolvePackage('@verse-bot/tg-core');
+    deps['@verse-bot/telegram'] = resolvePackage('@verse-bot/telegram');
   }
   if (platforms.includes('vk')) {
-    deps['@verse-bot/vk-core'] = resolvePackage('@verse-bot/vk-core');
+    deps['@verse-bot/vk'] = resolvePackage('@verse-bot/vk');
   }
 
   pkg.dependencies = { ...pkg.dependencies, ...deps };
   // Удаляем лишние зависимости, если платформа не выбрана
   if (!platforms.includes('telegram')) {
-    delete pkg.dependencies['@verse-bot/tg-core'];
+    delete pkg.dependencies['@verse-bot/telegram'];
   }
   if (!platforms.includes('vk')) {
-    delete pkg.dependencies['@verse-bot/vk-core'];
+    delete pkg.dependencies['@verse-bot/vk'];
   }
   fs.writeJsonSync(pkgPath, pkg, { spaces: 2 });
 

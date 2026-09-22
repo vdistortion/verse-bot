@@ -5,7 +5,7 @@ hero:
   text: Universal bot
   tagline: Write commands once — run on Telegram and VK
   image:
-    src: https://raw.githubusercontent.com/vdistortion/verse-bot/release/assets/branding/preview.jpg
+    src: https://raw.githubusercontent.com/vdistortion/verse-bot/main/assets/branding/preview.jpg
     alt: Verse Bot preview
   actions:
     - theme: brand

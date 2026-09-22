@@ -17,6 +17,10 @@ const schema = z
   })
   .refine((d) => d.TELEGRAM_BOT_TOKEN || d.VK_GROUP_TOKEN, {
     message: 'At least one of TELEGRAM_BOT_TOKEN or VK_GROUP_TOKEN must be set',
+  })
+  .refine((d) => !d.VK_GROUP_TOKEN || d.VK_GROUP_ID !== undefined, {
+    message: 'VK_GROUP_ID must be set when VK_GROUP_TOKEN is configured',
+    path: ['VK_GROUP_ID'],
   });
 
 const result = schema.safeParse(process.env);

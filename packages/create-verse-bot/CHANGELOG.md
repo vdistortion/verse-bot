@@ -15,3 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--local` flag for framework development.
 - Updated the generated Docker template to Node.js 24.
 - Added the Apache-2.0 package metadata.
+- Generated projects include only the selected bot adapters.
+- Generated projects use the `database` adapter option for optional PostgreSQL persistence.
+- Added a programmatic project-generation API for smoke testing.

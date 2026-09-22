@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { readFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -36,6 +37,12 @@ try {
     assert.equal(source.includes('@verse-bot:vk:'), false);
     assert.equal(source.includes('pool,'), false);
     assert.equal(source.includes('database,'), true);
+
+    execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], {
+      cwd: projectDir,
+      stdio: 'inherit',
+    });
+    execFileSync('npm', ['run', 'build'], { cwd: projectDir, stdio: 'inherit' });
   }
 
   console.log('CLI generation smoke test passed');

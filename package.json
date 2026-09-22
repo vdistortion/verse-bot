@@ -23,7 +23,8 @@
     "lint:fix": "eslint . --fix",
     "lint:ci": "eslint .",
     "test": "vitest run",
-    "test:packages": "node tools/smoke-test-package-boundaries.mjs && node tools/smoke-test-packages.mjs && node tools/smoke-test-cli.mjs"
+    "test:packages": "node tools/smoke-test-package-boundaries.mjs && node tools/smoke-test-packages.mjs",
+    "test:cli": "npm run build && node tools/smoke-test-cli.mjs"
   },
   "prettier": {
     "singleQuote": true,

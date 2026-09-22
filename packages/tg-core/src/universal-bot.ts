@@ -4,6 +4,7 @@ import { type Api, type Bot, InputFile } from 'grammy';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
+  dispatchUniversalCommand,
   type BotDatabase,
   type RichMessage,
   type UniversalContext,
@@ -222,26 +223,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       const callbackData = ctx.callbackQuery.data;
       const commandName = callbackData.startsWith('/') ? callbackData.slice(1) : callbackData;
 
-      const handler = config.commands[commandName];
-      if (handler) {
-        await handler(uctx);
-      } else {
-        const contentMatch = commandName.match(/^content_(\d+)$/i);
-        if (contentMatch && config.contentCommand) {
-          const itemNumber = parseInt(contentMatch[1], 10);
-          if (!isNaN(itemNumber) && itemNumber > 0) {
-            await config.contentCommand(uctx, itemNumber);
-          }
-        } else if (commandName.startsWith('userlog_') && config.userLogCommand) {
-          const userlogMatch = commandName.match(/^userlog_(\d+)$/i);
-          if (userlogMatch) {
-            const userId = parseInt(userlogMatch[1], 10);
-            if (!isNaN(userId)) {
-              await config.userLogCommand(uctx, userId);
-            }
-          }
-        }
-      }
+      await dispatchUniversalCommand(uctx, commandName, config);
     } catch (err) {
       console.error('[Telegram] callback_query handler error:', err);
     } finally {

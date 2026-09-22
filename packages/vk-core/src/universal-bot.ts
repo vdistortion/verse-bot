@@ -4,6 +4,7 @@ import type { MessageContext } from 'vk-io';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
+  dispatchUniversalCommand,
   type RichMessage,
   type BotDatabase,
   type UniversalContext,
@@ -186,20 +187,8 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       const runCommand = async () => {
           const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
 
-          const cmd = commandToExecute ?? text;
-          const contentMatch = cmd.match(/^\/?content_(\d+)$/i);
-          if (contentMatch && config.contentCommand) {
-            return config.contentCommand(uctx, parseInt(contentMatch[1], 10));
-          }
-          const logMatch = cmd.match(/^\/?userlog_(\d+)$/i);
-          if (logMatch && config.userLogCommand) {
-            return config.userLogCommand(uctx, parseInt(logMatch[1], 10));
-          }
-
-          const handler = config.commands[commandToExecute || ''];
-          if (handler) {
-            await handler(uctx);
-          } else if (uctx.chatType === 'private' && config.unknownCommandPhrase) {
+          const handled = await dispatchUniversalCommand(uctx, commandToExecute ?? text, config);
+          if (!handled && uctx.chatType === 'private' && config.unknownCommandPhrase) {
             const buttons = config.getButtonsForUnknown?.() ?? [];
             await uctx.reply(config.unknownCommandPhrase(uctx), {
               replyKeyboard: buttons.length > 0 ? [buttons] : undefined,

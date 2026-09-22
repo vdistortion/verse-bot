@@ -179,11 +179,11 @@ Returns `EnvironmentProviders` to be used in `providers` array. Accepts optional
 
 ## Compatibility
 
-| Dependency      | Version           |
-| --------------- | ----------------- |
-| `@tma.js/sdk`   | `^3.x`            |
-| `@angular/core` | `>=16` (optional) |
-| Node.js         | `>=18`            |
+| Dependency      | Version                       |
+| --------------- | ----------------------------- |
+| `@tma.js/sdk`   | `^3.x`                        |
+| `@angular/core` | `>=16` (optional)             |
+| Node.js         | `>=24.15` (build environment) |
 
 ## License
 

@@ -1,10 +1,11 @@
 import type { Api } from 'grammy';
 import { requireAdmin, catchErrors, type UserProfile, type RichMessage } from '@verse-bot/core';
-import { getAllUsers, type DbUser } from '@verse-bot/db';
-import type { VKBot } from '@verse-bot/vk-core';
+import { getAllUsers, type DbUser } from '@verse-bot/postgres';
+import type { VKBot } from '@verse-bot/vk';
 import { link, bold } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
 import { concatRich } from '../rich-utils.js';
+import { formatFor } from '../format.js';
 
 function formatDate(dateStr: string): string {
   // Форматируем дату без информации о часовом поясе, чтобы избежать скобок
@@ -21,17 +22,17 @@ function formatDate(dateStr: string): string {
 
 export const listUsersCommand = requireAdmin(
   catchErrors(async (ctx) => {
-    await ctx.replySafe(ctx.format`Загружаю список пользователей...`);
+    await ctx.replySafe(formatFor(ctx.platform)`Загружаю список пользователей...`);
 
     const users: DbUser[] = await getAllUsers();
 
     if (users.length === 0) {
-      await ctx.replySafe(ctx.format`В базе данных нет активных пользователей.`);
+      await ctx.replySafe(formatFor(ctx.platform)`В базе данных нет активных пользователей.`);
       return;
     }
 
     const messageParts: RichMessage[] = [
-      ctx.format`${bold(`👥 Список активных пользователей (${users.length}):`)}\n\n`,
+      formatFor(ctx.platform)`${bold(`👥 Список активных пользователей (${users.length}):`)}\n\n`,
     ];
 
     for (const user of users) {
@@ -45,7 +46,9 @@ export const listUsersCommand = requireAdmin(
             lastName: tgChat.last_name,
             username: tgChat.username,
           };
-        } catch {}
+        } catch {
+          // Telegram profile is optional.
+        }
       } else if (user.vk_id && ctx.platform === 'vk' && ctx.platformApi) {
         const api = ctx.platformApi as VKBot;
         try {
@@ -61,7 +64,9 @@ export const listUsersCommand = requireAdmin(
               username: vkUser.screen_name,
             };
           }
-        } catch {}
+        } catch {
+          // VK profile is optional.
+        }
       }
 
       if (!profile) {
@@ -88,11 +93,13 @@ export const listUsersCommand = requireAdmin(
       const isTg = ctx.platform === 'telegram';
       const namePart = profileUrl ? link(fullName, profileUrl) : isTg ? bold(fullName) : fullName;
       messageParts.push(
-        ctx.format`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`,
+        formatFor(
+          ctx.platform,
+        )`• ${namePart}\n  ${platform} id: ${platformId}\n  Зарегистрирован: ${registeredAt}\n  Последняя активность: ${lastActivity}\n  /userlog_${String(user.id)}\n\n`,
       );
     }
 
-    await ctx.replySafe(concatRich(ctx.format, messageParts), {
+    await ctx.replySafe(concatRich(formatFor(ctx.platform), messageParts), {
       link_preview_options: { is_disabled: true },
     });
   }, phrases),

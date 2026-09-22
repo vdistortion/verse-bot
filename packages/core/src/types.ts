@@ -1,6 +1,19 @@
-import type { fmtRich, RichDocument } from 'tg-rich-messages';
-
 export type Platform = 'telegram' | 'vk';
+
+export interface DatabaseClient {
+  query<T = unknown>(text: string, values?: readonly unknown[]): Promise<{ rows: T[] }>;
+}
+
+export interface BotPersistence {
+  findOrCreateUser(platform: Platform, platformUserId: string): Promise<{ id: number } | null>;
+  userExists(platform: Platform, platformUserId: string): Promise<boolean>;
+  logCommand(dbUserId: number, platform: Platform, command: string): Promise<void>;
+}
+
+export interface BotDatabase {
+  client: DatabaseClient;
+  persistence: BotPersistence;
+}
 
 export interface UserProfile {
   firstName: string;
@@ -21,6 +34,8 @@ export interface UniversalReplyOptions {
   one_time?: boolean;
 }
 
-export type FormatFn = typeof fmtRich;
+export interface RenderableMessage {
+  toHTML(): string;
+}
 
-export type RichMessage = string | RichDocument;
+export type RichMessage = string | RenderableMessage;

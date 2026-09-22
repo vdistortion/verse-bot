@@ -3,9 +3,9 @@
   "references": [
     { "path": "./packages/create-verse-bot" },
     { "path": "./packages/core" },
-    { "path": "./packages/db" },
-    { "path": "./packages/tg-core" },
-    { "path": "./packages/vk-core" },
+    { "path": "./packages/postgres" },
+    { "path": "./packages/telegram" },
+    { "path": "./packages/vk" },
     { "path": "./apps/imp-bot" }
   ],
   "compilerOptions": {

@@ -1,0 +1,28 @@
+{
+  "name": "@verse-bot/vk",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "VK bot adapter based on vk-io for Verse Bot Framework",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "tsc --noemit"
+  },
+  "dependencies": {
+    "@verse-bot/core": "^0.1.0",
+    "vk-io": "^4.10.1"
+  }
+}

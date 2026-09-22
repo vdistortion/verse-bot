@@ -2,9 +2,9 @@
   "extends": "./tsconfig.json",
   "references": [
     { "path": "./packages/core" },
-    { "path": "./packages/db" },
-    { "path": "./packages/tg-core" },
-    { "path": "./packages/vk-core" },
+    { "path": "./packages/postgres" },
+    { "path": "./packages/telegram" },
+    { "path": "./packages/vk" },
     { "path": "./apps/imp-bot" }
   ]
 }

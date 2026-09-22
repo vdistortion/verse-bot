@@ -2,24 +2,22 @@
   "name": "@verse-bot/core",
   "version": "0.1.0",
   "type": "module",
+  "license": "Apache-2.0",
   "description": "Core types and abstractions for Verse Bot Framework",
-  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "source": "./src/index.ts",
       "import": "./dist/index.js"
     }
   },
+  "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
-  },
-  "devDependencies": {
-    "@types/pg": "^8.20.0"
   }
 }

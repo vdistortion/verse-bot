@@ -1,8 +1,9 @@
 import { requireAdmin, catchErrors, type RichMessage } from '@verse-bot/core';
-import { getUserCommandLogs } from '@verse-bot/db';
+import { getUserCommandLogs } from '@verse-bot/postgres';
 import { bold } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
 import { concatRich } from '../rich-utils.js';
+import { formatFor } from '../format.js';
 
 export const userLogCommand = requireAdmin(
   catchErrors(async (ctx, userId: number) => {
@@ -12,12 +13,14 @@ export const userLogCommand = requireAdmin(
       return;
     }
 
-    const messageParts: RichMessage[] = [ctx.format`${bold(`📋 Логи пользователя ${userId}`)}\n\n`];
+    const messageParts: RichMessage[] = [
+      formatFor(ctx.platform)`${bold(`📋 Логи пользователя ${userId}`)}\n\n`,
+    ];
     for (const entry of logs) {
       const time = `ID: ${entry.id}`;
       const platform = entry.platform === 'telegram' ? 'TG' : 'VK';
-      messageParts.push(ctx.format`• ${entry.command} (${platform}) — ${time}\n`);
+      messageParts.push(formatFor(ctx.platform)`• ${entry.command} (${platform}) — ${time}\n`);
     }
-    await ctx.replySafe(concatRich(ctx.format, messageParts));
+    await ctx.replySafe(concatRich(formatFor(ctx.platform), messageParts));
   }, phrases),
 );

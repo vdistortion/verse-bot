@@ -2,6 +2,7 @@
   "name": "create-verse-bot",
   "version": "0.1.0",
   "type": "module",
+  "license": "Apache-2.0",
   "description": "CLI to scaffold a new Verse Bot project",
   "main": "dist/index.js",
   "bin": {
@@ -9,15 +10,16 @@
   },
   "files": [
     "template",
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@inquirer/prompts": "^8.5.2",
-    "fs-extra": "^11.3.5"
+    "@inquirer/prompts": "^8.7.2",
+    "fs-extra": "^11.4.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4"

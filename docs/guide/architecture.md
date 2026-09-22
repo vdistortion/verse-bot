@@ -1,42 +1,43 @@
 # Architecture
 
-Verse Bot Framework построен на универсальном контексте (`UniversalContext`) и адаптерах для Telegram и VK. Одна команда пишется один раз и работает на обеих платформах.
+Verse Bot is built around a platform-neutral `UniversalContext` and separate adapters for Telegram and VK. A command can be implemented once and used on both platforms.
 
 ## UniversalContext
 
-`UniversalContext` – это интерфейс, скрывающий различия между Telegram API и VK API. Команды получают объект контекста, через который они могут:
+`UniversalContext` hides the differences between the Telegram and VK APIs. Commands can use it to:
 
-- отвечать пользователю (`reply`, `replySafe`)
-- получать информацию о сообщении (`text`, `userId`, `chatType`)
-- проверять права (`isAdmin`)
-- работать с БД (`db`)
-- отправлять клавиатуры и фото
+- reply to a user with `reply` or `replySafe`;
+- inspect the message through `text`, `userId` and `chatType`;
+- check permissions through `isAdmin`;
+- access the optional database client through `db`;
+- send keyboards, photos and files when the adapter supports them.
 
-## Адаптеры
+## Adapters
 
-- **@verse-bot/tg-core** — создаёт бота на [GrammY](https://grammy.dev/), преобразует входящие обновления в `UniversalContext`, регистрирует команды.
-- **@verse-bot/vk-core** — собственный клиент VK API (Long Poll), создаёт контекст и подписывается на события.
+- **`@verse-bot/telegram`** creates a bot with [grammY](https://grammy.dev/), converts updates into `UniversalContext` and registers commands.
+- **`@verse-bot/vk`** uses [vk-io](https://github.com/negezor/vk-io) for VK API access and Long Poll events, then converts them into `UniversalContext`.
 
-## Фабрики универсальных ботов
+## Universal bot factories
 
-Функции `createUniversalTelegramBot` и `createUniversalVKBot` скрывают весь шаблонный код: middleware аутентификации, логирование, регистрацию команд. Достаточно передать список обработчиков команд и кнопок.
+`createUniversalTelegramBot` and `createUniversalVKBot` hide the shared setup: authentication middleware, logging and command dispatch. Pass the command handlers and keyboard definitions that your application needs.
 
 ```ts
-const tgBot = createUniversalTelegramBot({
+const telegramBot = createUniversalTelegramBot({
   token: '...',
   commands: { start: startCommand },
-  buttons: [{ command: 'start', label: 'Начать' }],
+  buttons: [{ command: 'start', label: 'Start' }],
 });
-tgBot.start();
+
+await telegramBot.start();
 ```
 
-## Жизненный цикл сообщения
+## Message lifecycle
 
-- Входящее обновление от Telegram / VK.
-- Адаптер создаёт `UniversalContext`.
-- Middleware проверяет существование пользователя в БД (создаёт запись при `/start`).
-- Логирует команду в `command_logs`.
-- Вызывает соответствующий обработчик команды.
-- Обработчик использует методы контекста для ответа.
+1. Telegram or VK sends an update.
+2. The adapter creates a `UniversalContext`.
+3. If `database` is configured, the middleware creates or finds the user when appropriate.
+4. The command is logged when persistence is enabled.
+5. The matching command handler runs.
+6. The handler replies through the context.
 
-Таким образом, команды не зависят от платформы.
+The command itself stays independent of the platform. Platform-specific differences remain in the adapters and in optional rendering code owned by the application.

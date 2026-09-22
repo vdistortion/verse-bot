@@ -3,10 +3,18 @@ export type {
   UserProfile,
   UniversalKeyboardButton,
   UniversalReplyOptions,
-  FormatFn,
   RichMessage,
+  RenderableMessage,
+  DatabaseClient,
+  BotPersistence,
+  BotDatabase,
 } from './types.js';
 export type { UniversalContext } from './context.js';
 export { http } from './http.js';
 export { catchErrors, requireAdmin, requirePrivateChat } from './command-guards.js';
+export {
+  dispatchUniversalCommand,
+  type UniversalCommandConfig,
+  type UniversalCommandHandler,
+} from './command-dispatcher.js';
 export * from './middleware/index.js';

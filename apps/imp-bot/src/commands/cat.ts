@@ -1,6 +1,7 @@
 import { catchErrors, type UniversalContext, type UniversalReplyOptions } from '@verse-bot/core';
 import { getCat } from '../data-sources/index.js';
 import { getInlineButton, phrases } from '../locales/ru.js';
+import { formatFor } from '../format.js';
 
 export const catCommand = catchErrors(async (ctx: UniversalContext) => {
   const catImageUrl = await getCat();
@@ -12,13 +13,16 @@ export const catCommand = catchErrors(async (ctx: UniversalContext) => {
 
   if (catImageUrl) {
     if (ctx.replyWithPhoto) {
-      await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(ctx.format), extra);
+      await ctx.replyWithPhoto(catImageUrl, phrases.cat.caption(formatFor(ctx.platform)), extra);
       return;
     } else {
-      await ctx.replySafe(ctx.format`${phrases.cat.caption(ctx.format)}\n${catImageUrl}`, extra);
+      await ctx.replySafe(
+        formatFor(ctx.platform)`${phrases.cat.caption(formatFor(ctx.platform))}\n${catImageUrl}`,
+        extra,
+      );
       return;
     }
   }
 
-  await ctx.replySafe(phrases.cat.notFound(ctx.format), extra);
+  await ctx.replySafe(phrases.cat.notFound(formatFor(ctx.platform)), extra);
 }, phrases);

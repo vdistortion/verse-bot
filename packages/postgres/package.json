@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Database client, user and command log repositories for Verse Bot Framework",
-  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "source": "./src/index.ts",
       "import": "./dist/index.js"
     }
   },
+  "sideEffects": false,
   "files": [
     "dist"
   ],

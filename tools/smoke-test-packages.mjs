@@ -1,5 +1,13 @@
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -9,12 +17,20 @@ const packageNames = [
   '@verse-bot/tg-core',
   '@verse-bot/vk-core',
 ];
-const workDir = mkdtempSync(join('/tmp/opencode', 'verse-bot-consumer-'));
+const workDir = mkdtempSync(join(tmpdir(), 'verse-bot-consumer-'));
 const tarballDir = join(workDir, 'tarballs');
 const consumerDir = join(workDir, 'consumer');
 
 function run(command, args, cwd = root) {
-  execFileSync(command, args, { cwd, stdio: 'inherit' });
+  execFileSync(command, args, {
+    cwd,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      NPM_CONFIG_CACHE: join(workDir, 'npm-cache'),
+      npm_config_cache: join(workDir, 'npm-cache'),
+    },
+  });
 }
 
 run('npm', ['run', 'build']);

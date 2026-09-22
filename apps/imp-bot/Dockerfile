@@ -2,7 +2,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY packages/core/package.json ./packages/core/
-COPY packages/db/package.json ./packages/db/
+COPY packages/postgres/package.json ./packages/postgres/
 COPY packages/tg-core/package.json ./packages/tg-core/
 COPY packages/vk-core/package.json ./packages/vk-core/
 COPY apps/imp-bot/package.json ./apps/imp-bot/
@@ -19,8 +19,8 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/core/package.json ./packages/core/
 COPY --from=builder /app/packages/core/dist ./packages/core/dist
-COPY --from=builder /app/packages/db/package.json ./packages/db/
-COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=builder /app/packages/postgres/package.json ./packages/postgres/
+COPY --from=builder /app/packages/postgres/dist ./packages/postgres/dist
 COPY --from=builder /app/packages/tg-core/package.json ./packages/tg-core/
 COPY --from=builder /app/packages/tg-core/dist ./packages/tg-core/dist
 COPY --from=builder /app/packages/vk-core/package.json ./packages/vk-core/

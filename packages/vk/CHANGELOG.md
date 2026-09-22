@@ -14,5 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Message sending with keyboards and attachments.
 - Inline button payload handling.
 - Inline keyboard callbacks through the universal command dispatcher.
+- Rich message links rendered with VK link markup.
 - Dynamic commands `/content_`, `/userlog_`.
 - Optional `onCallback` handler for raw VK callback payloads.

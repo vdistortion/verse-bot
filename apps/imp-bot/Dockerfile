@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY packages/core/package.json ./packages/core/
@@ -12,7 +12,7 @@ COPY packages/ ./packages/
 COPY apps/imp-bot/ ./apps/imp-bot/
 RUN npm run build:release
 
-FROM node:22-alpine
+FROM node:24-alpine
 RUN apk add --no-cache postgresql-client
 WORKDIR /app
 COPY --from=builder /app/package.json ./

@@ -23,6 +23,8 @@ export interface VKBotConfig {
   database?: BotDatabase;
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   buttons: { command: string; label: string }[];
+  /** Обработчик сырых callback-данных для платформенных сценариев. */
+  onCallback?: (ctx: UniversalContext, payload: unknown) => Promise<void>;
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
   userLogCommand?: (ctx: UniversalContext, userId: number) => Promise<void>;
   contentDir?: string;
@@ -268,8 +270,11 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     });
 
     const runCommand = async () => {
-      if (!command) return;
-      await dispatchUniversalCommand(uctx, command, config);
+      if (config.onCallback) {
+        await config.onCallback(uctx, event.eventPayload);
+      } else if (command) {
+        await dispatchUniversalCommand(uctx, command, config);
+      }
     };
 
     try {

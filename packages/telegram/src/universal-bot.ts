@@ -23,6 +23,8 @@ export interface TelegramBotConfig {
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   /** Определения кнопок (берутся из phrases). Массив объектов с command и button. */
   buttons: { command: string; label: string }[];
+  /** Обработчик сырых callback-данных для платформенных сценариев. */
+  onCallback?: (ctx: UniversalContext, payload: string) => Promise<void>;
   /** Опционально: обработчик команды /content_<N> */
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
   /** Опционально: обработчик команды /userlog_<N> */
@@ -222,9 +224,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
 
     try {
       const callbackData = ctx.callbackQuery.data;
-      const commandName = callbackData.startsWith('/') ? callbackData.slice(1) : callbackData;
-
-      await dispatchUniversalCommand(uctx, commandName, config);
+      if (config.onCallback) {
+        await config.onCallback(uctx, callbackData);
+      } else {
+        const commandName = callbackData.startsWith('/') ? callbackData.slice(1) : callbackData;
+        await dispatchUniversalCommand(uctx, commandName, config);
+      }
     } catch (err) {
       console.error('[Telegram] callback_query handler error:', err);
     } finally {

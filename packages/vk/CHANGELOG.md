@@ -13,13 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `createUniversalVKBot` factory with universal context.
 - Message sending with keyboards and attachments.
 - Inline button payload handling.
+- Inline keyboard callbacks through the universal command dispatcher.
 - Dynamic commands `/content_`, `/userlog_`.
-
-### Changed
-
-- Handle inline keyboard callbacks in `createUniversalVKBot` through the universal command dispatcher.
-- Renamed the package from `@verse-bot/vk-core` to `@verse-bot/vk`.
-- Made the package ESM-only and removed the source export.
-- Made PostgreSQL integration optional through the neutral `BotDatabase` contract.
-- Shared universal command dispatch and unknown-command handling with the Telegram adapter.
-- Documented the underlying `vk-io` dependency.
+- Optional `onCallback` handler for raw VK callback payloads.

@@ -24,6 +24,7 @@ At least one platform token must be configured. `VK_GROUP_ID` is required when `
 - `adminId` — optional administrator ID;
 - `commands` — a map of command names to handlers;
 - `buttons` — button definitions with `command` and `label`;
+- `onCallback` — optional handler for raw Telegram callback data when a button carries more than a command;
 - `contentCommand` and `userLogCommand` — optional dynamic command handlers;
 - `database` — optional `BotDatabase` integration;
 - `onReplyWithPhoto` and `contentDir` — optional content delivery settings;
@@ -33,6 +34,7 @@ At least one platform token must be configured. `VK_GROUP_ID` is required when `
 
 - `token`, `groupId` and optional `adminId`;
 - `commands` and `buttons`, shared with Telegram;
+- `onCallback` — optional handler for raw VK callback payloads when a button carries more than a command;
 - `contentCommand` and `userLogCommand` — optional dynamic command handlers;
 - `database` — optional `BotDatabase` integration;
 - `onReplyWithPhoto`, `unknownCommandPhrase` and `getButtonsForUnknown` — optional response settings.

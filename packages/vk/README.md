@@ -42,6 +42,7 @@ Inline keyboard buttons are handled through VK `message_event` callbacks. Their 
 - `adminId?` – VK admin ID
 - `database?` – optional database integration, for example `createPostgresDatabase(pool)` from `@verse-bot/postgres`
 - `commands`, `buttons` – same as Telegram
+- `onCallback?` – handler for raw VK callback payloads when a button carries more than a command
 - `contentCommand?`, `userLogCommand?`
 - `onReplyWithPhoto?`
 - `unknownCommandPhrase?`, `getButtonsForUnknown?`

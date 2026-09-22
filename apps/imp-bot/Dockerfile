@@ -2,6 +2,8 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY packages/core/package.json ./packages/core/
+COPY packages/create-verse-bot/package.json ./packages/create-verse-bot/
+COPY packages/miniapp/package.json ./packages/miniapp/
 COPY packages/postgres/package.json ./packages/postgres/
 COPY packages/telegram/package.json ./packages/telegram/
 COPY packages/vk/package.json ./packages/vk/

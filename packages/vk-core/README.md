@@ -38,7 +38,7 @@ bot.start();
 - `token` – group token
 - `groupId` – group ID
 - `adminId?` – VK admin ID
-- `pool` – database pool (required)
+- `database?` – optional database integration, for example `createPostgresDatabase(pool)` from `@verse-bot/postgres`
 - `commands`, `buttons` – same as Telegram
 - `contentCommand?`, `userLogCommand?`
 - `onReplyWithPhoto?`

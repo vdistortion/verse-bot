@@ -33,6 +33,7 @@ bot.start();
 ### TelegramBotConfig
 
 - `token` – bot token
+- `database?` – optional database integration, for example `createPostgresDatabase(pool)` from `@verse-bot/postgres`
 - `adminId?` – admin ID
 - `commands` – command handlers
 - `buttons` – button mappings

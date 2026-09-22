@@ -18,6 +18,5 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
-  },
-  "devDependencies": {}
+  }
 }

@@ -64,6 +64,7 @@ Telegram-адаптер:
 - Telegram-клавиатуры;
 - Telegram-specific middleware;
 - поддержка сообщений, совместимых с `tg-rich-messages`.
+- PostgreSQL подключается опционально через нейтральный `BotDatabase` из `@verse-bot/core`.
 
 Сам `tg-core` не обязан напрямую зависеть от `tg-rich-messages`: пакет принимает нейтральный renderable message-контракт, а форматирование может находиться в приложении или отдельном Telegram-слое.
 
@@ -75,6 +76,7 @@ VK-адаптер:
 - VK-события и команды;
 - VK-клавиатуры и payload;
 - обычные строковые сообщения.
+- PostgreSQL подключается опционально через нейтральный `BotDatabase` из `@verse-bot/core`.
 
 Полноценный аналог Telegram rich messages для VK не является целью. VK в текущем проекте использует обычные строки.
 

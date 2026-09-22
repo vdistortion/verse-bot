@@ -17,6 +17,8 @@ Verse Bot is built around a platform-neutral `UniversalContext` and separate ada
 - **`@verse-bot/telegram`** creates a bot with [grammY](https://grammy.dev/), converts updates into `UniversalContext` and registers commands.
 - **`@verse-bot/vk`** uses [vk-io](https://github.com/negezor/vk-io) for VK API access and Long Poll events, then converts them into `UniversalContext`.
 
+Both adapters dispatch simple button commands through the shared command map. Use the platform adapter's optional `onCallback` handler when a callback carries additional platform-specific data.
+
 ## Universal bot factories
 
 `createUniversalTelegramBot` and `createUniversalVKBot` hide the shared setup: authentication middleware, logging and command dispatch. Pass the command handlers and keyboard definitions that your application needs.

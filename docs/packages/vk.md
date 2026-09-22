@@ -31,6 +31,8 @@ The adapter creates a universal context, manages Long Poll updates and renders s
 
 Inline keyboard callbacks are handled through VK `message_event` updates and use the same command handlers as text messages.
 
+Use the optional `onCallback` configuration when a VK callback carries additional data such as an action or item identifier.
+
 ## License
 
 Apache-2.0

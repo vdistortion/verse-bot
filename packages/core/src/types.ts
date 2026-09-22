@@ -1,10 +1,7 @@
 export type Platform = 'telegram' | 'vk';
 
 export interface DatabaseClient {
-  query<T = unknown>(
-    text: string,
-    values?: readonly unknown[],
-  ): Promise<{ rows: T[] }>;
+  query<T = unknown>(text: string, values?: readonly unknown[]): Promise<{ rows: T[] }>;
 }
 
 export interface BotPersistence {

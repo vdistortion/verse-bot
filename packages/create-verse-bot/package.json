@@ -16,8 +16,8 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@inquirer/prompts": "^8.5.2",
-    "fs-extra": "^11.3.5"
+    "@inquirer/prompts": "^8.7.2",
+    "fs-extra": "^11.4.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4"

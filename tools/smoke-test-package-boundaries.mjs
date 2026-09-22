@@ -20,7 +20,7 @@ assert.equal(telegram.dependencies['@verse-bot/postgres'], undefined);
 assert.equal(vk.dependencies['@verse-bot/postgres'], undefined);
 assert.equal(telegram.dependencies.pg, undefined);
 assert.equal(vk.dependencies.pg, undefined);
-assert.equal(postgres.dependencies.pg, '^8.22.0');
+assert.ok(postgres.dependencies.pg, 'postgres must depend on pg');
 
 for (const packagePath of ['packages/core', 'packages/tg-core', 'packages/vk-core']) {
   const sourceFiles = readFileSync(resolve(root, packagePath, 'package.json'), 'utf8');

@@ -22,6 +22,6 @@
   },
   "dependencies": {
     "@verse-bot/core": "^0.1.0",
-    "grammy": "^1.44.0"
+    "grammy": "^1.46.0"
   }
 }

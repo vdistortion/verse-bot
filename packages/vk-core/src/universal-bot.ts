@@ -185,16 +185,16 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       };
 
       const runCommand = async () => {
-          const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
+        const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
 
-          const handled = await dispatchUniversalCommand(uctx, commandToExecute ?? text, config);
-          if (!handled && uctx.chatType === 'private' && config.unknownCommandPhrase) {
-            const buttons = config.getButtonsForUnknown?.() ?? [];
-            await uctx.reply(config.unknownCommandPhrase(uctx), {
-              replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
-            });
-          }
-        };
+        const handled = await dispatchUniversalCommand(uctx, commandToExecute ?? text, config);
+        if (!handled && uctx.chatType === 'private' && config.unknownCommandPhrase) {
+          const buttons = config.getButtonsForUnknown?.() ?? [];
+          await uctx.reply(config.unknownCommandPhrase(uctx), {
+            replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
+          });
+        }
+      };
       if (authMw) {
         await authMw(uctx, async () => {
           if (logMw) await logMw(uctx, runCommand);

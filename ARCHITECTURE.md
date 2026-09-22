@@ -55,7 +55,7 @@
 
 `core` не должен зависеть от Telegram-специфичного форматирования.
 
-### `@verse-bot/tg-core`
+### `@verse-bot/telegram`
 
 Telegram-адаптер:
 
@@ -66,9 +66,9 @@ Telegram-адаптер:
 - поддержка сообщений, совместимых с `tg-rich-messages`.
 - PostgreSQL подключается опционально через нейтральный `BotDatabase` из `@verse-bot/core`.
 
-Сам `tg-core` не обязан напрямую зависеть от `tg-rich-messages`: пакет принимает нейтральный renderable message-контракт, а форматирование может находиться в приложении или отдельном Telegram-слое.
+Сам `@verse-bot/telegram` не обязан напрямую зависеть от `tg-rich-messages`: пакет принимает нейтральный renderable message-контракт, а форматирование может находиться в приложении или отдельном Telegram-слое.
 
-### `@verse-bot/vk-core`
+### `@verse-bot/vk`
 
 VK-адаптер:
 
@@ -100,7 +100,7 @@ VK-адаптер:
 
 Он не должен находиться в нейтральном `@verse-bot/core`. Его потребителями могут быть:
 
-- `@verse-bot/tg-core`;
+- `@verse-bot/telegram`;
 - приложения на `grammY`;
 - другие Telegram-проекты.
 
@@ -136,8 +136,8 @@ Telegram использует `tg-rich-messages`. VK использует стр
 
 ```text
 @verse-bot/core   — без зависимости от tg-rich-messages
-@verse-bot/tg-core — может использовать tg-rich-messages
-@verse-bot/vk-core — работает со строками
+@verse-bot/telegram — может использовать tg-rich-messages
+@verse-bot/vk — работает со строками
 ```
 
 Общие команды должны по возможности формировать нейтральный текст. Telegram-специфичное форматирование должно добавляться в Telegram presentation-слое или Telegram-specific коде.
@@ -173,7 +173,7 @@ Telegram использует `tg-rich-messages`. VK использует стр
 
 Сейчас это отдельный VK-бот. Telegram-версия пока не реализуется.
 
-В будущем желательно добавить Telegram без переписывания бизнес-логики. Это будет одним из главных реальных тестов `@verse-bot/vk-core`, `@verse-bot/tg-core` и `UniversalContext`.
+В будущем желательно добавить Telegram без переписывания бизнес-логики. Это будет одним из главных реальных тестов `@verse-bot/vk`, `@verse-bot/telegram` и `UniversalContext`.
 
 ### Связь VK- и Telegram-профилей
 
@@ -264,7 +264,7 @@ npm run test:packages
 - содержимое `npm pack`;
 - установка tarball в чистый consumer-проект;
 - generated declarations и exports;
-- импорт `@verse-bot/core`, `@verse-bot/postgres`, `@verse-bot/tg-core`, `@verse-bot/vk-core`;
+- импорт `@verse-bot/core`, `@verse-bot/postgres`, `@verse-bot/telegram`, `@verse-bot/vk`;
 - импорт собранного `@verse-bot/miniapp`.
 
 README и package metadata всё ещё требуют отдельной проверки перед публикацией.
@@ -290,7 +290,7 @@ README и package metadata всё ещё требуют отдельной пр�
 1. Проверить реальный runtime `apps/imp-bot` в Telegram и VK после рефакторинга.
 2. Проверить deploy workflow на VPS.
 3. Привести README и package metadata публичных пакетов к фактическому API.
-4. Проверить один небольшой реальный сценарий `doubletardigrade-bot` через `@verse-bot/vk-core`.
+4. Проверить один небольшой реальный сценарий `doubletardigrade-bot` через `@verse-bot/vk`.
 5. После этого выпустить новые `0.x`-версии пакетов.
 
 ### Отложено до стабилизации пакетов

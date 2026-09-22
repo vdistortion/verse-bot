@@ -1,17 +1,17 @@
-# @verse-bot/vk-core
+# @verse-bot/vk
 
 VKontakte adapter (Long Poll API) for Verse Bot Framework.
 
 ## Install
 
 ```bash
-npm install @verse-bot/vk-core
+npm install @verse-bot/vk
 ```
 
 ## Usage
 
 ```ts
-import { createUniversalVKBot } from '@verse-bot/vk-core';
+import { createUniversalVKBot } from '@verse-bot/vk';
 import { createPostgresDatabase, getPool } from '@verse-bot/postgres';
 
 const bot = createUniversalVKBot({

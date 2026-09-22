@@ -1,5 +1,5 @@
 {
-  "name": "@verse-bot/vk-core",
+  "name": "@verse-bot/vk",
   "version": "0.1.0",
   "type": "module",
   "description": "Core library for building VK bots",

@@ -14,8 +14,8 @@ Verse Bot Framework построен на универсальном конте�
 
 ## Адаптеры
 
-- **@verse-bot/tg-core** — создаёт бота на [GrammY](https://grammy.dev/), преобразует входящие обновления в `UniversalContext`, регистрирует команды.
-- **@verse-bot/vk-core** — собственный клиент VK API (Long Poll), создаёт контекст и подписывается на события.
+- **@verse-bot/telegram** — создаёт бота на [GrammY](https://grammy.dev/), преобразует входящие обновления в `UniversalContext`, регистрирует команды.
+- **@verse-bot/vk** — собственный клиент VK API (Long Poll), создаёт контекст и подписывается на события.
 
 ## Фабрики универсальных ботов
 

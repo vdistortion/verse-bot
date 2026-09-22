@@ -1,7 +1,7 @@
 import type { Api } from 'grammy';
 import { requireAdmin, catchErrors, type UserProfile, type RichMessage } from '@verse-bot/core';
 import { getAllUsers, type DbUser } from '@verse-bot/postgres';
-import type { VKBot } from '@verse-bot/vk-core';
+import type { VKBot } from '@verse-bot/vk';
 import { link, bold } from 'tg-rich-messages';
 import { phrases } from '../locales/ru.js';
 import { concatRich } from '../rich-utils.js';

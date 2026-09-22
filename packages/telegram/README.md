@@ -1,17 +1,17 @@
-# @verse-bot/tg-core
+# @verse-bot/telegram
 
 Telegram adapter based on [GrammY](https://grammy.dev/) for Verse Bot Framework.
 
 ## Install
 
 ```bash
-npm install @verse-bot/tg-core grammy
+npm install @verse-bot/telegram grammy
 ```
 
 ## Usage
 
 ```ts
-import { createUniversalTelegramBot } from '@verse-bot/tg-core';
+import { createUniversalTelegramBot } from '@verse-bot/telegram';
 
 const bot = createUniversalTelegramBot({
   token: '...',

@@ -7,8 +7,8 @@ const root = resolve(import.meta.dirname, '..');
 const packageNames = [
   '@verse-bot/core',
   '@verse-bot/postgres',
-  '@verse-bot/tg-core',
-  '@verse-bot/vk-core',
+  '@verse-bot/telegram',
+  '@verse-bot/vk',
 ];
 const workDir = mkdtempSync(join(tmpdir(), 'verse-bot-consumer-'));
 const tarballDir = join(workDir, 'tarballs');
@@ -102,8 +102,8 @@ writeFileSync(
   join(consumerDir, 'src/index.ts'),
   `import { catchErrors, type UniversalContext } from '@verse-bot/core';
 import { initPool, runMigrations } from '@verse-bot/postgres';
-import { createUniversalTelegramBot } from '@verse-bot/tg-core';
-import { createUniversalVKBot } from '@verse-bot/vk-core';
+import { createUniversalTelegramBot } from '@verse-bot/telegram';
+import { createUniversalVKBot } from '@verse-bot/vk';
 import { telegramApi } from '@verse-bot/miniapp';
 
 const command = async (ctx: UniversalContext): Promise<void> => {

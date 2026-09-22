@@ -1,6 +1,6 @@
 import { createPostgresDatabase, initPool, getPool } from '@verse-bot/postgres';
-import { createUniversalTelegramBot } from '@verse-bot/tg-core';
-import { createUniversalVKBot } from '@verse-bot/vk-core';
+import { createUniversalTelegramBot } from '@verse-bot/telegram';
+import { createUniversalVKBot } from '@verse-bot/vk';
 import {
   CONTENT_DIR,
   POSTGRES_DB,

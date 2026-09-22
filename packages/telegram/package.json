@@ -1,5 +1,5 @@
 {
-  "name": "@verse-bot/tg-core",
+  "name": "@verse-bot/telegram",
   "version": "0.1.0",
   "type": "module",
   "description": "Core library for building Telegram bots",

@@ -39,7 +39,7 @@ ctx.format`${link('Нажми', 'https://example.com')}`;
 
 Для создания клавиатур используйте:
 
-- Telegram: `createTelegramKeyboard` из `@verse-bot/tg-core`.
-- VK: `createVKKeyboard` из `@verse-bot/vk-core`.
+- Telegram: `createTelegramKeyboard` из `@verse-bot/telegram`.
+- VK: `createVKKeyboard` из `@verse-bot/vk`.
 
 Примеры смотрите в команде startCommand.

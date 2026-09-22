@@ -3,8 +3,8 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/postgres" },
-    { "path": "./packages/tg-core" },
-    { "path": "./packages/vk-core" },
+    { "path": "./packages/telegram" },
+    { "path": "./packages/vk" },
     { "path": "./apps/imp-bot" }
   ]
 }

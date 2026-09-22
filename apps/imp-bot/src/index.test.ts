@@ -37,11 +37,11 @@ vi.mock('@verse-bot/postgres', () => ({
   initPool: mocks.initPool,
 }));
 
-vi.mock('@verse-bot/tg-core', () => ({
+vi.mock('@verse-bot/telegram', () => ({
   createUniversalTelegramBot: mocks.createTelegramBot,
 }));
 
-vi.mock('@verse-bot/vk-core', () => ({
+vi.mock('@verse-bot/vk', () => ({
   createUniversalVKBot: mocks.createVKBot,
 }));
 

@@ -5,6 +5,9 @@ export type {
   UniversalReplyOptions,
   RichMessage,
   RenderableMessage,
+  DatabaseClient,
+  BotPersistence,
+  BotDatabase,
 } from './types.js';
 export type { UniversalContext } from './context.js';
 export { http } from './http.js';

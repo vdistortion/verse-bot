@@ -1,4 +1,4 @@
-import { initPool, getPool } from '@verse-bot/postgres';
+import { createPostgresDatabase, initPool, getPool } from '@verse-bot/postgres';
 import { createUniversalTelegramBot } from '@verse-bot/tg-core';
 import { createUniversalVKBot } from '@verse-bot/vk-core';
 import {
@@ -40,6 +40,7 @@ initPool({
   database: POSTGRES_DB,
   port: 5432,
 });
+const database = createPostgresDatabase(getPool());
 
 const allPossibleButtonsForRegistration = getButtons(true).map((b) => ({
   command: b.command.replace('/', ''),
@@ -57,6 +58,7 @@ const botsToStart: { name: string; start: () => Promise<void> }[] = [];
 if (TELEGRAM_BOT_TOKEN) {
   const tgBot = createUniversalTelegramBot({
     token: TELEGRAM_BOT_TOKEN,
+    database,
     adminId: TELEGRAM_ADMIN_ID,
     commands: {
       start: startCommand,
@@ -89,6 +91,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     token: VK_GROUP_TOKEN,
     groupId: VK_GROUP_ID,
     adminId: VK_ADMIN_ID,
+    database,
     contentDir: CONTENT_DIR,
     commands: {
       start: startCommand,
@@ -109,7 +112,6 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     userLogCommand: userLogCommand,
     unknownCommandPhrase: phrases.unknownCommand,
     getButtonsForUnknown: () => getButtons(false),
-    pool: getPool(),
   });
   botsToStart.push({ name: 'VK', start: () => vkBot.start() });
 }

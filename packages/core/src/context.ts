@@ -1,5 +1,10 @@
-import type { Pool } from 'pg'; // временно, позже уберём
-import type { Platform, RichMessage, UserProfile, UniversalReplyOptions } from './types.js';
+import type {
+  DatabaseClient,
+  Platform,
+  RichMessage,
+  UserProfile,
+  UniversalReplyOptions,
+} from './types.js';
 
 export interface UniversalContext {
   // Идентификация
@@ -31,7 +36,7 @@ export interface UniversalContext {
   replySafe: (text: RichMessage, options?: UniversalReplyOptions) => Promise<void>;
 
   // База данных (опционально, будет заменено на абстракцию)
-  db?: Pool;
+  db?: DatabaseClient;
 
   // контекст
   platformApi?: unknown;

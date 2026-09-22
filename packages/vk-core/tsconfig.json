@@ -6,7 +6,7 @@
     "declaration": true,
     "composite": true
   },
-  "references": [{ "path": "../core" }, { "path": "../postgres" }],
+  "references": [{ "path": "../core" }],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@verse-bot/core": "^0.1.0",
-    "@verse-bot/postgres": "^0.1.0",
     "vk-io": "^4.10.1"
   }
 }

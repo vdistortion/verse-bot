@@ -19,7 +19,5 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "devDependencies": {
-    "@types/pg": "^8.20.0"
-  }
+  "devDependencies": {}
 }

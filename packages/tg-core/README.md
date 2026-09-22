@@ -43,5 +43,5 @@ bot.start();
 
 ## Middleware
 
-- `dbMiddleware` – attaches database pool
+- `database` is optional. Pass a database integration such as `createPostgresDatabase(pool)` when user persistence and command logging are needed.
 - `loggerMiddleware` – logs incoming messages

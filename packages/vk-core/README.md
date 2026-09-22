@@ -12,12 +12,12 @@ npm install @verse-bot/vk-core
 
 ```ts
 import { createUniversalVKBot } from '@verse-bot/vk-core';
-import { getPool } from '@verse-bot/postgres';
+import { createPostgresDatabase, getPool } from '@verse-bot/postgres';
 
 const bot = createUniversalVKBot({
   token: '...',
   groupId: 123456789,
-  pool: getPool(),
+  database: createPostgresDatabase(getPool()),
   commands: {
     start: async (ctx) => {
       await ctx.reply('Hello!');

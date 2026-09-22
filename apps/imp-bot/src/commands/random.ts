@@ -9,7 +9,9 @@ export const randomCommand = catchErrors(async (ctx) => {
     return;
   }
 
-  const { rows: allContent } = await ctx.db.query('SELECT * FROM bot_content ORDER BY id ASC');
+  const { rows: allContent } = await ctx.db.query<BotContentItem>(
+    'SELECT * FROM bot_content ORDER BY id ASC',
+  );
 
   if (!allContent || allContent.length === 0) {
     await ctx.replySafe(formatFor(ctx.platform)`В базе данных нет контента.`);

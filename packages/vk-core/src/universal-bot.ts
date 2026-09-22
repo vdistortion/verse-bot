@@ -1,16 +1,15 @@
 import path from 'node:path';
 import { createReadStream, existsSync } from 'node:fs';
-import type { Pool } from 'pg';
 import type { MessageContext } from 'vk-io';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
   type RichMessage,
+  type BotDatabase,
   type UniversalContext,
   type UniversalReplyOptions,
   type UserProfile,
 } from '@verse-bot/core';
-import { findOrCreateUser, userExists, logCommand } from '@verse-bot/postgres';
 import { createVKKeyboard, createVKInlineKeyboard } from './keyboards.js';
 import { VK_PEER_CHAT_OFFSET, VK_MAX_RANDOM_ID } from './vk-constants.js';
 import { createVKBot, type VKBot } from './bot-factory.js';
@@ -20,7 +19,7 @@ export interface VKBotConfig {
   token: string;
   groupId: number;
   adminId?: number;
-  pool?: Pool;
+  database?: BotDatabase;
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   buttons: { command: string; label: string }[];
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
@@ -52,8 +51,8 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     buttonToCommand.set(label, command);
   }
 
-  const authMw = createAuthMiddleware({ findOrCreateUser, userExists });
-  const logMw = createLoggingMiddleware({ logCommand });
+  const authMw = config.database ? createAuthMiddleware(config.database.persistence) : undefined;
+  const logMw = config.database ? createLoggingMiddleware(config.database.persistence) : undefined;
 
   vk.on('message_new', async (vctx) => {
     console.log(`[${new Date().toISOString()}] VK @${vctx.userId}: ${vctx.text || '(no text)'}`);
@@ -80,7 +79,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         isAdmin: ctx.senderId === config.adminId,
         chatType: isChat ? 'group' : 'private',
         chatTitle: isChat ? 'Беседа' : undefined,
-        db: config.pool,
+        db: config.database?.client,
         platformApi: vk,
 
         getUserProfile: async (): Promise<UserProfile | null> => {
@@ -184,8 +183,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         },
       };
 
-      await authMw(uctx, async () => {
-        await logMw(uctx, async () => {
+      const runCommand = async () => {
           const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
 
           const cmd = commandToExecute ?? text;
@@ -207,8 +205,15 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
               replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
             });
           }
+        };
+      if (authMw) {
+        await authMw(uctx, async () => {
+          if (logMw) await logMw(uctx, runCommand);
+          else await runCommand();
         });
-      });
+      } else {
+        await runCommand();
+      }
     } catch (err) {
       console.error('[VK Bot] message_new handler error:', err);
     }

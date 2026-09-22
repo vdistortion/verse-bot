@@ -4,18 +4,19 @@ import { type Api, type Bot, InputFile } from 'grammy';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
+  type BotDatabase,
   type RichMessage,
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/core';
-import { findOrCreateUser, userExists, logCommand } from '@verse-bot/postgres';
 import { createBot } from './bot-factory.js';
-import { dbMiddleware } from './middleware/index.js';
+import { createDbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
 import { createTelegramKeyboard, createTelegramInlineKeyboard } from './keyboards/index.js';
 
 export interface TelegramBotConfig {
   token: string;
+  database?: BotDatabase;
   adminId?: number;
   /** Обработчики статических команд (без параметров). Ключ – имя команды (без слеша). */
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
@@ -130,8 +131,7 @@ function makePhotoHandler(ctx: BotContext, contentDir?: string) {
 export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotContext> {
   const bot = createBot({ token: config.token });
 
-  // Подключаем пул БД
-  bot.use(dbMiddleware);
+  bot.use(createDbMiddleware(config.database?.client));
 
   // Middleware создания UniversalContext
   bot.use(async (ctx, next) => {
@@ -195,18 +195,20 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     await next();
   });
 
-  const authMw = createAuthMiddleware({ findOrCreateUser, userExists });
-  const logMw = createLoggingMiddleware({ logCommand });
+  const authMw = config.database ? createAuthMiddleware(config.database.persistence) : undefined;
+  const logMw = config.database ? createLoggingMiddleware(config.database.persistence) : undefined;
 
   bot.use(async (ctx, next) => {
     const uctx = ctx.uctx;
     if (!uctx) return next();
-    await authMw(uctx, next);
+    if (authMw) await authMw(uctx, next);
+    else await next();
   });
   bot.use(async (ctx, next) => {
     const uctx = ctx.uctx;
     if (!uctx) return next();
-    await logMw(uctx, next);
+    if (logMw) await logMw(uctx, next);
+    else await next();
   });
 
   bot.on('callback_query:data', async (ctx) => {
@@ -222,8 +224,8 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
 
       const handler = config.commands[commandName];
       if (handler) {
-        if (uctx.dbUserId) {
-          await logCommand(uctx.dbUserId, 'telegram', commandName);
+        if (uctx.dbUserId && config.database) {
+          await config.database.persistence.logCommand(uctx.dbUserId, 'telegram', commandName);
         }
         await handler(uctx);
       } else {
@@ -231,8 +233,8 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         if (contentMatch && config.contentCommand) {
           const itemNumber = parseInt(contentMatch[1], 10);
           if (!isNaN(itemNumber) && itemNumber > 0) {
-            if (uctx.dbUserId) {
-              await logCommand(uctx.dbUserId, 'telegram', `content_${itemNumber}`);
+            if (uctx.dbUserId && config.database) {
+              await config.database.persistence.logCommand(uctx.dbUserId, 'telegram', `content_${itemNumber}`);
             }
             await config.contentCommand(uctx, itemNumber);
           }
@@ -241,8 +243,8 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
           if (userlogMatch) {
             const userId = parseInt(userlogMatch[1], 10);
             if (!isNaN(userId)) {
-              if (uctx.dbUserId) {
-                await logCommand(uctx.dbUserId, 'telegram', `userlog_${userId}`);
+              if (uctx.dbUserId && config.database) {
+                await config.database.persistence.logCommand(uctx.dbUserId, 'telegram', `userlog_${userId}`);
               }
               await config.userLogCommand(uctx, userId);
             }

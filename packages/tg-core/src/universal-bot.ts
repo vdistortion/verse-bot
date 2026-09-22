@@ -224,18 +224,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
 
       const handler = config.commands[commandName];
       if (handler) {
-        if (uctx.dbUserId && config.database) {
-          await config.database.persistence.logCommand(uctx.dbUserId, 'telegram', commandName);
-        }
         await handler(uctx);
       } else {
         const contentMatch = commandName.match(/^content_(\d+)$/i);
         if (contentMatch && config.contentCommand) {
           const itemNumber = parseInt(contentMatch[1], 10);
           if (!isNaN(itemNumber) && itemNumber > 0) {
-            if (uctx.dbUserId && config.database) {
-              await config.database.persistence.logCommand(uctx.dbUserId, 'telegram', `content_${itemNumber}`);
-            }
             await config.contentCommand(uctx, itemNumber);
           }
         } else if (commandName.startsWith('userlog_') && config.userLogCommand) {
@@ -243,9 +237,6 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
           if (userlogMatch) {
             const userId = parseInt(userlogMatch[1], 10);
             if (!isNaN(userId)) {
-              if (uctx.dbUserId && config.database) {
-                await config.database.persistence.logCommand(uctx.dbUserId, 'telegram', `userlog_${userId}`);
-              }
               await config.userLogCommand(uctx, userId);
             }
           }

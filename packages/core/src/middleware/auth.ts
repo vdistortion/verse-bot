@@ -10,7 +10,7 @@ export function createAuthMiddleware(config: AuthMiddlewareConfig) {
   return async (ctx: UniversalContext, next: () => Promise<void>) => {
     if (!ctx.db) return next(); // БД нет – пропускаем
     const { platform, userId, text } = ctx;
-    const isStart = text.startsWith('/start');
+    const isStart = /^\/start(?:\s|$)/i.test(text);
     if (isStart) {
       const dbUser = await config.findOrCreateUser(platform, userId);
       if (dbUser) ctx.dbUserId = dbUser.id;

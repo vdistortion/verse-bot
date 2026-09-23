@@ -6,6 +6,8 @@ import { join } from 'node:path';
 import { createProject } from '../packages/create-verse-bot/dist/index.js';
 
 const root = mkdtempSync(join(tmpdir(), 'verse-bot-cli-'));
+const useLocal = process.argv.includes('--local');
+const skipInstall = process.argv.includes('--skip-install');
 const cases = [
   ['telegram', ['telegram']],
   ['vk', ['vk']],
@@ -18,7 +20,7 @@ try {
     const projectDir = createProject({
       projectName: name,
       platforms,
-      useLocal: true,
+      useLocal,
       install: false,
     });
     const packageJson = JSON.parse(readFileSync(join(projectDir, 'package.json'), 'utf8'));
@@ -33,19 +35,33 @@ try {
         ...platforms.map((platform) => `@verse-bot/${platform}`),
       ].sort(),
     );
+    const expectedVersion = useLocal ? /^file:/ : /^\^0\.1\.0$/;
+    for (const dependency of dependencies) {
+      assert.match(
+        packageJson.dependencies[dependency],
+        expectedVersion,
+        `${dependency} must use ${useLocal ? 'a local package' : 'the published version range'}`,
+      );
+    }
     assert.equal(source.includes('@verse-bot:telegram:'), false);
     assert.equal(source.includes('@verse-bot:vk:'), false);
     assert.equal(source.includes('pool,'), false);
     assert.equal(source.includes('database,'), true);
 
-    execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], {
-      cwd: projectDir,
-      stdio: 'inherit',
-    });
-    execFileSync('npm', ['run', 'build'], { cwd: projectDir, stdio: 'inherit' });
+    if (!skipInstall) {
+      execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], {
+        cwd: projectDir,
+        stdio: 'inherit',
+      });
+      execFileSync('npm', ['run', 'build'], { cwd: projectDir, stdio: 'inherit' });
+    }
   }
 
-  console.log('CLI generation smoke test passed');
+  console.log(
+    `CLI generation smoke test passed (${useLocal ? 'local' : 'published'} dependencies${
+      skipInstall ? ', config only' : ''
+    })`,
+  );
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

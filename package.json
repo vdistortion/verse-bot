@@ -24,7 +24,9 @@
     "lint:ci": "eslint .",
     "test": "vitest run",
     "test:packages": "node tools/smoke-test-package-boundaries.mjs && node tools/smoke-test-packages.mjs",
-    "test:cli": "npm run build && node tools/smoke-test-cli.mjs"
+    "test:cli": "npm run build && node tools/smoke-test-cli.mjs --local",
+    "test:cli:config": "npm run build && node tools/smoke-test-cli.mjs --skip-install",
+    "test:cli:published": "npm run build && node tools/smoke-test-cli.mjs"
   },
   "prettier": {
     "singleQuote": true,

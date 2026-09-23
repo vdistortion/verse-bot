@@ -7,19 +7,16 @@ import type {
 } from './types.js';
 
 export interface UniversalContext {
-  // Идентификация
   platform: Platform;
-  userId: string; // ID пользователя в платформе (строка)
-  dbUserId?: number; // внутренний ID из таблицы users
-  peerId: number; // ID чата/диалога
-  text: string; // текст команды или сообщения
+  userId: string;
+  dbUserId?: number;
+  peerId: number;
+  text: string;
   isAdmin: boolean;
 
-  // Чат
   chatType: 'private' | 'group' | 'channel' | 'supergroup' | 'unknown';
   chatTitle?: string;
 
-  // Методы, которые реализуют адаптеры
   getUserProfile: () => Promise<UserProfile | null>;
   reply: (text: RichMessage, options?: UniversalReplyOptions) => Promise<void>;
   replyWithPhoto?: (
@@ -35,9 +32,7 @@ export interface UniversalContext {
   ) => Promise<void>;
   replySafe: (text: RichMessage, options?: UniversalReplyOptions) => Promise<void>;
 
-  // База данных (опционально, будет заменено на абстракцию)
   db?: DatabaseClient;
 
-  // контекст
   platformApi?: unknown;
 }

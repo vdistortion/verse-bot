@@ -37,6 +37,7 @@ bot.start();
 - `adminId?` – admin ID
 - `commands` – command handlers
 - `buttons` – button mappings
+- `onCallback?` – handler for raw callback data when a button carries more than a command
 - `contentCommand?` – handler for `/content_<N>`
 - `userLogCommand?` – handler for `/userlog_<N>`
 - `unknownCommandPhrase?`, `getButtonsForUnknown?` – optional response for unknown private-chat messages

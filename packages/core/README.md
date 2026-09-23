@@ -14,6 +14,8 @@ npm install @verse-bot/core
 - `dispatchUniversalCommand` for common command routing;
 - `requireAdmin` and `requirePrivateChat` guards;
 - `catchErrors` for consistent command error handling;
+- `http` for small JSON HTTP requests;
+- authentication and command logging middleware;
 - the optional `BotDatabase` contract used by persistence adapters.
 
 The package is ESM-only and has no runtime dependencies.

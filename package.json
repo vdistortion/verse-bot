@@ -23,7 +23,10 @@
     "lint:fix": "eslint . --fix",
     "lint:ci": "eslint .",
     "test": "vitest run",
-    "test:packages": "node tools/smoke-test-package-boundaries.mjs && node tools/smoke-test-packages.mjs"
+    "test:packages": "node tools/smoke-test-package-boundaries.mjs && node tools/smoke-test-packages.mjs",
+    "test:cli": "npm run build && node tools/smoke-test-cli.mjs --local",
+    "test:cli:config": "npm run build && node tools/smoke-test-cli.mjs --skip-install",
+    "test:cli:published": "npm run build && node tools/smoke-test-cli.mjs"
   },
   "prettier": {
     "singleQuote": true,
@@ -38,9 +41,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/debug": "^4.1.13",
     "@types/node": "^26.6.2",
-    "debug": "^4.4.3",
     "dotenv-cli": "^11.0.0",
     "eslint": "^10.11.0",
     "eslint-config-prettier": "^10.1.8",

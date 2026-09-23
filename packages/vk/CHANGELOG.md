@@ -5,17 +5,7 @@ All notable changes to `@verse-bot/vk` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Changed
-
-- Renamed the package from `@verse-bot/vk-core` to `@verse-bot/vk`.
-- Made the package ESM-only and removed the source export.
-- Made PostgreSQL integration optional through the neutral `BotDatabase` contract.
-- Shared universal command dispatch and unknown-command handling with the Telegram adapter.
-- Documented the underlying `vk-io` dependency.
-
-## [0.1.0] - 2026-05-29
+## [0.1.0] - 2026-09-23
 
 ### Added
 
@@ -23,4 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `createUniversalVKBot` factory with universal context.
 - Message sending with keyboards and attachments.
 - Inline button payload handling.
+- Inline keyboard callbacks through the universal command dispatcher.
+- Rich message links rendered with VK link markup.
 - Dynamic commands `/content_`, `/userlog_`.
+- Optional `onCallback` handler for raw VK callback payloads.

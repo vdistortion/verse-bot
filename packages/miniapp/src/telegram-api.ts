@@ -16,8 +16,6 @@ export interface TelegramApiOptions {
   onSettings?: () => void;
 }
 
-// --------------- Controllers ---------------
-
 class MainButtonController {
   constructor(private parent: TelegramApi) {}
 
@@ -105,13 +103,10 @@ class MiniAppController {
   }
 }
 
-// --------------- Main Class ---------------
-
 export class TelegramApi {
   #listeners: VoidFunction[] = [];
   #cleanupSdk: (() => void) | null = null;
 
-  // Cached controllers
   #mainButtonCtrl?: MainButtonController;
   #secondaryButtonCtrl?: SecondaryButtonController;
   #backButtonCtrl?: BackButtonController;

@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createErrorHandler } from './middleware/error-handler.js';
-import { createLoggerMiddleware } from './middleware/logger.js';
+import { createErrorHandler, createLoggerMiddleware } from './middleware/index.js';
 
 describe('VK middleware', () => {
   it('logs incoming and completed updates', async () => {

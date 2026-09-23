@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createTelegramInlineKeyboard } from './keyboards/inline-universal.js';
-import { createTelegramKeyboard } from './keyboards/reply-universal.js';
+import { createTelegramInlineKeyboard, createTelegramKeyboard } from './keyboards/index.js';
 
 describe('Telegram universal keyboards', () => {
   it('maps inline labels and commands into callback data', () => {

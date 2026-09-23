@@ -1,15 +1,24 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createAuthMiddleware } from './middleware/auth.js';
-import { createLoggingMiddleware } from './middleware/logging.js';
+import { createAuthMiddleware, createLoggingMiddleware } from './middleware/index.js';
 import type { UniversalContext } from './context.js';
+
+const database: NonNullable<UniversalContext['db']> = {
+  query: async () => ({ rows: [] }),
+};
 
 function context(overrides: Partial<UniversalContext> = {}): UniversalContext {
   return {
     platform: 'telegram',
     userId: '10',
+    peerId: 20,
     text: '/start hello',
+    isAdmin: false,
+    chatType: 'private',
+    getUserProfile: async () => null,
+    reply: async () => undefined,
+    replySafe: async () => undefined,
     ...overrides,
-  } as UniversalContext;
+  };
 }
 
 describe('createAuthMiddleware', () => {
@@ -17,7 +26,7 @@ describe('createAuthMiddleware', () => {
     const findOrCreateUser = vi.fn().mockResolvedValue({ id: 7 });
     const userExists = vi.fn();
     const next = vi.fn().mockResolvedValue(undefined);
-    const ctx = context({ db: {} });
+    const ctx = context({ db: database });
 
     await createAuthMiddleware({ findOrCreateUser, userExists })(ctx, next);
 
@@ -33,7 +42,7 @@ describe('createAuthMiddleware', () => {
     const next = vi.fn();
 
     await createAuthMiddleware({ findOrCreateUser, userExists })(
-      context({ db: {}, text: '/help' }),
+      context({ db: database, text: '/help' }),
       next,
     );
 
@@ -48,7 +57,7 @@ describe('createAuthMiddleware', () => {
     const next = vi.fn().mockResolvedValue(undefined);
 
     await createAuthMiddleware({ findOrCreateUser, userExists })(
-      context({ db: {}, text: '/starter' }),
+      context({ db: database, text: '/starter' }),
       next,
     );
 

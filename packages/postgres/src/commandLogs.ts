@@ -60,5 +60,5 @@ export async function getUserOwnCommandLogs(
   userId: number,
   limit = 20,
 ): Promise<CommandLogEntry[]> {
-  return getUserCommandLogs(userId, limit); // Алиас
+  return getUserCommandLogs(userId, limit);
 }

@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createDbMiddleware } from './middleware/db.js';
-import { loggerMiddleware } from './middleware/logger.js';
+import { createDbMiddleware, loggerMiddleware } from './middleware/index.js';
 
 describe('Telegram middleware', () => {
   it('attaches the configured database before continuing', async () => {

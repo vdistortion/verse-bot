@@ -2,7 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import { dispatchUniversalCommand } from './command-dispatcher.js';
 import type { UniversalContext } from './context.js';
 
-const context = { platform: 'telegram' } as UniversalContext;
+const context: UniversalContext = {
+  platform: 'telegram',
+  userId: '10',
+  peerId: 20,
+  text: '/start',
+  isAdmin: false,
+  chatType: 'private',
+  getUserProfile: async () => null,
+  reply: async () => undefined,
+  replySafe: async () => undefined,
+};
 
 describe('dispatchUniversalCommand', () => {
   it('dispatches a static command with or without a slash', async () => {

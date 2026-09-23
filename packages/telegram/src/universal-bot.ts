@@ -137,7 +137,6 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
 
   bot.use(createDbMiddleware(config.database?.client));
 
-  // Middleware создания UniversalContext
   bot.use(async (ctx, next) => {
     const fromId = ctx.from?.id ?? 0;
     const chatId = ctx.chat?.id ?? ctx.callbackQuery?.message?.chat.id ?? 0;
@@ -237,16 +236,13 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     }
   });
 
-  // Регистрация статических команд и кнопок
   for (const { command, label } of config.buttons) {
     const handler = config.commands[command];
     if (handler) {
-      // Команда вида /start
       bot.command(command, async (ctx) => {
         const uctx = ctx.uctx!;
         await handler(uctx);
       });
-      // Кнопка с текстом label
       bot.hears(label, async (ctx) => {
         const uctx = ctx.uctx!;
         await handler(uctx);
@@ -254,9 +250,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     }
   }
 
-  // Регистрация остальных команд, которые не имеют кнопок (например, /full, /admin)
   for (const [command, handler] of Object.entries(config.commands)) {
-    // Проверяем, не была ли уже зарегистрирована через кнопку
     const alreadyRegistered = config.buttons.some((b) => b.command === command);
     if (!alreadyRegistered) {
       bot.command(command, async (ctx) => {
@@ -266,7 +260,6 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     }
   }
 
-  // Обработка неизвестных команд (только в личных чатах)
   if (config.unknownCommandPhrase) {
     bot.on('message:text', async (ctx, next) => {
       const uctx = ctx.uctx;
@@ -275,15 +268,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       const text = ctx.message?.text?.trim() ?? '';
       if (!text) return next();
 
-      // Проверяем, не является ли сообщение известной командой (статической или динамической)
       const commandName = text.startsWith('/') ? text.slice(1).split(' ')[0] : text;
-      if (config.commands[commandName]) return next(); // статическая команда
-      if (/^\/?content_\d+$/i.test(commandName)) return next(); // content_
-      if (/^\/?userlog_\d+$/i.test(commandName)) return next(); // userlog_
-      // Игнорируем, если текст совпадает с label какой-то кнопки (уже обработано)
+      if (config.commands[commandName]) return next();
+      if (/^\/?content_\d+$/i.test(commandName)) return next();
+      if (/^\/?userlog_\d+$/i.test(commandName)) return next();
       if (config.buttons.some((b) => b.label === text)) return next();
 
-      // Неизвестная команда – отвечаем фразой
       const buttons = config.getButtonsForUnknown?.() ?? [];
       await uctx.reply(config.unknownCommandPhrase!(uctx), {
         replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
@@ -292,15 +282,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     });
   }
 
-  // Динамические команды
   if (config.contentCommand) {
     bot.hears(/^\/content_(\d+)$/i, async (ctx) => {
       const itemNumber = parseInt(ctx.match[1], 10);
       if (!isNaN(itemNumber) && itemNumber > 0) {
         const uctx = ctx.uctx!;
         await config.contentCommand!(uctx, itemNumber);
-      } else {
-        // Сообщение об ошибке? Можно передать фразу из phrases, но пока опустим
       }
     });
   }

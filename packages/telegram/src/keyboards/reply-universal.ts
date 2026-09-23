@@ -6,14 +6,11 @@ export function createTelegramKeyboard(
   resize: boolean = true,
   oneTime: boolean = false,
 ): Keyboard {
-  const keyboard = new Keyboard();
+  const keyboard = new Keyboard([]);
 
-  for (const row of universalKeyboard) {
-    for (const btn of row) {
-      keyboard.text(btn.label);
-    }
-    keyboard.row();
-  }
+  universalKeyboard.forEach((row) => {
+    keyboard.row(...row.map((btn) => Keyboard.text(btn.label)));
+  });
 
   if (resize) keyboard.resized();
   if (oneTime) keyboard.oneTime();

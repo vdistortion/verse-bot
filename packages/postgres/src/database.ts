@@ -1,6 +1,5 @@
 import type { Pool } from 'pg';
-import type { BotDatabase } from '@verse-bot/core';
-import type { Platform } from '@verse-bot/core';
+import type { BotDatabase, Platform } from '@verse-bot/core';
 
 /** Creates the optional database integration consumed by bot adapters. */
 export function createPostgresDatabase(pool: Pool): BotDatabase {

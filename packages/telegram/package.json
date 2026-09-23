@@ -3,7 +3,20 @@
   "version": "0.1.0",
   "type": "module",
   "license": "Apache-2.0",
-  "description": "Telegram bot adapter based on Grammy for Verse Bot Framework",
+  "author": "Valentin <https://github.com/vdistortion>",
+  "description": "Telegram bot adapter based on grammY for Verse Bot Framework",
+  "homepage": "https://verse-bot.zvalentin.com",
+  "bugs": {
+    "url": "https://github.com/vdistortion/verse-bot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vdistortion/verse-bot.git",
+    "directory": "packages/telegram"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "types": "dist/index.d.ts",
   "exports": {
     ".": {

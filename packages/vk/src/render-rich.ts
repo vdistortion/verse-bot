@@ -26,14 +26,14 @@ export function renderRich(doc: RenderableMessage): string {
     .replace(/<br\s*\/?>/gi, '\n');
 
   /**
-   * Единственное форматирование для VK — ссылки.
+   * VK поддерживает ссылки в формате [URL|Текст].
    */
   html = html.replace(
     /<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,
     (_match, href: string, inner: string) => {
       const text = stripTags(inner).trim();
       const url = decodeHtmlEntities(href);
-      return `${text}: ${url}`;
+      return text ? `[${url}|${text}]` : url;
     },
   );
 

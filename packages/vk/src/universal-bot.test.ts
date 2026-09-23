@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createUniversalVKBot } from './universal-bot.js';
+import { createUniversalVKBot, getVKCallbackCommand } from './universal-bot.js';
 
 describe('createUniversalVKBot', () => {
   it('creates a bot without a database integration', () => {
@@ -11,5 +11,12 @@ describe('createUniversalVKBot', () => {
     });
 
     expect(bot).toBeDefined();
+  });
+
+  it('extracts commands from VK callback payloads', () => {
+    expect(getVKCallbackCommand('{"command":"/start"}')).toBe('/start');
+    expect(getVKCallbackCommand({ command: 'help' })).toBe('help');
+    expect(getVKCallbackCommand('plain-command')).toBe('plain-command');
+    expect(getVKCallbackCommand('{"action":"help"}')).toBeUndefined();
   });
 });

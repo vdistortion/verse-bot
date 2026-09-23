@@ -49,7 +49,9 @@ Inline keyboard buttons are handled through VK `message_event` callbacks. Their 
 
 ## VKBot
 
-Exposes `request(method, params)` for VK API calls and `sendMessage`.
+Exposes `request(method, params)` for VK API calls and `sendMessage`. The underlying
+`api`, `upload`, and `updates` clients are also available for platform-specific
+operations such as album synchronization or custom Long Poll handlers.
 
 ## License
 

@@ -33,6 +33,9 @@ Inline keyboard callbacks are handled through VK `message_event` updates and use
 
 Use the optional `onCallback` configuration when a VK callback carries additional data such as an action or item identifier.
 
+The returned `VKBot` also exposes `request`, `sendMessage`, and the underlying
+`api`, `upload`, and `updates` clients for platform-specific operations.
+
 ## License
 
 Apache-2.0

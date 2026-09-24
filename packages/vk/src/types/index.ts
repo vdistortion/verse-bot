@@ -48,7 +48,7 @@ export interface VKUpdate {
 
 export interface VKCallbackButton {
   action: {
-    type: 'text' | 'open_link' | 'location' | 'vkpay' | 'open_app';
+    type: 'text' | 'callback' | 'open_link' | 'location' | 'vkpay' | 'open_app';
     label?: string;
     link?: string;
     payload?: string;

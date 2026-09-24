@@ -11,7 +11,7 @@ export function createVKKeyboard(
         label: btn.label,
         payload: btn.command ? JSON.stringify({ command: btn.command }) : undefined,
       },
-      color: 'primary',
+      color: btn.color ?? 'primary',
     })),
   );
   return JSON.stringify({ one_time: oneTime, buttons });
@@ -21,11 +21,14 @@ export function createVKInlineKeyboard(buttonRows: UniversalKeyboardButton[][]):
   const buttons = buttonRows.map((row) =>
     row.map((btn) => ({
       action: {
-        type: 'text',
+        type: 'callback',
         label: btn.label,
-        payload: btn.command ? JSON.stringify({ command: btn.command }) : undefined,
+        payload:
+          btn.callbackData !== undefined
+            ? JSON.stringify({ callbackData: btn.callbackData })
+            : JSON.stringify({ command: btn.command ?? btn.label }),
       },
-      color: 'primary',
+      color: btn.color ?? 'primary',
     })),
   );
   return JSON.stringify({ inline: true, buttons });

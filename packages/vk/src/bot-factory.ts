@@ -1,4 +1,4 @@
-import { VK, type MessageContext, type MessageEventContext } from 'vk-io';
+import { API, VK, type MessageContext, type MessageEventContext } from 'vk-io';
 import { VK_MAX_RANDOM_ID } from './vk-constants.js';
 import type { VKContext, VKMessage } from './types/index.js';
 
@@ -7,17 +7,23 @@ type UpdateHandler = (ctx: VKContext) => void | Promise<void>;
 export interface VKBotFactoryOptions {
   token: string;
   groupId: number;
+  userToken?: string;
   useLogger?: boolean;
 }
 
 export class VKBot {
   private readonly vk: VK;
+  private readonly secondaryApi?: API;
   private readonly groupId: number;
   private isRunning = false;
 
   /** vk-io API — прямые вызовы методов VK API (vk.api.users.get и т.д.) */
   public get api() {
     return this.vk.api;
+  }
+  /** Optional second VK API client, for example one authenticated with a user/service token. */
+  public get userApi(): API | undefined {
+    return this.secondaryApi;
   }
   /** vk-io Upload — загрузка медиафайлов (vk.upload.messagePhoto и т.д.) */
   public get upload() {
@@ -33,6 +39,7 @@ export class VKBot {
       token: options.token,
       pollingGroupId: options.groupId,
     });
+    this.secondaryApi = options.userToken ? new API({ token: options.userToken }) : undefined;
     this.groupId = options.groupId;
   }
 

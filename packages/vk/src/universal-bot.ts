@@ -6,7 +6,10 @@ import {
   dispatchUniversalCommand,
   type RichMessage,
   type BotDatabase,
+  type UniversalAdminCheck,
+  type UniversalCallbackContext,
   type UniversalContext,
+  type UniversalEditOptions,
   type UniversalReplyOptions,
   type UserProfile,
 } from '@verse-bot/core';
@@ -17,13 +20,18 @@ import { renderRich } from './render-rich.js';
 
 export interface VKBotConfig {
   token: string;
+  userToken?: string;
   groupId: number;
   adminId?: number;
+  /** Optional asynchronous check for VK community roles or extra administrators. */
+  checkAdmin?: UniversalAdminCheck;
   database?: BotDatabase;
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   buttons: { command: string; label: string }[];
   /** Обработчик сырых callback-данных для платформенных сценариев. */
   onCallback?: (ctx: UniversalContext, payload: unknown) => Promise<void>;
+  /** Fallback for incoming messages not handled by registered commands or buttons. */
+  onMessage?: (ctx: UniversalContext) => Promise<void>;
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
   userLogCommand?: (ctx: UniversalContext, userId: number) => Promise<void>;
   contentDir?: string;
@@ -60,7 +68,25 @@ export function getVKCallbackCommand(payload: unknown): string | undefined {
     return typeof command === 'string' && command.trim() ? command.trim() : undefined;
   }
 
+  if (payload && typeof payload === 'object' && 'callbackData' in payload) {
+    const callbackData = payload.callbackData;
+    return typeof callbackData === 'string' && callbackData.trim()
+      ? callbackData.trim()
+      : undefined;
+  }
+
   return undefined;
+}
+
+export function getVKCallbackData(payload: unknown): string {
+  if (typeof payload === 'string') {
+    return getVKCallbackCommand(payload) ?? payload;
+  }
+
+  const command = getVKCallbackCommand(payload);
+  if (command) return command;
+  if (payload === undefined) return '';
+  return JSON.stringify(payload) ?? String(payload);
 }
 
 interface VKMessageSource {
@@ -68,6 +94,7 @@ interface VKMessageSource {
   peerId: number;
   isChat: boolean;
   text: string;
+  payload?: unknown;
   send: (
     text: string,
     options?: { keyboard?: string; attachment?: string; random_id?: number },
@@ -84,6 +111,7 @@ function createUniversalContext(
     userId: String(source.userId),
     peerId: source.peerId,
     text: source.text,
+    payload: source.payload,
     isAdmin: source.userId === config.adminId,
     chatType: source.isChat ? 'group' : 'private',
     chatTitle: source.isChat ? 'Беседа' : undefined,
@@ -138,6 +166,15 @@ function createUniversalContext(
         keyboard = createVKInlineKeyboard(options.inlineKeyboard);
       } else if (options?.replyKeyboard) {
         keyboard = createVKKeyboard(options.replyKeyboard);
+      }
+
+      if (/^photo-?\d+_\d+(?:_[a-z\d]+)?$/i.test(photoUrl)) {
+        await source.send(captionText ?? '', {
+          attachment: photoUrl,
+          keyboard,
+          random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
+        });
+        return;
       }
 
       const uploadAndSend = async (
@@ -203,6 +240,7 @@ function createUniversalContext(
 export function createUniversalVKBot(config: VKBotConfig): VKBot {
   const vk = createVKBot({
     token: config.token,
+    userToken: config.userToken,
     groupId: config.groupId,
   });
 
@@ -236,13 +274,21 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         peerId: ctx.peerId,
         isChat,
         text,
+        payload: ctx.hasMessagePayload ? ctx.messagePayload : undefined,
         send: (message, options) => ctx.send(message, options),
       });
+      if (config.checkAdmin && !uctx.isAdmin) {
+        uctx.isAdmin = await config.checkAdmin(uctx);
+      }
 
       const runCommand = async () => {
         const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
 
         const handled = await dispatchUniversalCommand(uctx, commandToExecute ?? text, config);
+        if (!handled && config.onMessage) {
+          await config.onMessage(uctx);
+          return;
+        }
         if (!handled && uctx.chatType === 'private' && config.unknownCommandPhrase) {
           const buttons = config.getButtonsForUnknown?.() ?? [];
           await uctx.reply(config.unknownCommandPhrase(uctx), {
@@ -267,14 +313,39 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     const event = vctx.update;
     if (event.type !== 'message_event') return;
     const command = getVKCallbackCommand(event.eventPayload);
+    const callbackData = getVKCallbackData(event.eventPayload);
     const text = command ?? '';
     const uctx = createUniversalContext(config, vk, {
       userId: event.userId,
       peerId: event.peerId,
       isChat: event.peerId >= VK_PEER_CHAT_OFFSET,
       text,
+      payload: event.eventPayload,
       send: (message, options) => event.send(message, options),
     });
+
+    let callbackAnswered = false;
+    const callback: UniversalCallbackContext = {
+      data: callbackData,
+      messageId: event.conversationMessageId,
+      answer: async (answerText) => {
+        if (callbackAnswered) return;
+        callbackAnswered = true;
+        await event.answer({ type: 'show_snackbar', text: answerText ?? '' });
+      },
+      editMessage: async (message, options?: UniversalEditOptions) => {
+        const keyboard = options?.inlineKeyboard
+          ? createVKInlineKeyboard(options.inlineKeyboard)
+          : undefined;
+        await vk.api.messages.edit({
+          peer_id: event.peerId,
+          cmid: event.conversationMessageId,
+          message: renderVKMessage(message) ?? '',
+          keyboard,
+        });
+      },
+    };
+    uctx.callback = callback;
 
     const runCommand = async () => {
       if (config.onCallback) {
@@ -285,6 +356,9 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     };
 
     try {
+      if (config.checkAdmin && !uctx.isAdmin) {
+        uctx.isAdmin = await config.checkAdmin(uctx);
+      }
       if (authMw) {
         await authMw(uctx, async () => {
           if (logMw) await logMw(uctx, runCommand);
@@ -297,11 +371,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       console.error('[VK Bot] message_event handler error:', err);
     } finally {
       try {
-        await vk.api.messages.sendMessageEventAnswer({
-          event_id: event.eventId,
-          user_id: event.userId,
-          peer_id: event.peerId,
-        });
+        await callback.answer();
       } catch (err) {
         console.error('[VK Bot] message_event answer error:', err);
       }

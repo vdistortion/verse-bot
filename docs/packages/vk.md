@@ -31,10 +31,18 @@ The adapter creates a universal context, manages Long Poll updates and renders s
 
 Inline keyboard callbacks are handled through VK `message_event` updates and use the same command handlers as text messages.
 
+Inline keyboards use VK callback actions, support `callbackData` and VK button `color`, and expose
+normalized callback data plus `answer(text?)` and `editMessage(message, options?)` through
+`ctx.callback`. Unanswered callbacks are acknowledged automatically. VK photo attachment IDs can
+be passed to `ctx.replyWithPhoto` and are sent directly.
+
 Use the optional `onCallback` configuration when a VK callback carries additional data such as an action or item identifier.
 
-The returned `VKBot` also exposes `request`, `sendMessage`, and the underlying
-`api`, `upload`, and `updates` clients for platform-specific operations.
+The returned `VKBot` also exposes `request`, `sendMessage`, and the underlying `api`, `upload`, and
+`updates` clients for platform-specific operations. Configure `userToken` to expose an additional
+`userApi` client when a scenario requires separate credentials, for example to read community photo
+albums. `checkAdmin` supports asynchronous checks for VK community roles, and `onMessage` receives
+messages not handled by registered commands.
 
 ## License
 

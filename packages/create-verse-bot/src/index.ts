@@ -118,6 +118,13 @@ async function main() {
   console.log(`  cd ${projectName}`);
   console.log('  cp .env.example .env    # fill in your tokens');
   console.log('  npm run dev\n');
+
+  if (platforms.includes('telegram')) {
+    console.log('For rich Telegram messages, optionally install:');
+    console.log('  npm install tg-rich-messages');
+    console.log('  https://github.com/vdistortion/tg-rich-messages');
+    console.log('  https://www.npmjs.com/package/tg-rich-messages\n');
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

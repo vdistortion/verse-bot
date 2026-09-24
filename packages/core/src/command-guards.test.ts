@@ -12,6 +12,7 @@ function mockContext(overrides: Partial<UniversalContext> = {}): UniversalContex
     chatType: 'private',
     replySafe: vi.fn(),
     reply: vi.fn(),
+    replyWithPhoto: vi.fn(),
     getUserProfile: vi.fn(),
     ...overrides,
   };

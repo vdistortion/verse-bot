@@ -158,6 +158,54 @@ describe('createUniversalTelegramBot', () => {
     expect(onMessage.mock.calls[0]?.[0]).toMatchObject({ isAdmin: true, text: 'plain text' });
   });
 
+  it('applies safe keyboard, one-time keyboard and keyboard removal consistently', async () => {
+    const bot = createUniversalTelegramBot({
+      token: 'test:telegram-token',
+      commands: {},
+      buttons: [],
+      onMessage: async (ctx) => {
+        const keyboard = [[{ label: 'Menu' }]];
+        await ctx.replySafe('Safe group reply', {
+          replyKeyboard: keyboard,
+          one_time: true,
+          link_preview_options: { is_disabled: true },
+        });
+        await ctx.reply('Private menu', { replyKeyboard: keyboard, one_time: true });
+        await ctx.reply('Hide menu', { remove_keyboard: true });
+      },
+    });
+    bot.botInfo = botInfo;
+    const apiCalls: { method: string; payload: Record<string, unknown> }[] = [];
+    bot.api.config.use(async (_previous, method, payload) => {
+      apiCalls.push({ method, payload });
+      return { ok: true, result: true } as never;
+    });
+
+    await bot.handleUpdate({
+      update_id: 4,
+      message: {
+        message_id: 5,
+        date: 1,
+        chat: { id: -20, type: 'group', title: 'Test group' },
+        from: { id: 10, is_bot: false, first_name: 'Alice' },
+        text: 'plain text',
+      },
+    });
+
+    const sends = apiCalls.filter((call) => call.method === 'sendMessage');
+    expect(sends).toHaveLength(3);
+    expect(sends[0]?.payload).toMatchObject({
+      chat_id: -20,
+      link_preview_options: { is_disabled: true },
+    });
+    expect(sends[0]?.payload.reply_markup).toBeUndefined();
+    expect(sends[1]?.payload.reply_markup).toMatchObject({
+      one_time_keyboard: true,
+      keyboard: [[{ text: 'Menu' }]],
+    });
+    expect(sends[2]?.payload.reply_markup).toEqual({ remove_keyboard: true });
+  });
+
   it('does not send dynamic commands to the fallback message handler', async () => {
     const onMessage = vi.fn();
     const contentCommand = vi.fn();

@@ -176,16 +176,16 @@ export const phrases = {
   admin: {
     message: (fmt: Format, platform: Platform, dbUserId?: number) => {
       const userIdPlaceholder = dbUserId !== undefined ? String(dbUserId) : '<id>';
-      const adminCommands =
+      const backupCommands =
         platform === 'telegram'
           ? `/backupdb – 💾 Сделать бэкап базы данных\n` +
-            `/backupfiles – 📦 Бэкап файлов контента\n` +
-            `/list_users – 👥 Список активных пользователей\n` +
-            `/stats – 📊 Статистика команд\n` +
-            `/userlog_${userIdPlaceholder} – 📋 Логи пользователя`
-          : `/list_users – 👥 Список активных пользователей\n` +
-            `/stats – 📊 Статистика команд\n` +
-            `/userlog_${userIdPlaceholder} – 📋 Логи пользователя`;
+            `/backupfiles – 📦 Бэкап файлов контента\n`
+          : '';
+      const adminCommands =
+        backupCommands +
+        `/list_users – 👥 Список активных пользователей\n` +
+        `/stats – 📊 Статистика команд\n` +
+        `/userlog_${userIdPlaceholder} – 📋 Логи пользователя`;
       return fmt`👑 ${bold('Административные команды:')}${lineBreak()}${adminCommands}`;
     },
   },

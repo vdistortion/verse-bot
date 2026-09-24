@@ -52,7 +52,8 @@ When a `RenderableMessage` is sent, HTTPS links are rendered as `Label: URL` so 
 - `checkAdmin?` – optional asynchronous check for community managers or extra administrators
 - `database?` – optional database integration, for example `createPostgresDatabase(pool)` from `@verse-bot/postgres`
 - `commands`, `buttons` – same as Telegram
-- `onCallback?` – handler for raw VK callback payloads when a button carries more than a command
+- `onCallback?` – handler for normalized string callback data; the original VK payload is available as `ctx.payload`
+- `onReplyWithPhoto?` – custom photo sender; receives the universal context, photo URL, caption and options
 - `contentCommand?`, `userLogCommand?`
 - `onReplyWithPhoto?`
 - `unknownCommandPhrase?`, `getButtonsForUnknown?`
@@ -66,6 +67,9 @@ operations such as album synchronization or custom Long Poll handlers.
 
 `replyWithPhoto` also accepts a VK photo attachment ID such as `photo-123_456`; the adapter sends
 it directly without attempting a URL download or upload.
+
+File sending remains an optional context capability. The Telegram adapter supports `replyWithFile`;
+VK document uploads require an additional API scope and are not provided by this adapter.
 
 ## License
 

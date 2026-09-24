@@ -13,10 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional second API client configured with `userToken` and exposed as `bot.userApi`.
 - Callback context with normalized data, callback acknowledgement, and source-message editing.
 - Inline callback data and per-button VK colors; VK photo attachment IDs can be sent directly through `replyWithPhoto`.
+- Profile results include VK's `screen_name` as `username`.
+- Shared `replySafe`, one-time keyboards, and keyboard removal behavior with Telegram.
 
 ### Changed
 
 - Inline keyboards now use VK callback actions so they produce `message_event` updates.
+- `onCallback` receives normalized string data like Telegram; the original VK payload remains on `ctx.payload`.
+- Reply and callback edits map shared link-preview settings to VK's `dont_parse_links` option.
 - External HTTPS rich links render as `Label: URL`; VK-native links use `[target|label]` markup.
 - Rich message conversion preserves intentional single and repeated line breaks.
 

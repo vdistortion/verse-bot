@@ -26,7 +26,7 @@ export interface UniversalContext {
 
   getUserProfile: () => Promise<UserProfile | null>;
   reply: (text: RichMessage, options?: UniversalReplyOptions) => Promise<void>;
-  replyWithPhoto?: (
+  replyWithPhoto: (
     photoUrl: string,
     caption?: RichMessage,
     options?: UniversalReplyOptions,

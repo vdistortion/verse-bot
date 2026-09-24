@@ -43,8 +43,12 @@ bot.start();
 - `contentCommand?` – handler for `/content_<N>`
 - `userLogCommand?` – handler for `/userlog_<N>`
 - `unknownCommandPhrase?`, `getButtonsForUnknown?` – optional response for unknown private-chat messages
-- `onReplyWithPhoto?` – custom photo sending
+- `onReplyWithPhoto?` – custom photo sender; receives `UniversalContext`, photo URL, caption and options, matching the VK adapter
 - `contentDir?` – path to content folder
+
+The built-in adapters provide `ctx.replyWithPhoto`; Telegram also provides `ctx.replyWithFile`.
+`replySafe` suppresses reply-keyboards outside private chats; reply keyboards also honor `one_time`,
+and either adapter can remove a keyboard with `{ remove_keyboard: true }`.
 
 Inline buttons can use `callbackData` independently of command routing. During callback handling,
 `ctx.callback` provides normalized data, the source message ID, `answer(text?)`, and

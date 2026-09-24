@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Asynchronous `checkAdmin` hook for custom Telegram administrator checks.
 - Callback context with normalized data, source message ID, callback answers, and text/caption editing.
 - `callbackData` support for inline buttons.
+- Shared `replySafe` keyboard safety and complete one-time/keyboard-removal behavior across send methods.
+- Photo hook receives the same universal context argument as the VK adapter.
 
 ## [0.1.0] - 2026-09-23
 

@@ -28,8 +28,8 @@ export interface VKBotConfig {
   database?: BotDatabase;
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   buttons: { command: string; label: string }[];
-  /** Обработчик сырых callback-данных для платформенных сценариев. */
-  onCallback?: (ctx: UniversalContext, payload: unknown) => Promise<void>;
+  /** Handler for normalized callback data; the original VK payload is available on ctx.payload. */
+  onCallback?: (ctx: UniversalContext, payload: string) => Promise<void>;
   /** Fallback for incoming messages not handled by registered commands or buttons. */
   onMessage?: (ctx: UniversalContext) => Promise<void>;
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
@@ -48,6 +48,25 @@ export interface VKBotConfig {
 function renderVKMessage(message?: RichMessage): string | undefined {
   if (message === undefined) return undefined;
   return typeof message === 'string' ? message : renderRich(message);
+}
+
+function createVKSendOptions(options?: UniversalReplyOptions): {
+  keyboard?: string;
+  dont_parse_links?: boolean;
+} {
+  let keyboard: string | undefined;
+  if (options?.remove_keyboard) {
+    keyboard = createVKKeyboard([], true);
+  } else if (options?.inlineKeyboard) {
+    keyboard = createVKInlineKeyboard(options.inlineKeyboard);
+  } else if (options?.replyKeyboard) {
+    keyboard = createVKKeyboard(options.replyKeyboard, options.one_time);
+  }
+
+  return {
+    keyboard,
+    dont_parse_links: options?.link_preview_options?.is_disabled,
+  };
 }
 
 export function getVKCallbackCommand(payload: unknown): string | undefined {
@@ -97,7 +116,12 @@ interface VKMessageSource {
   payload?: unknown;
   send: (
     text: string,
-    options?: { keyboard?: string; attachment?: string; random_id?: number },
+    options?: {
+      keyboard?: string;
+      attachment?: string;
+      random_id?: number;
+      dont_parse_links?: boolean;
+    },
   ) => Promise<unknown>;
 }
 
@@ -124,21 +148,15 @@ function createUniversalContext(
       return {
         firstName: user.first_name,
         lastName: user.last_name,
+        username: user.screen_name,
       };
     },
 
     reply: async (replyText: RichMessage, options?: UniversalReplyOptions) => {
-      let keyboard: string | undefined;
-      if (options?.replyKeyboard) {
-        keyboard = createVKKeyboard(options.replyKeyboard, options.one_time);
-      } else if (options?.inlineKeyboard) {
-        keyboard = createVKInlineKeyboard(options.inlineKeyboard);
-      }
-
       const textToSend = typeof replyText === 'string' ? replyText : renderRich(replyText);
 
       await source.send(textToSend, {
-        keyboard,
+        ...createVKSendOptions(options),
         random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
       });
     },
@@ -161,17 +179,12 @@ function createUniversalContext(
         return config.onReplyWithPhoto(uctx, photoUrl, captionText, options);
       }
 
-      let keyboard: string | undefined;
-      if (options?.inlineKeyboard) {
-        keyboard = createVKInlineKeyboard(options.inlineKeyboard);
-      } else if (options?.replyKeyboard) {
-        keyboard = createVKKeyboard(options.replyKeyboard);
-      }
+      const sendOptions = createVKSendOptions(options);
 
       if (/^photo-?\d+_\d+(?:_[a-z\d]+)?$/i.test(photoUrl)) {
         await source.send(captionText ?? '', {
+          ...sendOptions,
           attachment: photoUrl,
-          keyboard,
           random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
         });
         return;
@@ -186,8 +199,8 @@ function createUniversalContext(
           source: { value: stream, filename },
         });
         await source.send(captionText ?? '', {
+          ...sendOptions,
           attachment: `photo${photo.ownerId}_${photo.id}`,
-          keyboard,
           random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
         });
       };
@@ -228,7 +241,7 @@ function createUniversalContext(
 
       const fallbackText = [captionText, photoUrl].filter(Boolean).join('\n\n');
       await source.send(fallbackText || '📷', {
-        keyboard,
+        ...sendOptions,
         random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
       });
     },
@@ -342,6 +355,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
           cmid: event.conversationMessageId,
           message: renderVKMessage(message) ?? '',
           keyboard,
+          dont_parse_links: options?.link_preview_options?.is_disabled,
         });
       },
     };
@@ -349,7 +363,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
 
     const runCommand = async () => {
       if (config.onCallback) {
-        await config.onCallback(uctx, event.eventPayload);
+        await config.onCallback(uctx, callbackData);
       } else if (command) {
         await dispatchUniversalCommand(uctx, command, config);
       }

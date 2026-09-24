@@ -35,13 +35,15 @@ describe('createUniversalVKBot', () => {
       commands: {},
       buttons: [],
       checkAdmin: async () => true,
-      onCallback: async (ctx) => {
+      onCallback: async (ctx, payload) => {
+        expect(payload).toBe('answer:1');
         expect(ctx.isAdmin).toBe(true);
         expect(ctx.callback?.data).toBe('answer:1');
         expect(ctx.callback?.messageId).toBe(2);
         await ctx.callback?.answer('Correct');
         await ctx.callback?.editMessage('Next question', {
           inlineKeyboard: [[{ label: 'Answer', callbackData: 'answer:2' }]],
+          link_preview_options: { is_disabled: true },
         });
       },
     });
@@ -81,6 +83,7 @@ describe('createUniversalVKBot', () => {
             peer_id: 20,
             cmid: 2,
             message: 'Next question',
+            dont_parse_links: true,
           }),
         }),
       ]),
@@ -190,5 +193,73 @@ describe('createUniversalVKBot', () => {
       }),
     );
     expect(call).toHaveBeenCalledOnce();
+  });
+
+  it('applies shared keyboard options and leaves scoped document uploads unavailable', async () => {
+    const bot = createUniversalVKBot({
+      token: 'test-vk-token',
+      groupId: 1,
+      commands: {},
+      buttons: [],
+      onMessage: async (ctx) => {
+        expect(ctx.replyWithFile).toBeUndefined();
+        const keyboard = [[{ label: 'Menu' }]];
+        await ctx.replySafe('Safe group reply', {
+          replyKeyboard: keyboard,
+          one_time: true,
+          link_preview_options: { is_disabled: true },
+        });
+        await ctx.reply('One-time menu', { replyKeyboard: keyboard, one_time: true });
+        await ctx.reply('Hide menu', { remove_keyboard: true });
+      },
+    });
+    const call = vi.spyOn(bot.api, 'callWithRequest').mockResolvedValue(1 as never);
+    const event = new MessageContext({
+      api: bot.api,
+      upload: bot.upload,
+      type: 'message',
+      subTypes: ['message_new'],
+      payload: {
+        message: {
+          id: 1,
+          conversation_message_id: 1,
+          out: 0,
+          peer_id: 2_000_000_001,
+          from_id: 10,
+          text: 'send backup',
+          date: 1,
+          random_id: 0,
+          attachments: [],
+          important: false,
+        },
+        client_info: {
+          button_actions: ['callback'],
+          keyboard: true,
+          inline_keyboard: true,
+          carousel: false,
+          lang_id: 0,
+        },
+      },
+      source: UpdateSource.POLLING,
+      updateType: 'message_new',
+    });
+
+    await bot.updates.dispatchMiddleware(event);
+
+    const requests = call.mock.calls.map(([request]) => request);
+    expect(requests).toHaveLength(3);
+    expect(requests[0]?.params).toMatchObject({
+      message: 'Safe group reply',
+      dont_parse_links: true,
+    });
+    expect(requests[0]?.params.keyboard).toBeUndefined();
+    expect(JSON.parse(requests[1]?.params.keyboard as string)).toMatchObject({
+      one_time: true,
+      buttons: [[{ action: { label: 'Menu' } }]],
+    });
+    expect(JSON.parse(requests[2]?.params.keyboard as string)).toEqual({
+      one_time: true,
+      buttons: [],
+    });
   });
 });

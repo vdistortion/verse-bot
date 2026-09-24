@@ -87,6 +87,8 @@ describe('imp-bot startup configuration', () => {
     expect(telegramConfig.commands.start).toBe(vkConfig.commands.start);
     expect(telegramConfig.commands.stats).toBe(vkConfig.commands.stats);
     expect(telegramConfig.commands.backupdb).toBeDefined();
+    expect(telegramConfig.commands.backupfiles).toBeDefined();
     expect(vkConfig.commands.backupdb).toBeUndefined();
+    expect(vkConfig.commands.backupfiles).toBeUndefined();
   });
 });

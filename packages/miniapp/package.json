@@ -30,6 +30,7 @@
   },
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
+    "postbuild": "cp ../../LICENSE dist/LICENSE",
     "publish": "npm run build && cd dist && npm publish",
     "pack": "npm run build && cd dist && npm pack --pack-destination .."
   },

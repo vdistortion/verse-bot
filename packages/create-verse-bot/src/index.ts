@@ -28,6 +28,17 @@ export function createProject({
   const templateDir = path.resolve(__dirname, '../template');
   fs.copySync(templateDir, targetDir);
 
+  const licensePath = [
+    path.resolve(__dirname, 'LICENSE'),
+    path.resolve(__dirname, '../../../LICENSE'), // development: root LICENSE
+  ].find((file) => fs.existsSync(file));
+
+  if (!licensePath) {
+    throw new Error('LICENSE file not found.');
+  }
+
+  fs.copyFileSync(licensePath, path.join(targetDir, 'LICENSE'));
+
   const pkgPath = path.join(targetDir, 'package.json');
   const pkg = fs.readJsonSync(pkgPath);
   const packageVersion = '^0.1.0';

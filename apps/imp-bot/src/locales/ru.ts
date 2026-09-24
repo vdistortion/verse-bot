@@ -1,12 +1,13 @@
 import type {
   Platform,
   RichMessage,
+  UniversalCommandButton,
   UniversalContext,
   UniversalKeyboardButton,
 } from '@verse-bot/core';
 import { bold, code, link, spoiler } from 'tg-rich-messages';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, VK_GROUP_ID, VK_GROUP_TOKEN } from '../env.js';
-import { formatFor, type BotFormat } from '../format.js';
+import { formatFor, lineBreak, type BotFormat } from '../format.js';
 
 type Format = BotFormat;
 
@@ -45,7 +46,7 @@ export const commands: Record<string, CommandDef> = {
   random: {
     command: 'random',
     button: '🎲 Рандом',
-    help: 'Источник неизвестен',
+    help: '🎲 Источник неизвестен',
   },
   content: {
     command: 'content',
@@ -107,7 +108,7 @@ export const commands: Record<string, CommandDef> = {
 };
 
 export function getButtons(fullMenu: boolean) {
-  const buttons: { label: string; command: string }[] = [];
+  const buttons: UniversalCommandButton[] = [];
   if (commands.quote.button)
     buttons.push({ label: commands.quote.button, command: '/' + commands.quote.command });
   if (commands.cat.button)
@@ -125,15 +126,16 @@ export function getInlineButton(command: string, label: string): UniversalKeyboa
   return [[{ label, command: `/${command}` }]];
 }
 
-export function getHelpLines(): string {
-  let lines = '';
+export function getHelpLines(): unknown[] {
+  const lines: unknown[] = [];
   for (const cmd of Object.values(commands)) {
     if (cmd.hidden || !cmd.help) continue;
     if (cmd.adminOnly) continue;
     if (cmd.command === 'random' && Math.random() < 0.2) continue;
     if (cmd.command === 'advice' && Math.random() < 0.1) continue;
     const cmdText = `/${cmd.command}`;
-    lines += `${cmdText} — ${cmd.help}\n`;
+    if (lines.length > 0) lines.push(lineBreak());
+    lines.push(`${cmdText} — ${cmd.help}`);
   }
   return lines;
 }
@@ -151,21 +153,22 @@ export const phrases = {
     getMessage: (fmt: Format, platform: Platform) => {
       const vkGroupLink = VK_GROUP_TOKEN ? VK_GROUP_ID : undefined;
       const tgUsername = TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_USERNAME : undefined;
-      const header = fmt`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}\n\n${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}\n\n📁 ${bold('Команды работают, смысл утрачен')}:\n${getHelpLines()}`;
+      const header = fmt`${bold('[ИНТЕРФЕЙС БОТА. ВЕРСИЯ ЗАБЫТА]')}${lineBreak()}${lineBreak()}${spoiler('🤖 Этот бот — пережиток. Он всё ещё работает. Без цели.')}${lineBreak()}${lineBreak()}📁 ${bold('Команды работают, смысл утрачен')}:${lineBreak()}${getHelpLines()}`;
 
       const sourceCode = link('Исходный код', 'https://github.com/vdistortion/verse-bot');
+      const sectionBreak = platform === 'telegram' ? '' : '\n\n';
       let linksSection: RichMessage;
       if (platform === 'telegram' && vkGroupLink) {
         const botVk = link('Бот ВКонтакте', `https://vk.com/club${vkGroupLink}`);
-        linksSection = fmt`\n🔗 ${bold('Ссылки')}:\n${botVk} — Не обязательно использовать\n${sourceCode} — Не обязательно понимать.`;
+        linksSection = fmt`${sectionBreak}🔗 ${bold('Ссылки')}:${lineBreak()}${botVk} — Не обязательно использовать${lineBreak()}${sourceCode} — Не обязательно понимать.`;
       } else if (platform !== 'telegram' && tgUsername) {
         const botTg = link('Бот в Telegram', `https://t.me/${tgUsername}`);
-        linksSection = fmt`\n🔗 ${bold('Ссылки')}:\n${botTg} — Не обязательно использовать\n${sourceCode} — Не обязательно понимать.`;
+        linksSection = fmt`${sectionBreak}🔗 ${bold('Ссылки')}:${lineBreak()}${botTg} — Не обязательно использовать${lineBreak()}${sourceCode} — Не обязательно понимать.`;
       } else {
-        linksSection = fmt`\n🔗 ${bold('Ссылки')}:\n${sourceCode} — Не обязательно понимать.`;
+        linksSection = fmt`${sectionBreak}🔗 ${bold('Ссылки')}:${lineBreak()}${sourceCode} — Не обязательно понимать.`;
       }
 
-      const footer = fmt`\n\n${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}\n\n${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
+      const footer = fmt`${sectionBreak}${spoiler('Система не архивирует. Система не интересуется. Система просто работает.')}${lineBreak()}${lineBreak()}${bold('[СИСТЕМА ЗАВЕРШИЛА ВЫВОД]')}`;
 
       return fmt`${header}${linksSection}${footer}`;
     },
@@ -174,22 +177,17 @@ export const phrases = {
   admin: {
     message: (fmt: Format, platform: Platform, dbUserId?: number) => {
       const userIdPlaceholder = dbUserId !== undefined ? String(dbUserId) : '<id>';
-      if (platform === 'telegram') {
-        const tgCmds =
-          `/backupdb – 💾 Сделать бэкап базы данных\n` +
-          `/backupfiles – 📦 Бэкап файлов контента\n` +
-          `/list\\_users – 👥 Список активных пользователей\n` +
-          `/stats – 📊 Статистика команд\n` +
-          `/userlog\\_${userIdPlaceholder} – 📋 Логи пользователя`;
-        return fmt`👑 ${bold('Административные команды:')}\n${tgCmds}`;
-      } else {
-        return fmt`
-👑 Административные команды:
-${`/list_users – 👥 Список активных пользователей
-/stats – 📊 Статистика команд
-/userlog_${userIdPlaceholder} – 📋 Логи пользователя`}
-`;
-      }
+      const backupCommands =
+        platform === 'telegram'
+          ? `/backupdb – 💾 Сделать бэкап базы данных\n` +
+            `/backupfiles – 📦 Бэкап файлов контента\n`
+          : '';
+      const adminCommands =
+        backupCommands +
+        `/list_users – 👥 Список активных пользователей\n` +
+        `/stats – 📊 Статистика команд\n` +
+        `/userlog_${userIdPlaceholder} – 📋 Логи пользователя`;
+      return fmt`👑 ${bold('Административные команды:')}${lineBreak()}${adminCommands}`;
     },
   },
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, rmSync, mkdtempSync } from 'node:fs';
+import { readFileSync, existsSync, rmSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createProject } from '../packages/create-verse-bot/dist/index.js';
@@ -25,6 +25,8 @@ try {
     });
     const packageJson = JSON.parse(readFileSync(join(projectDir, 'package.json'), 'utf8'));
     const source = readFileSync(join(projectDir, 'src/index.ts'), 'utf8');
+    assert.equal(packageJson.scripts.lint, 'tsc --noemit');
+    assert.equal(existsSync(join(projectDir, 'LICENSE')), true);
     const dependencies = Object.keys(packageJson.dependencies).sort();
 
     assert.deepEqual(
@@ -54,6 +56,7 @@ try {
         stdio: 'inherit',
       });
       execFileSync('npm', ['run', 'build'], { cwd: projectDir, stdio: 'inherit' });
+      execFileSync('npm', ['run', 'lint'], { cwd: projectDir, stdio: 'inherit' });
     }
   }
 

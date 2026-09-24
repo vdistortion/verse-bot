@@ -1,21 +1,11 @@
 import type { Platform, RichMessage } from '@verse-bot/core';
-import { fmtRich } from 'tg-rich-messages';
+import { renderVKRichHtml } from '@verse-bot/vk';
+import { fmtRich, inline, type FmtValue } from 'tg-rich-messages';
 
 type FormatValue = unknown;
 export type BotFormat = (strings: TemplateStringsArray, ...values: FormatValue[]) => RichMessage;
 
-function stripHtml(value: string): string {
-  return value
-    .replace(/<br\s*\/?>(?=\S)/gi, '\n')
-    .replace(/<\/p>\s*<p>/gi, '\n\n')
-    .replace(/<\/?p>/gi, '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-}
+export const lineBreak = () => inline(() => '\n');
 
 function renderValue(value: FormatValue): string {
   if (value === null || value === undefined || value === false) return '';
@@ -24,10 +14,10 @@ function renderValue(value: FormatValue): string {
 
   if (typeof value === 'object') {
     if ('toHTML' in value && typeof value.toHTML === 'function') {
-      return stripHtml(value.toHTML());
+      return renderVKRichHtml(value.toHTML());
     }
     if ('render' in value && typeof value.render === 'function') {
-      return stripHtml(value.render());
+      return renderVKRichHtml(value.render(), { trim: false });
     }
   }
 
@@ -42,6 +32,35 @@ function plainFormat(strings: TemplateStringsArray, ...values: FormatValue[]): s
   );
 }
 
+function richFormat(strings: TemplateStringsArray, ...values: FormatValue[]): RichMessage {
+  const parts: FmtValue[] = [];
+
+  const appendText = (text: string) => {
+    const lines = text.split(/\r?\n/);
+    lines.forEach((line, index) => {
+      parts.push(line);
+      if (index < lines.length - 1) parts.push(lineBreak());
+    });
+  };
+
+  const appendValue = (value: FormatValue): void => {
+    if (typeof value === 'string') {
+      appendText(value);
+    } else if (Array.isArray(value)) {
+      value.forEach(appendValue);
+    } else {
+      parts.push(value as FmtValue);
+    }
+  };
+
+  strings.forEach((string, index) => {
+    appendText(string);
+    if (index < values.length) appendValue(values[index]);
+  });
+
+  return fmtRich`${parts as unknown as FmtValue}`;
+}
+
 export function formatFor(platform: Platform): BotFormat {
-  return platform === 'telegram' ? (fmtRich as BotFormat) : plainFormat;
+  return platform === 'telegram' ? richFormat : plainFormat;
 }

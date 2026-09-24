@@ -10,14 +10,22 @@ Verse Bot is built around a platform-neutral `UniversalContext` and separate ada
 - inspect the message through `text`, `userId` and `chatType`;
 - check permissions through `isAdmin`;
 - access the optional database client through `db`;
-- send keyboards, photos and files when the adapter supports them.
+- send keyboards and photos through either built-in adapter, and files when the adapter supports them;
+- handle inline callbacks through `callback.data`, `answer` and `editMessage`;
+- inspect original update payloads and asynchronous admin checks.
+
+`replySafe` removes reply-keyboards from group chats. Both built-in adapters honor one-time
+keyboards and keyboard removal through the shared reply options. File sending is optional because
+some platform APIs require additional upload scopes.
 
 ## Adapters
 
 - **`@verse-bot/telegram`** creates a bot with [grammY](https://grammy.dev/), converts updates into `UniversalContext` and registers commands.
 - **`@verse-bot/vk`** uses [vk-io](https://github.com/negezor/vk-io) for VK API access and Long Poll events, then converts them into `UniversalContext`.
 
-Both adapters dispatch simple button commands through the shared command map. Use the platform adapter's optional `onCallback` handler when a callback carries additional platform-specific data.
+Both adapters dispatch simple button commands through the shared command map. Their optional
+`onCallback` handlers receive normalized string data; `ctx.payload` preserves the original platform
+payload when an application needs it.
 
 ## Universal bot factories
 

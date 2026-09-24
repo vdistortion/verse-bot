@@ -84,7 +84,7 @@ COPY bot_content (text_content, image_url) FROM stdin;
 Зона комфорта	Zona_komforta.webp
 Две свинки	Dve_svinki.webp
 Доброта	Dobrota.webp
-Кофи(1)	Kofi1.webp
+Кофи	Kofi1.webp
 Мишки в лесу	Mishki_v_lesu.webp
 Тоже так могу	Tozhe_tak_mogu.webp
 Удобства	Udobstva.webp
@@ -105,7 +105,7 @@ COPY bot_content (text_content, image_url) FROM stdin;
 Кофи	Kofi.webp
 Что-то непонятное	Chtoto_neponyatnoe.webp
 Отравляются	Otravlyayutsya.webp
-Кофи(2)	Kofi2.webp
+Кофи	Kofi2.webp
 Где ты живёшь	Gde_ty_zhivyosh.webp
 Обними люцифера	Obnimi_lyutsifera.webp
 Гуси	Gusi.webp

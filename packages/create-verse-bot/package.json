@@ -25,6 +25,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "prepack": "cp ../../LICENSE dist/LICENSE",
     "dev": "tsc --watch"
   },
   "dependencies": {

@@ -31,10 +31,23 @@ The adapter creates a universal context, manages Long Poll updates and renders s
 
 Inline keyboard callbacks are handled through VK `message_event` updates and use the same command handlers as text messages.
 
-Use the optional `onCallback` configuration when a VK callback carries additional data such as an action or item identifier.
+Inline keyboards use VK callback actions, support `callbackData` and VK button `color`, and expose
+normalized callback data plus `answer(text?)` and `editMessage(message, options?)` through
+`ctx.callback`. Unanswered callbacks are acknowledged automatically. VK photo attachment IDs can
+be passed to `ctx.replyWithPhoto` and are sent directly.
+Reply keyboards honor `one_time`, and `replySafe` suppresses reply keyboards in group chats just
+like the Telegram adapter.
 
-The returned `VKBot` also exposes `request`, `sendMessage`, and the underlying
-`api`, `upload`, and `updates` clients for platform-specific operations.
+File sending remains optional on `UniversalContext`. This adapter does not expose `replyWithFile`;
+VK document upload requires an additional API scope that is not available to the configured bot.
+
+Use the optional `onCallback` configuration when a VK callback carries application data. Its second argument is normalized to a string; the original VK payload remains available as `ctx.payload`.
+
+The returned `VKBot` also exposes `request`, `sendMessage`, and the underlying `api`, `upload`, and
+`updates` clients for platform-specific operations. Configure `userToken` to expose an additional
+`userApi` client when a scenario requires separate credentials, for example to read community photo
+albums. `checkAdmin` supports asynchronous checks for VK community roles, and `onMessage` receives
+messages not handled by registered commands.
 
 ## License
 

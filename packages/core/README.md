@@ -11,6 +11,10 @@ npm install @verse-bot/core
 ## What it provides
 
 - `UniversalContext`, `Platform` and shared message types;
+- `UniversalCommandButton` for command-to-label mappings shared by both adapters;
+- callback capabilities for answering inline callbacks and editing their source message;
+- shared callback data, original update payloads and configurable admin checks;
+- `checkUniversalAdmin` for resolving the configured admin ID and optional asynchronous check;
 - `dispatchUniversalCommand` for common command routing;
 - `requireAdmin` and `requirePrivateChat` guards;
 - `catchErrors` for consistent command error handling;

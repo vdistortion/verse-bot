@@ -38,11 +38,39 @@ bot.start();
 - `commands` – command handlers
 - `buttons` – button mappings
 - `onCallback?` – handler for raw callback data when a button carries more than a command
+- `onMessage?` – fallback for incoming updates not handled by commands or button mappings
+- `checkAdmin?` – asynchronous admin check for roles beyond the configured `adminId`
 - `contentCommand?` – handler for `/content_<N>`
 - `userLogCommand?` – handler for `/userlog_<N>`
 - `unknownCommandPhrase?`, `getButtonsForUnknown?` – optional response for unknown private-chat messages
-- `onReplyWithPhoto?` – custom photo sending
+- `onReplyWithPhoto?` – custom photo sender; receives `UniversalContext`, photo URL, caption and options, matching the VK adapter
 - `contentDir?` – path to content folder
+
+The built-in adapters provide `ctx.replyWithPhoto`; Telegram also provides `ctx.replyWithFile`.
+`replySafe` suppresses reply-keyboards outside private chats; reply keyboards also honor `one_time`,
+and either adapter can remove a keyboard with `{ remove_keyboard: true }`.
+
+Inline buttons can use `callbackData` independently of command routing. During callback handling,
+`ctx.callback` provides normalized data, the source message ID, `answer(text?)`, and
+`editMessage(message, options?)`. The adapter acknowledges the callback automatically if the
+handler does not answer it explicitly.
+
+```ts
+const bot = createUniversalTelegramBot({
+  token: '...',
+  commands: {},
+  buttons: [],
+  onCallback: async (ctx) => {
+    const callback = ctx.callback;
+    if (!callback) return;
+
+    await callback.answer('Received');
+    await callback.editMessage('Updated', {
+      inlineKeyboard: [[{ label: 'Continue', callbackData: 'continue' }]],
+    });
+  },
+});
+```
 
 ## Middleware
 

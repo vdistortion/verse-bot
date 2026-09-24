@@ -4,7 +4,10 @@ import type {
   RichMessage,
   UserProfile,
   UniversalReplyOptions,
+  UniversalCallbackContext,
 } from './types.js';
+
+export type UniversalAdminCheck = (ctx: UniversalContext) => boolean | Promise<boolean>;
 
 export interface UniversalContext {
   platform: Platform;
@@ -13,6 +16,10 @@ export interface UniversalContext {
   peerId: number;
   text: string;
   isAdmin: boolean;
+  /** Original platform payload, if the update contains one. */
+  payload?: unknown;
+  /** Present only while handling an inline callback update. */
+  callback?: UniversalCallbackContext;
 
   chatType: 'private' | 'group' | 'channel' | 'supergroup' | 'unknown';
   chatTitle?: string;

@@ -24,6 +24,10 @@ export interface UserProfile {
 export interface UniversalKeyboardButton {
   label: string;
   command?: string;
+  /** Callback data for inline buttons. Falls back to `command`, then `label`. */
+  callbackData?: string;
+  /** VK button color. Telegram adapters ignore this option. */
+  color?: 'primary' | 'secondary' | 'negative' | 'positive';
 }
 
 export interface UniversalReplyOptions {
@@ -32,6 +36,21 @@ export interface UniversalReplyOptions {
   replyKeyboard?: UniversalKeyboardButton[][];
   inlineKeyboard?: UniversalKeyboardButton[][];
   one_time?: boolean;
+}
+
+export type UniversalEditOptions = Pick<
+  UniversalReplyOptions,
+  'inlineKeyboard' | 'link_preview_options'
+>;
+
+/** Capabilities available while handling an inline callback update. */
+export interface UniversalCallbackContext {
+  /** Callback data normalized to a string by the platform adapter. */
+  data: string;
+  /** Message identifier in the current chat/conversation, when available. */
+  messageId?: number;
+  answer: (text?: string) => Promise<void>;
+  editMessage: (message: RichMessage, options?: UniversalEditOptions) => Promise<void>;
 }
 
 export interface RenderableMessage {

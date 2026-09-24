@@ -8,6 +8,9 @@ import {
   dispatchUniversalCommand,
   type BotDatabase,
   type RichMessage,
+  type UniversalAdminCheck,
+  type UniversalCallbackContext,
+  type UniversalEditOptions,
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/core';
@@ -19,17 +22,28 @@ import { createTelegramKeyboard, createTelegramInlineKeyboard } from './keyboard
 type TelegramSendMessageOptions = Partial<Omit<Opts<'sendMessage'>, 'chat_id' | 'text'>>;
 type TelegramSendPhotoOptions = Partial<Omit<Opts<'sendPhoto'>, 'chat_id' | 'photo'>>;
 type TelegramSendDocumentOptions = Partial<Omit<Opts<'sendDocument'>, 'chat_id' | 'document'>>;
+type TelegramEditMessageTextOptions = Partial<
+  Omit<Opts<'editMessageText'>, 'chat_id' | 'message_id' | 'text'>
+>;
+type TelegramEditMessageCaptionOptions = Partial<
+  Omit<Opts<'editMessageCaption'>, 'chat_id' | 'message_id' | 'caption'>
+>;
+type TelegramEditMessageMarkupOptions = Pick<TelegramEditMessageTextOptions, 'reply_markup'>;
 
 export interface TelegramBotConfig {
   token: string;
   database?: BotDatabase;
   adminId?: number;
+  /** Optional asynchronous check for platform roles or additional administrators. */
+  checkAdmin?: UniversalAdminCheck;
   /** Обработчики статических команд (без параметров). Ключ – имя команды (без слеша). */
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   /** Определения кнопок (берутся из phrases). Массив объектов с command и button. */
   buttons: { command: string; label: string }[];
   /** Обработчик сырых callback-данных для платформенных сценариев. */
   onCallback?: (ctx: UniversalContext, payload: string) => Promise<void>;
+  /** Fallback for incoming updates not handled by registered commands or buttons. */
+  onMessage?: (ctx: UniversalContext) => Promise<void>;
   /** Опционально: обработчик команды /content_<N> */
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
   /** Опционально: обработчик команды /userlog_<N> */
@@ -60,6 +74,15 @@ function createTelegramExtra(extra?: UniversalReplyOptions): TelegramSendMessage
     telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
   } else if (extra?.replyKeyboard) {
     telegramExtra.reply_markup = createTelegramKeyboard(extra.replyKeyboard);
+  }
+
+  return telegramExtra;
+}
+
+function createTelegramEditMarkup(extra?: UniversalEditOptions): TelegramEditMessageMarkupOptions {
+  const telegramExtra: TelegramEditMessageMarkupOptions = {};
+  if (extra?.inlineKeyboard) {
+    telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
   }
 
   return telegramExtra;
@@ -154,6 +177,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       peerId: chatId,
       text: messageText,
       isAdmin: fromId === config.adminId,
+      payload: ctx.callbackQuery?.data,
       db: ctx.db,
       platformApi: ctx.api,
       chatTitle: ctx.chat?.title,
@@ -199,6 +223,55 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         }
       },
     };
+
+    if (ctx.callbackQuery) {
+      const callbackMessage = ctx.callbackQuery.message;
+      const callbackData = ctx.callbackQuery.data ?? '';
+      let answered = false;
+      const callback: UniversalCallbackContext = {
+        data: callbackData,
+        messageId: callbackMessage?.message_id,
+        answer: async (text) => {
+          if (answered) return;
+          answered = true;
+          await ctx.answerCallbackQuery(text ? { text } : {});
+        },
+        editMessage: async (message, options) => {
+          const content = renderTelegramCaption(message) ?? '';
+          const editMarkup = createTelegramEditMarkup(options);
+          const richMessage = typeof message !== 'string';
+          const isCaption =
+            callbackMessage !== undefined &&
+            ('caption' in callbackMessage ||
+              'photo' in callbackMessage ||
+              'video' in callbackMessage ||
+              'animation' in callbackMessage ||
+              'audio' in callbackMessage ||
+              'document' in callbackMessage);
+
+          if (isCaption) {
+            const captionOptions: TelegramEditMessageCaptionOptions = {
+              ...editMarkup,
+              parse_mode: richMessage ? 'HTML' : undefined,
+            };
+            await ctx.editMessageCaption({ caption: content, ...captionOptions });
+            return;
+          }
+
+          const textOptions: TelegramEditMessageTextOptions = {
+            ...editMarkup,
+            link_preview_options: options?.link_preview_options,
+            parse_mode: richMessage ? 'HTML' : undefined,
+          };
+          await ctx.editMessageText(content, textOptions);
+        },
+      };
+      uctx.callback = callback;
+    }
+
+    if (config.checkAdmin && !uctx.isAdmin) {
+      uctx.isAdmin = await config.checkAdmin(uctx);
+    }
     ctx.uctx = uctx;
     await next();
   });
@@ -237,7 +310,8 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     } catch (err) {
       console.error('[Telegram] callback_query handler error:', err);
     } finally {
-      await ctx.answerCallbackQuery();
+      if (uctx.callback) await uctx.callback.answer();
+      else await ctx.answerCallbackQuery();
     }
   });
 
@@ -265,7 +339,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     }
   }
 
-  if (config.unknownCommandPhrase) {
+  if (!config.onMessage && config.unknownCommandPhrase) {
     bot.on('message:text', async (ctx, next) => {
       const uctx = ctx.uctx;
       if (!uctx || uctx.chatType !== 'private') return next();
@@ -304,6 +378,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         const uctx = ctx.uctx!;
         await config.userLogCommand!(uctx, userId);
       }
+    });
+  }
+
+  if (config.onMessage) {
+    bot.on('message', async (ctx) => {
+      if (ctx.uctx) await config.onMessage!(ctx.uctx);
     });
   }
 

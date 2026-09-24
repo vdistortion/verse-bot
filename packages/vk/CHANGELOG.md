@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Published package includes the Apache-2.0 license file.
 - `onMessage` fallback and asynchronous `checkAdmin` hook for community roles or additional administrators.
 - Optional second API client configured with `userToken` and exposed as `bot.userApi`.
 - Callback context with normalized data, callback acknowledgement, and source-message editing.
@@ -23,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reply and callback edits map shared link-preview settings to VK's `dont_parse_links` option.
 - External HTTPS rich links render as `Label: URL`; VK-native links use `[target|label]` markup.
 - Rich message conversion preserves intentional single and repeated line breaks.
+
+### Fixed
+
+- `getUserProfile` returns `null` when the VK profile API lookup fails, matching Telegram behavior.
 
 ## [0.1.0] - 2026-09-23
 

@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Published package includes the Apache-2.0 license file.
 - Optional `UniversalCallbackContext` for normalized callback data, acknowledgement and editing the source message.
 - `UniversalAdminCheck` for adapter-provided asynchronous role checks.
+- `checkUniversalAdmin` helper and a shared `UniversalCommandButton` type for adapter button mappings.
 - Original update payloads, inline-button `callbackData`, and VK button color metadata in shared types.
 
 ### Fixed

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Published package includes the Apache-2.0 license file.
 - `onMessage` fallback for incoming updates not handled by registered commands or buttons.
 - Asynchronous `checkAdmin` hook for custom Telegram administrator checks.
 - Callback context with normalized data, source message ID, callback answers, and text/caption editing.

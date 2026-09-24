@@ -13,9 +13,15 @@ describe('bot formatting', () => {
     expect(html).toContain('\nLast');
   });
 
-  it('renders VK links and line breaks as plain text', () => {
+  it('renders external VK links with their URL and preserves line breaks', () => {
     const message = formatFor('vk')`First\n${link('Example', 'https://example.com')}\nLast`;
 
-    expect(message).toBe('First\n[https://example.com|Example]\nLast');
+    expect(message).toBe('First\nExample: https://example.com\nLast');
+  });
+
+  it('renders VK-native links with VK link markup', () => {
+    const message = formatFor('vk')`${link('Example community', 'club123')}`;
+
+    expect(message).toBe('[club123|Example community]');
   });
 });

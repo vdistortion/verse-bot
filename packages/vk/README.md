@@ -31,6 +31,8 @@ bot.start();
 
 Inline keyboard buttons are handled through VK `message_event` callbacks. Their command payload is dispatched through the same command handlers as text messages, and the callback is acknowledged automatically.
 
+When a `RenderableMessage` is sent, HTTPS links are rendered as `Label: URL` so the external address is visible and clickable. VK-native links use VK markup in the form `[target|label]`.
+
 ## API
 
 `createUniversalVKBot(config: VKBotConfig)` returns a `VKBot` instance.

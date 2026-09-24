@@ -13,8 +13,8 @@ function stripTags(html: string): string {
   return decodeHtmlEntities(html.replace(/<[^>]+>/g, ''));
 }
 
-export function renderRich(doc: RenderableMessage): string {
-  let html = doc.toHTML();
+export function renderVKRichHtml(input: string): string {
+  let html = input;
 
   /**
    * Параграфы и переносы.
@@ -26,14 +26,16 @@ export function renderRich(doc: RenderableMessage): string {
     .replace(/<br\s*\/?>/gi, '\n');
 
   /**
-   * VK поддерживает ссылки в формате [URL|Текст].
+   * External URLs remain visible and clickable as plain links. VK-native targets
+   * use the [target|label] markup understood by VK clients.
    */
   html = html.replace(
-    /<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,
+    /<a\b[^>]*href=["']([^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi,
     (_match, href: string, inner: string) => {
       const text = stripTags(inner).trim();
       const url = decodeHtmlEntities(href);
-      return text ? `[${url}|${text}]` : url;
+      if (!text) return url;
+      return /^https?:\/\//i.test(url) ? `${text}: ${url}` : `[${url}|${text}]`;
     },
   );
 
@@ -41,4 +43,8 @@ export function renderRich(doc: RenderableMessage): string {
    * Всё остальное форматирование VK игнорирует.
    */
   return stripTags(html).trim();
+}
+
+export function renderRich(doc: RenderableMessage): string {
+  return renderVKRichHtml(doc.toHTML());
 }

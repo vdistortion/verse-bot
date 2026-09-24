@@ -1,40 +1,11 @@
 import type { Platform, RichMessage } from '@verse-bot/core';
+import { renderVKRichHtml } from '@verse-bot/vk';
 import { fmtRich, inline, type FmtValue } from 'tg-rich-messages';
 
 type FormatValue = unknown;
 export type BotFormat = (strings: TemplateStringsArray, ...values: FormatValue[]) => RichMessage;
 
 export const lineBreak = () => inline(() => '\n');
-
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-}
-
-function stripHtml(value: string): string {
-  return value
-    .replace(
-      /<a\b[^>]*href=["']([^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi,
-      (_match, href: string, inner: string) => {
-        const text = stripHtml(inner).trim();
-        const url = decodeHtmlEntities(href);
-        return text ? `[${url}|${text}]` : url;
-      },
-    )
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<p\b[^>]*>/gi, '')
-    .replace(/<\/p>/gi, '\n\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-}
 
 function renderValue(value: FormatValue): string {
   if (value === null || value === undefined || value === false) return '';
@@ -43,10 +14,10 @@ function renderValue(value: FormatValue): string {
 
   if (typeof value === 'object') {
     if ('toHTML' in value && typeof value.toHTML === 'function') {
-      return stripHtml(value.toHTML());
+      return renderVKRichHtml(value.toHTML());
     }
     if ('render' in value && typeof value.render === 'function') {
-      return stripHtml(value.render());
+      return renderVKRichHtml(value.render());
     }
   }
 

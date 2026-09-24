@@ -1,6 +1,7 @@
 import type {
   Platform,
   RichMessage,
+  UniversalCommandButton,
   UniversalContext,
   UniversalKeyboardButton,
 } from '@verse-bot/core';
@@ -107,7 +108,7 @@ export const commands: Record<string, CommandDef> = {
 };
 
 export function getButtons(fullMenu: boolean) {
-  const buttons: { label: string; command: string }[] = [];
+  const buttons: UniversalCommandButton[] = [];
   if (commands.quote.button)
     buttons.push({ label: commands.quote.button, command: '/' + commands.quote.command });
   if (commands.cat.button)

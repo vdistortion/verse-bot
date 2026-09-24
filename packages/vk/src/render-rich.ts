@@ -13,10 +13,7 @@ function stripTags(html: string): string {
   return decodeHtmlEntities(html.replace(/<[^>]+>/g, ''));
 }
 
-export function renderVKRichHtml(
-  input: string,
-  options: { trim?: boolean } = {},
-): string {
+export function renderVKRichHtml(input: string, options: { trim?: boolean } = {}): string {
   let html = input;
 
   /**

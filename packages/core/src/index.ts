@@ -1,6 +1,7 @@
 export type {
   Platform,
   UserProfile,
+  UniversalCommandButton,
   UniversalKeyboardButton,
   UniversalReplyOptions,
   UniversalEditOptions,
@@ -12,6 +13,7 @@ export type {
   BotDatabase,
 } from './types.js';
 export type { UniversalContext, UniversalAdminCheck } from './context.js';
+export { checkUniversalAdmin } from './admin.js';
 export { http } from './http.js';
 export { catchErrors, requireAdmin, requirePrivateChat } from './command-guards.js';
 export {

@@ -3,11 +3,13 @@ import { existsSync, readFileSync } from 'node:fs';
 import { type Api, type Bot, InputFile } from 'grammy';
 import type { Opts } from 'grammy/types';
 import {
+  checkUniversalAdmin,
   createAuthMiddleware,
   createLoggingMiddleware,
   dispatchUniversalCommand,
   type BotDatabase,
   type RichMessage,
+  type UniversalCommandButton,
   type UniversalAdminCheck,
   type UniversalCallbackContext,
   type UniversalEditOptions,
@@ -39,7 +41,7 @@ export interface TelegramBotConfig {
   /** Обработчики статических команд (без параметров). Ключ – имя команды (без слеша). */
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   /** Определения кнопок (берутся из phrases). Массив объектов с command и button. */
-  buttons: { command: string; label: string }[];
+  buttons: UniversalCommandButton[];
   /** Обработчик сырых callback-данных для платформенных сценариев. */
   onCallback?: (ctx: UniversalContext, payload: string) => Promise<void>;
   /** Fallback for incoming updates not handled by registered commands or buttons. */
@@ -59,7 +61,7 @@ export interface TelegramBotConfig {
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
   unknownCommandPhrase?: (ctx: UniversalContext) => RichMessage;
-  getButtonsForUnknown?: () => { label: string; command: string }[];
+  getButtonsForUnknown?: () => UniversalCommandButton[];
 }
 
 function createTelegramExtra(extra?: UniversalReplyOptions): TelegramSendMessageOptions {
@@ -287,9 +289,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       uctx.callback = callback;
     }
 
-    if (config.checkAdmin && !uctx.isAdmin) {
-      uctx.isAdmin = await config.checkAdmin(uctx);
-    }
+    uctx.isAdmin = await checkUniversalAdmin(uctx, config.checkAdmin);
     ctx.uctx = uctx;
     await next();
   });

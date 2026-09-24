@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { UserProfile } from '@verse-bot/core';
 import { MessageContext, MessageEventContext, UpdateSource } from 'vk-io';
 import { createUniversalVKBot, getVKCallbackCommand, getVKCallbackData } from './universal-bot.js';
 
@@ -138,6 +139,56 @@ describe('createUniversalVKBot', () => {
       isAdmin: true,
       text: 'https://example.com/album',
     });
+  });
+
+  it('returns null when the VK profile lookup fails', async () => {
+    let profile: UserProfile | null | undefined;
+    const bot = createUniversalVKBot({
+      token: 'test-vk-token',
+      groupId: 1,
+      commands: {},
+      buttons: [],
+      onMessage: async (ctx) => {
+        profile = await ctx.getUserProfile();
+      },
+    });
+    const call = vi
+      .spyOn(bot.api, 'callWithRequest')
+      .mockRejectedValue(new Error('VK API error') as never);
+    const event = new MessageContext({
+      api: bot.api,
+      upload: bot.upload,
+      type: 'message',
+      subTypes: ['message_new'],
+      payload: {
+        message: {
+          id: 1,
+          conversation_message_id: 1,
+          out: 0,
+          peer_id: 20,
+          from_id: 10,
+          text: 'profile',
+          date: 1,
+          random_id: 0,
+          attachments: [],
+          important: false,
+        },
+        client_info: {
+          button_actions: ['callback'],
+          keyboard: true,
+          inline_keyboard: true,
+          carousel: false,
+          lang_id: 0,
+        },
+      },
+      source: UpdateSource.POLLING,
+      updateType: 'message_new',
+    });
+
+    await bot.updates.dispatchMiddleware(event);
+
+    expect(call).toHaveBeenCalledOnce();
+    expect(profile).toBeNull();
   });
 
   it('sends an existing VK photo attachment without downloading it', async () => {

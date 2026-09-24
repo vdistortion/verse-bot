@@ -1,11 +1,13 @@
 import path from 'node:path';
 import { createReadStream, existsSync } from 'node:fs';
 import {
+  checkUniversalAdmin,
   createAuthMiddleware,
   createLoggingMiddleware,
   dispatchUniversalCommand,
   type RichMessage,
   type BotDatabase,
+  type UniversalCommandButton,
   type UniversalAdminCheck,
   type UniversalCallbackContext,
   type UniversalContext,
@@ -27,7 +29,7 @@ export interface VKBotConfig {
   checkAdmin?: UniversalAdminCheck;
   database?: BotDatabase;
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
-  buttons: { command: string; label: string }[];
+  buttons: UniversalCommandButton[];
   /** Handler for normalized callback data; the original VK payload is available on ctx.payload. */
   onCallback?: (ctx: UniversalContext, payload: string) => Promise<void>;
   /** Fallback for incoming messages not handled by registered commands or buttons. */
@@ -42,7 +44,7 @@ export interface VKBotConfig {
     extra?: UniversalReplyOptions,
   ) => Promise<void>;
   unknownCommandPhrase?: (ctx: UniversalContext) => RichMessage;
-  getButtonsForUnknown?: () => { label: string; command: string }[];
+  getButtonsForUnknown?: () => UniversalCommandButton[];
 }
 
 function renderVKMessage(message?: RichMessage): string | undefined {
@@ -143,13 +145,17 @@ function createUniversalContext(
     platformApi: vk,
 
     getUserProfile: async (): Promise<UserProfile | null> => {
-      const [user] = await vk.api.users.get({ user_ids: [source.userId] });
-      if (!user) return null;
-      return {
-        firstName: user.first_name,
-        lastName: user.last_name,
-        username: user.screen_name,
-      };
+      try {
+        const [user] = await vk.api.users.get({ user_ids: [source.userId] });
+        if (!user) return null;
+        return {
+          firstName: user.first_name,
+          lastName: user.last_name,
+          username: user.screen_name,
+        };
+      } catch {
+        return null;
+      }
     },
 
     reply: async (replyText: RichMessage, options?: UniversalReplyOptions) => {
@@ -290,9 +296,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
         payload: ctx.hasMessagePayload ? ctx.messagePayload : undefined,
         send: (message, options) => ctx.send(message, options),
       });
-      if (config.checkAdmin && !uctx.isAdmin) {
-        uctx.isAdmin = await config.checkAdmin(uctx);
-      }
+      uctx.isAdmin = await checkUniversalAdmin(uctx, config.checkAdmin);
 
       const runCommand = async () => {
         const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
@@ -370,9 +374,7 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     };
 
     try {
-      if (config.checkAdmin && !uctx.isAdmin) {
-        uctx.isAdmin = await config.checkAdmin(uctx);
-      }
+      uctx.isAdmin = await checkUniversalAdmin(uctx, config.checkAdmin);
       if (authMw) {
         await authMw(uctx, async () => {
           if (logMw) await logMw(uctx, runCommand);

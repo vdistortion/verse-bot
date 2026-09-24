@@ -24,7 +24,10 @@ export function requirePrivateChat<Args extends unknown[]>(handler: CommandHandl
   };
 }
 
-export function catchErrors<Args extends unknown[]>(handler: CommandHandler<Args>, phrases: Phrases) {
+export function catchErrors<Args extends unknown[]>(
+  handler: CommandHandler<Args>,
+  phrases: Phrases,
+) {
   return async (ctx: UniversalContext, ...args: Args) => {
     try {
       return await handler(ctx, ...args);

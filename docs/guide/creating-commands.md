@@ -47,7 +47,9 @@ Use the platform helpers when you need a native keyboard:
 - Telegram: `createTelegramKeyboard` or `createTelegramInlineKeyboard` from `@verse-bot/telegram`;
 - VK: `createVKKeyboard` or `createVKInlineKeyboard` from `@verse-bot/vk`.
 
-For shared bot configuration, pass `UniversalKeyboardButton[][]` through the adapter options and let the adapter render it for the target platform.
+Adapter `buttons` and `getButtonsForUnknown` share the `UniversalCommandButton[]` shape (`command` and
+`label`). For reply and inline keyboards, pass `UniversalKeyboardButton[][]` through the context
+options and let the adapter render it for the target platform.
 
 Inline buttons may provide `callbackData` for application-specific values and `color` for VK
 button colors. In an `onCallback` handler, use `ctx.callback` to access normalized callback data,

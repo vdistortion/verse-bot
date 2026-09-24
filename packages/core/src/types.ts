@@ -21,6 +21,11 @@ export interface UserProfile {
   username?: string;
 }
 
+export interface UniversalCommandButton {
+  command: string;
+  label: string;
+}
+
 export interface UniversalKeyboardButton {
   label: string;
   command?: string;

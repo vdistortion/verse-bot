@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { requireAdmin, requirePrivateChat, catchErrors } from './command-guards.js';
 import type { UniversalContext } from './context.js';
+import { checkUniversalAdmin } from './admin.js';
 
 function mockContext(overrides: Partial<UniversalContext> = {}): UniversalContext {
   return {
@@ -17,6 +18,24 @@ function mockContext(overrides: Partial<UniversalContext> = {}): UniversalContex
     ...overrides,
   };
 }
+
+describe('checkUniversalAdmin', () => {
+  it('keeps an already configured admin without calling the optional check', async () => {
+    const ctx = mockContext({ isAdmin: true });
+    const checkAdmin = vi.fn().mockResolvedValue(false);
+
+    await expect(checkUniversalAdmin(ctx, checkAdmin)).resolves.toBe(true);
+    expect(checkAdmin).not.toHaveBeenCalled();
+  });
+
+  it('uses the optional asynchronous check for other users', async () => {
+    const ctx = mockContext();
+    const checkAdmin = vi.fn().mockResolvedValue(true);
+
+    await expect(checkUniversalAdmin(ctx, checkAdmin)).resolves.toBe(true);
+    expect(checkAdmin).toHaveBeenCalledWith(ctx);
+  });
+});
 
 describe('requireAdmin', () => {
   it('should call handler for admin in private chat', async () => {

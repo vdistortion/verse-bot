@@ -46,3 +46,13 @@ Use the platform helpers when you need a native keyboard:
 - VK: `createVKKeyboard` or `createVKInlineKeyboard` from `@verse-bot/vk`.
 
 For shared bot configuration, pass `UniversalKeyboardButton[][]` through the adapter options and let the adapter render it for the target platform.
+
+Inline buttons may provide `callbackData` for application-specific values and `color` for VK
+button colors. In an `onCallback` handler, use `ctx.callback` to access normalized callback data,
+answer the callback, or edit the source message. Unanswered callbacks are acknowledged by the
+adapter automatically.
+
+Use `onMessage` for incoming updates that do not match a registered command or button, such as
+plain-text links sent to an admin. When `onMessage` is configured, it takes precedence over the
+adapter's generic unknown-message response. `checkAdmin` accepts an asynchronous callback when
+administrator status comes from platform roles rather than a single configured user ID.

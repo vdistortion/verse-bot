@@ -1,6 +1,5 @@
 import path from 'node:path';
 import { createReadStream, existsSync } from 'node:fs';
-import type { MessageContext, MessageEventContext } from 'vk-io';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
@@ -165,8 +164,11 @@ function createUniversalContext(
             await uploadAndSend(createReadStream(localPath), filename);
             return;
           }
-        } catch (err: any) {
-          console.warn('[VK replyWithPhoto] local upload failed:', err.message);
+        } catch (err) {
+          console.warn(
+            '[VK replyWithPhoto] local upload failed:',
+            err instanceof Error ? err.message : String(err),
+          );
         }
       }
 
@@ -180,8 +182,11 @@ function createUniversalContext(
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         await uploadAndSend(Buffer.from(await res.arrayBuffer()), filename);
         return;
-      } catch (err: any) {
-        console.warn('[VK replyWithPhoto] url upload failed:', err.message);
+      } catch (err) {
+        console.warn(
+          '[VK replyWithPhoto] url upload failed:',
+          err instanceof Error ? err.message : String(err),
+        );
       }
 
       const fallbackText = [captionText, photoUrl].filter(Boolean).join('\n\n');
@@ -213,7 +218,8 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     console.log(`[${new Date().toISOString()}] VK @${vctx.userId}: ${vctx.text || '(no text)'}`);
 
     try {
-      const ctx = vctx.update as unknown as MessageContext;
+      const ctx = vctx.update;
+      if (ctx.type !== 'message') return;
       if (ctx.isOutbox || ctx.isGroup) return;
 
       let text = ctx.text?.trim() ?? '';
@@ -258,7 +264,8 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
   });
 
   vk.on('message_event', async (vctx) => {
-    const event = vctx.update as unknown as MessageEventContext;
+    const event = vctx.update;
+    if (event.type !== 'message_event') return;
     const command = getVKCallbackCommand(event.eventPayload);
     const text = command ?? '';
     const uctx = createUniversalContext(config, vk, {

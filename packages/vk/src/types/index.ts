@@ -1,4 +1,5 @@
 import type { UniversalContext } from '@verse-bot/core';
+import type { MessageContext, MessageEventContext } from 'vk-io';
 
 export interface VKMessage {
   id: number;
@@ -61,7 +62,7 @@ export interface VKKeyboard {
 }
 
 export interface VKContext {
-  update: VKUpdate;
+  update: MessageContext | MessageEventContext;
   message: VKMessage | undefined;
   peerId: number;
   userId: number;

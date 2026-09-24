@@ -1,6 +1,6 @@
 import { VK, type MessageContext, type MessageEventContext } from 'vk-io';
 import { VK_MAX_RANDOM_ID } from './vk-constants.js';
-import type { VKContext } from './types/index.js';
+import type { VKContext, VKMessage } from './types/index.js';
 
 type UpdateHandler = (ctx: VKContext) => void | Promise<void>;
 
@@ -77,8 +77,9 @@ export class VKBot {
    */
   private adaptMessageContext(ctx: MessageContext): VKContext {
     return {
-      update: ctx as any, // MessageContext хранится за полем update: VKUpdate
-      message: (ctx as any).message, // message — protected в vk-io; сначала ctx → any
+      update: ctx,
+      // vk-io объявляет getter message защищённым, хотя он доступен на объекте во время выполнения.
+      message: (ctx as unknown as { message?: VKMessage }).message,
       peerId: ctx.peerId,
       userId: ctx.senderId,
       text: ctx.text ?? '',
@@ -92,7 +93,7 @@ export class VKBot {
    */
   private adaptEventContext(ctx: MessageEventContext): VKContext {
     return {
-      update: ctx as any, // аналогично
+      update: ctx,
       message: undefined,
       peerId: ctx.peerId,
       userId: ctx.userId,

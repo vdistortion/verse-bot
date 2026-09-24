@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { type Api, type Bot, InputFile } from 'grammy';
+import type { Opts } from 'grammy/types';
 import {
   createAuthMiddleware,
   createLoggingMiddleware,
@@ -14,6 +15,10 @@ import { createBot } from './bot-factory.js';
 import { createDbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
 import { createTelegramKeyboard, createTelegramInlineKeyboard } from './keyboards/index.js';
+
+type TelegramSendMessageOptions = Partial<Omit<Opts<'sendMessage'>, 'chat_id' | 'text'>>;
+type TelegramSendPhotoOptions = Partial<Omit<Opts<'sendPhoto'>, 'chat_id' | 'photo'>>;
+type TelegramSendDocumentOptions = Partial<Omit<Opts<'sendDocument'>, 'chat_id' | 'document'>>;
 
 export interface TelegramBotConfig {
   token: string;
@@ -42,12 +47,12 @@ export interface TelegramBotConfig {
   getButtonsForUnknown?: () => { label: string; command: string }[];
 }
 
-function createTelegramExtra(extra?: UniversalReplyOptions): any {
-  const telegramExtra: any = {
-    ...(extra?.link_preview_options && {
-      link_preview_options: extra.link_preview_options,
-    }),
-  };
+function createTelegramExtra(extra?: UniversalReplyOptions): TelegramSendMessageOptions {
+  const telegramExtra: TelegramSendMessageOptions = {};
+
+  if (extra?.link_preview_options) {
+    telegramExtra.link_preview_options = extra.link_preview_options;
+  }
 
   if (extra?.remove_keyboard) {
     telegramExtra.reply_markup = { remove_keyboard: true };
@@ -98,7 +103,7 @@ async function sendTelegramRichMessage(
 
 function makePhotoHandler(ctx: BotContext, contentDir?: string) {
   return async (photoUrl: string, caption?: RichMessage, extra?: UniversalReplyOptions) => {
-    const telegramExtra: any = {
+    const telegramExtra: TelegramSendPhotoOptions = {
       caption: renderTelegramCaption(caption),
     };
     if (caption && typeof caption !== 'string') {
@@ -165,7 +170,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         caption?: RichMessage,
         extra?: UniversalReplyOptions,
       ) => {
-        const telegramExtra: any = {
+        const telegramExtra: TelegramSendDocumentOptions = {
           caption: renderTelegramCaption(caption),
         };
         if (extra?.inlineKeyboard) {

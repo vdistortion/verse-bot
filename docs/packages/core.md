@@ -13,6 +13,7 @@ npm install @verse-bot/core
 - `UniversalContext`, `Platform` and shared message and keyboard types;
 - optional callback capabilities for normalized data, acknowledgements and message edits;
 - original update payloads and asynchronous `UniversalAdminCheck` contract;
+- shared photo sending and keyboard options, plus an optional file-sending capability;
 - `dispatchUniversalCommand` for common command routing;
 - `requireAdmin` and `requirePrivateChat` command guards;
 - `catchErrors` for consistent command error handling;

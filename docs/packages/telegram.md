@@ -38,6 +38,11 @@ The adapter automatically acknowledges callbacks not explicitly answered by the 
 it takes precedence over the generic unknown-message response. `checkAdmin` can asynchronously
 resolve administrators using platform roles in addition to `adminId`.
 
+The shared `UniversalContext` provides photo sending and safe replies that suppress reply keyboards
+in group chats, one-time keyboards and keyboard removal. Telegram also supports the optional
+`replyWithFile` capability. Custom photo hooks receive the universal context as their first argument,
+matching the VK adapter.
+
 For Telegram rich text, use [`tg-rich-messages`](https://www.npmjs.com/package/tg-rich-messages). See its [GitHub repository](https://github.com/vdistortion/tg-rich-messages) for the API and examples.
 
 ## License

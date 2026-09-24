@@ -36,7 +36,9 @@ For rich Telegram messages, use [`tg-rich-messages`](https://www.npmjs.com/packa
 
 ## Images and files
 
-Use `ctx.replyWithPhoto` or `ctx.replyWithFile` when the adapter supports the operation. Check that the method exists before calling it because support depends on the platform and configuration.
+Use `ctx.replyWithPhoto` on either built-in adapter. `ctx.replyWithFile` is an optional capability;
+check that it exists before sending files. Telegram supports it through the Bot API, while VK
+document uploads require an additional API scope.
 
 ## Keyboards
 

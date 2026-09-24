@@ -26,7 +26,7 @@ At least one platform token must be configured. `VK_GROUP_ID` is required when `
 - `checkAdmin` — optional asynchronous check for additional administrator roles;
 - `commands` — a map of command names to handlers;
 - `buttons` — command-to-label mappings;
-- `onCallback` — optional handler for raw Telegram callback data when a button carries more than a command;
+- `onCallback` — optional handler for normalized callback data from inline buttons;
 - `onMessage` — optional fallback for incoming updates not handled by a command or button;
 - `contentCommand` and `userLogCommand` — optional dynamic command handlers;
 - `database` — optional `BotDatabase` integration;
@@ -38,12 +38,12 @@ At least one platform token must be configured. `VK_GROUP_ID` is required when `
 - `token`, optional `userToken`, `groupId` and optional `adminId`;
 - `checkAdmin` — optional asynchronous check for community manager roles or extra administrators;
 - `commands` and `buttons`, shared with Telegram;
-- `onCallback` — optional handler for raw VK callback payloads when a button carries more than a command;
+- `onCallback` — optional handler for normalized VK callback data; the original payload is available as `ctx.payload`;
 - `onMessage` — optional fallback for incoming messages not handled by a command;
 - `contentCommand` and `userLogCommand` — optional dynamic command handlers;
 - `database` — optional `BotDatabase` integration;
 - `onReplyWithPhoto`, `unknownCommandPhrase` and `getButtonsForUnknown` — optional response settings.
 
-Both factories provide the shared behavior while leaving platform-specific API details inside their adapters. Callback contexts expose `data`, `messageId`, `answer(text?)` and `editMessage(message, options?)`. The VK factory returns a bot with the group client as `api` and, when configured, the second authenticated client as `userApi`.
+Both factories provide the shared behavior while leaving platform-specific API details inside their adapters. Callback contexts expose `data`, `messageId`, `answer(text?)` and `editMessage(message, options?)`; `onCallback` receives the normalized data string, while the original platform payload is available as `ctx.payload`. The photo hook receives `UniversalContext` in both adapters. The VK factory returns a bot with the group client as `api` and, when configured, the second authenticated client as `userApi`.
 
 For inline keyboards built through `UniversalReplyOptions`, buttons may also set `callbackData`; VK buttons additionally support `color`.

@@ -17,7 +17,7 @@ function renderValue(value: FormatValue): string {
       return renderVKRichHtml(value.toHTML());
     }
     if ('render' in value && typeof value.render === 'function') {
-      return renderVKRichHtml(value.render());
+      return renderVKRichHtml(value.render(), { trim: false });
     }
   }
 

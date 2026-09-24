@@ -13,7 +13,10 @@ function stripTags(html: string): string {
   return decodeHtmlEntities(html.replace(/<[^>]+>/g, ''));
 }
 
-export function renderVKRichHtml(input: string): string {
+export function renderVKRichHtml(
+  input: string,
+  options: { trim?: boolean } = {},
+): string {
   let html = input;
 
   /**
@@ -42,7 +45,8 @@ export function renderVKRichHtml(input: string): string {
   /**
    * Всё остальное форматирование VK игнорирует.
    */
-  return stripTags(html).trim();
+  const text = stripTags(html);
+  return options.trim === false ? text : text.trim();
 }
 
 export function renderRich(doc: RenderableMessage): string {

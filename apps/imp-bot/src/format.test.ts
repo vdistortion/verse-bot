@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { link } from 'tg-rich-messages';
-import { formatFor } from './format.js';
+import { formatFor, lineBreak } from './format.js';
 
 describe('bot formatting', () => {
   it('preserves Telegram line breaks and HTML links', () => {
@@ -17,6 +17,12 @@ describe('bot formatting', () => {
     const message = formatFor('vk')`First\n${link('Example', 'https://example.com')}\nLast`;
 
     expect(message).toBe('First\nExample: https://example.com\nLast');
+  });
+
+  it('preserves line breaks from rich inline values', () => {
+    const message = formatFor('vk')`First${lineBreak()}Second${lineBreak()}${lineBreak()}Third`;
+
+    expect(message).toBe('First\nSecond\n\nThird');
   });
 
   it('renders VK-native links with VK link markup', () => {

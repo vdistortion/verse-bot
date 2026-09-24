@@ -1,4 +1,5 @@
 import type { UniversalContext } from '@verse-bot/core';
+import type { MessageContext, MessageEventContext } from 'vk-io';
 
 export interface VKMessage {
   id: number;
@@ -47,7 +48,7 @@ export interface VKUpdate {
 
 export interface VKCallbackButton {
   action: {
-    type: 'text' | 'open_link' | 'location' | 'vkpay' | 'open_app';
+    type: 'text' | 'callback' | 'open_link' | 'location' | 'vkpay' | 'open_app';
     label?: string;
     link?: string;
     payload?: string;
@@ -61,7 +62,7 @@ export interface VKKeyboard {
 }
 
 export interface VKContext {
-  update: VKUpdate;
+  update: MessageContext | MessageEventContext;
   message: VKMessage | undefined;
   peerId: number;
   userId: number;

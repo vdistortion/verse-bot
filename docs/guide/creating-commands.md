@@ -36,7 +36,9 @@ For rich Telegram messages, use [`tg-rich-messages`](https://www.npmjs.com/packa
 
 ## Images and files
 
-Use `ctx.replyWithPhoto` or `ctx.replyWithFile` when the adapter supports the operation. Check that the method exists before calling it because support depends on the platform and configuration.
+Use `ctx.replyWithPhoto` on either built-in adapter. `ctx.replyWithFile` is an optional capability;
+check that it exists before sending files. Telegram supports it through the Bot API, while VK
+document uploads require an additional API scope.
 
 ## Keyboards
 
@@ -45,4 +47,16 @@ Use the platform helpers when you need a native keyboard:
 - Telegram: `createTelegramKeyboard` or `createTelegramInlineKeyboard` from `@verse-bot/telegram`;
 - VK: `createVKKeyboard` or `createVKInlineKeyboard` from `@verse-bot/vk`.
 
-For shared bot configuration, pass `UniversalKeyboardButton[][]` through the adapter options and let the adapter render it for the target platform.
+Adapter `buttons` and `getButtonsForUnknown` share the `UniversalCommandButton[]` shape (`command` and
+`label`). For reply and inline keyboards, pass `UniversalKeyboardButton[][]` through the context
+options and let the adapter render it for the target platform.
+
+Inline buttons may provide `callbackData` for application-specific values and `color` for VK
+button colors. In an `onCallback` handler, use `ctx.callback` to access normalized callback data,
+answer the callback, or edit the source message. Unanswered callbacks are acknowledged by the
+adapter automatically.
+
+Use `onMessage` for incoming updates that do not match a registered command or button, such as
+plain-text links sent to an admin. When `onMessage` is configured, it takes precedence over the
+adapter's generic unknown-message response. `checkAdmin` accepts an asynchronous callback when
+administrator status comes from platform roles rather than a single configured user ID.

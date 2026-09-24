@@ -28,6 +28,17 @@ export function createProject({
   const templateDir = path.resolve(__dirname, '../template');
   fs.copySync(templateDir, targetDir);
 
+  const licensePath = [
+    path.resolve(__dirname, 'LICENSE'),
+    path.resolve(__dirname, '../../../LICENSE'), // development: root LICENSE
+  ].find((file) => fs.existsSync(file));
+
+  if (!licensePath) {
+    throw new Error('LICENSE file not found.');
+  }
+
+  fs.copyFileSync(licensePath, path.join(targetDir, 'LICENSE'));
+
   const pkgPath = path.join(targetDir, 'package.json');
   const pkg = fs.readJsonSync(pkgPath);
   const packageVersion = '^0.1.0';
@@ -107,6 +118,13 @@ async function main() {
   console.log(`  cd ${projectName}`);
   console.log('  cp .env.example .env    # fill in your tokens');
   console.log('  npm run dev\n');
+
+  if (platforms.includes('telegram')) {
+    console.log('For rich Telegram messages, optionally install:');
+    console.log('  npm install tg-rich-messages');
+    console.log('  https://github.com/vdistortion/tg-rich-messages');
+    console.log('  https://www.npmjs.com/package/tg-rich-messages\n');
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

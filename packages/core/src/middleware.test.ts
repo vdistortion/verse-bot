@@ -16,6 +16,7 @@ function context(overrides: Partial<UniversalContext> = {}): UniversalContext {
     chatType: 'private',
     getUserProfile: async () => null,
     reply: async () => undefined,
+    replyWithPhoto: async () => undefined,
     replySafe: async () => undefined,
     ...overrides,
   };

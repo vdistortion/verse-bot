@@ -1,6 +1,6 @@
 {
   "name": "verse-bot-project",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "private": true,
   "prettier": {
@@ -8,15 +8,17 @@
     "printWidth": 100
   },
   "devDependencies": {
-    "@types/node": "^26.0.0",
-    "prettier": "^3.8.4",
-    "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "@types/node": "^26.6.2",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "prepare": "cp -n .env.example .env",
     "dev": "tsx src/index.ts",
     "build": "tsc",
+    "lint": "tsc --noemit",
+    "format": "prettier . --write",
     "start": "node dist/index.js"
   }
 }

@@ -1,12 +1,18 @@
 import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { type Api, type Bot, InputFile } from 'grammy';
+import type { Opts } from 'grammy/types';
 import {
+  checkUniversalAdmin,
   createAuthMiddleware,
   createLoggingMiddleware,
   dispatchUniversalCommand,
   type BotDatabase,
   type RichMessage,
+  type UniversalCommandButton,
+  type UniversalAdminCheck,
+  type UniversalCallbackContext,
+  type UniversalEditOptions,
   type UniversalContext,
   type UniversalReplyOptions,
 } from '@verse-bot/core';
@@ -15,16 +21,31 @@ import { createDbMiddleware } from './middleware/index.js';
 import type { BotContext } from './types/index.js';
 import { createTelegramKeyboard, createTelegramInlineKeyboard } from './keyboards/index.js';
 
+type TelegramSendMessageOptions = Partial<Omit<Opts<'sendMessage'>, 'chat_id' | 'text'>>;
+type TelegramSendPhotoOptions = Partial<Omit<Opts<'sendPhoto'>, 'chat_id' | 'photo'>>;
+type TelegramSendDocumentOptions = Partial<Omit<Opts<'sendDocument'>, 'chat_id' | 'document'>>;
+type TelegramEditMessageTextOptions = Partial<
+  Omit<Opts<'editMessageText'>, 'chat_id' | 'message_id' | 'text'>
+>;
+type TelegramEditMessageCaptionOptions = Partial<
+  Omit<Opts<'editMessageCaption'>, 'chat_id' | 'message_id' | 'caption'>
+>;
+type TelegramEditMessageMarkupOptions = Pick<TelegramEditMessageTextOptions, 'reply_markup'>;
+
 export interface TelegramBotConfig {
   token: string;
   database?: BotDatabase;
   adminId?: number;
+  /** Optional asynchronous check for platform roles or additional administrators. */
+  checkAdmin?: UniversalAdminCheck;
   /** Обработчики статических команд (без параметров). Ключ – имя команды (без слеша). */
   commands: Record<string, (ctx: UniversalContext) => Promise<void>>;
   /** Определения кнопок (берутся из phrases). Массив объектов с command и button. */
-  buttons: { command: string; label: string }[];
+  buttons: UniversalCommandButton[];
   /** Обработчик сырых callback-данных для платформенных сценариев. */
   onCallback?: (ctx: UniversalContext, payload: string) => Promise<void>;
+  /** Fallback for incoming updates not handled by registered commands or buttons. */
+  onMessage?: (ctx: UniversalContext) => Promise<void>;
   /** Опционально: обработчик команды /content_<N> */
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
   /** Опционально: обработчик команды /userlog_<N> */
@@ -32,6 +53,7 @@ export interface TelegramBotConfig {
   /** Опциональный кастомный обработчик отправки фото (используется в replyWithPhoto контекста).
    *  Если не задан, используется ctx.replyWithPhoto из GrammY. */
   onReplyWithPhoto?: (
+    ctx: UniversalContext,
     photoUrl: string,
     caption?: string,
     extra?: UniversalReplyOptions,
@@ -39,22 +61,31 @@ export interface TelegramBotConfig {
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
   unknownCommandPhrase?: (ctx: UniversalContext) => RichMessage;
-  getButtonsForUnknown?: () => { label: string; command: string }[];
+  getButtonsForUnknown?: () => UniversalCommandButton[];
 }
 
-function createTelegramExtra(extra?: UniversalReplyOptions): any {
-  const telegramExtra: any = {
-    ...(extra?.link_preview_options && {
-      link_preview_options: extra.link_preview_options,
-    }),
-  };
+function createTelegramExtra(extra?: UniversalReplyOptions): TelegramSendMessageOptions {
+  const telegramExtra: TelegramSendMessageOptions = {};
+
+  if (extra?.link_preview_options) {
+    telegramExtra.link_preview_options = extra.link_preview_options;
+  }
 
   if (extra?.remove_keyboard) {
     telegramExtra.reply_markup = { remove_keyboard: true };
   } else if (extra?.inlineKeyboard) {
     telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
   } else if (extra?.replyKeyboard) {
-    telegramExtra.reply_markup = createTelegramKeyboard(extra.replyKeyboard);
+    telegramExtra.reply_markup = createTelegramKeyboard(extra.replyKeyboard, true, extra.one_time);
+  }
+
+  return telegramExtra;
+}
+
+function createTelegramEditMarkup(extra?: UniversalEditOptions): TelegramEditMessageMarkupOptions {
+  const telegramExtra: TelegramEditMessageMarkupOptions = {};
+  if (extra?.inlineKeyboard) {
+    telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
   }
 
   return telegramExtra;
@@ -98,7 +129,7 @@ async function sendTelegramRichMessage(
 
 function makePhotoHandler(ctx: BotContext, contentDir?: string) {
   return async (photoUrl: string, caption?: RichMessage, extra?: UniversalReplyOptions) => {
-    const telegramExtra: any = {
+    const telegramExtra: TelegramSendPhotoOptions = {
       caption: renderTelegramCaption(caption),
     };
     if (caption && typeof caption !== 'string') {
@@ -106,10 +137,16 @@ function makePhotoHandler(ctx: BotContext, contentDir?: string) {
     }
 
     // Приоритет инлайн-клавиатуры, если она присутствует
-    if (extra?.inlineKeyboard) {
+    if (extra?.remove_keyboard) {
+      telegramExtra.reply_markup = { remove_keyboard: true };
+    } else if (extra?.inlineKeyboard) {
       telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
     } else if (extra?.replyKeyboard) {
-      telegramExtra.reply_markup = createTelegramKeyboard(extra.replyKeyboard);
+      telegramExtra.reply_markup = createTelegramKeyboard(
+        extra.replyKeyboard,
+        true,
+        extra.one_time,
+      );
     }
 
     try {
@@ -149,12 +186,15 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
       peerId: chatId,
       text: messageText,
       isAdmin: fromId === config.adminId,
+      payload: ctx.callbackQuery?.data,
       db: ctx.db,
       platformApi: ctx.api,
       chatTitle: ctx.chat?.title,
       chatType: chatType,
       replySafe: async (text: RichMessage, extra?: UniversalReplyOptions) => {
-        await uctx.reply(text, extra);
+        const safeExtra = { ...extra };
+        if (uctx.chatType !== 'private') delete safeExtra.replyKeyboard;
+        await uctx.reply(text, safeExtra);
       },
       reply: async (text: RichMessage, extra?: UniversalReplyOptions) => {
         await sendTelegramRichMessage(ctx.api, uctx.peerId, text, extra);
@@ -165,20 +205,29 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         caption?: RichMessage,
         extra?: UniversalReplyOptions,
       ) => {
-        const telegramExtra: any = {
+        const telegramExtra: TelegramSendDocumentOptions = {
           caption: renderTelegramCaption(caption),
         };
-        if (extra?.inlineKeyboard) {
+        if (caption && typeof caption !== 'string') {
+          telegramExtra.parse_mode = 'HTML';
+        }
+        if (extra?.remove_keyboard) {
+          telegramExtra.reply_markup = { remove_keyboard: true };
+        } else if (extra?.inlineKeyboard) {
           // Приоритет инлайн-клавиатуры
           telegramExtra.reply_markup = createTelegramInlineKeyboard(extra.inlineKeyboard);
         } else if (extra?.replyKeyboard) {
-          telegramExtra.reply_markup = createTelegramKeyboard(extra.replyKeyboard);
+          telegramExtra.reply_markup = createTelegramKeyboard(
+            extra.replyKeyboard,
+            true,
+            extra.one_time,
+          );
         }
         await ctx.replyWithDocument(new InputFile(buffer, filename), telegramExtra);
       },
       replyWithPhoto: config.onReplyWithPhoto
         ? (photoUrl: string, caption?: RichMessage, extra?: UniversalReplyOptions) =>
-            config.onReplyWithPhoto!(photoUrl, renderTelegramCaption(caption), extra)
+            config.onReplyWithPhoto!(uctx, photoUrl, renderTelegramCaption(caption), extra)
         : (photoUrl: string, caption?: RichMessage, extra?: UniversalReplyOptions) =>
             makePhotoHandler(ctx, config.contentDir)(photoUrl, caption, extra),
       getUserProfile: async () => {
@@ -194,6 +243,53 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         }
       },
     };
+
+    if (ctx.callbackQuery) {
+      const callbackMessage = ctx.callbackQuery.message;
+      const callbackData = ctx.callbackQuery.data ?? '';
+      let answered = false;
+      const callback: UniversalCallbackContext = {
+        data: callbackData,
+        messageId: callbackMessage?.message_id,
+        answer: async (text) => {
+          if (answered) return;
+          answered = true;
+          await ctx.answerCallbackQuery(text ? { text } : {});
+        },
+        editMessage: async (message, options) => {
+          const content = renderTelegramCaption(message) ?? '';
+          const editMarkup = createTelegramEditMarkup(options);
+          const richMessage = typeof message !== 'string';
+          const isCaption =
+            callbackMessage !== undefined &&
+            ('caption' in callbackMessage ||
+              'photo' in callbackMessage ||
+              'video' in callbackMessage ||
+              'animation' in callbackMessage ||
+              'audio' in callbackMessage ||
+              'document' in callbackMessage);
+
+          if (isCaption) {
+            const captionOptions: TelegramEditMessageCaptionOptions = {
+              ...editMarkup,
+              parse_mode: richMessage ? 'HTML' : undefined,
+            };
+            await ctx.editMessageCaption({ caption: content, ...captionOptions });
+            return;
+          }
+
+          const textOptions: TelegramEditMessageTextOptions = {
+            ...editMarkup,
+            link_preview_options: options?.link_preview_options,
+            parse_mode: richMessage ? 'HTML' : undefined,
+          };
+          await ctx.editMessageText(content, textOptions);
+        },
+      };
+      uctx.callback = callback;
+    }
+
+    uctx.isAdmin = await checkUniversalAdmin(uctx, config.checkAdmin);
     ctx.uctx = uctx;
     await next();
   });
@@ -232,7 +328,8 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     } catch (err) {
       console.error('[Telegram] callback_query handler error:', err);
     } finally {
-      await ctx.answerCallbackQuery();
+      if (uctx.callback) await uctx.callback.answer();
+      else await ctx.answerCallbackQuery();
     }
   });
 
@@ -260,7 +357,7 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     }
   }
 
-  if (config.unknownCommandPhrase) {
+  if (!config.onMessage && config.unknownCommandPhrase) {
     bot.on('message:text', async (ctx, next) => {
       const uctx = ctx.uctx;
       if (!uctx || uctx.chatType !== 'private') return next();
@@ -299,6 +396,12 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
         const uctx = ctx.uctx!;
         await config.userLogCommand!(uctx, userId);
       }
+    });
+  }
+
+  if (config.onMessage) {
+    bot.on('message', async (ctx) => {
+      if (ctx.uctx) await config.onMessage!(ctx.uctx);
     });
   }
 

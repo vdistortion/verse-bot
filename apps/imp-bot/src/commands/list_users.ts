@@ -52,10 +52,10 @@ export const listUsersCommand = requireAdmin(
       } else if (user.vk_id && ctx.platform === 'vk' && ctx.platformApi) {
         const api = ctx.platformApi as VKBot;
         try {
-          const result = (await api.request('users.get', {
-            user_ids: user.vk_id,
-            fields: 'first_name,last_name,screen_name',
-          })) as any[];
+          const result = await api.api.users.get({
+            user_ids: [user.vk_id],
+            fields: ['screen_name'],
+          });
           if (result.length > 0) {
             const vkUser = result[0];
             profile = {

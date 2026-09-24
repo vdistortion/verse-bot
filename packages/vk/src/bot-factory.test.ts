@@ -11,6 +11,18 @@ describe('VKBot', () => {
     expect(call).toHaveBeenCalledWith('users.get', { user_ids: [10] });
   });
 
+  it('exposes an optional second API client for additional VK credentials', () => {
+    const groupOnlyBot = createVKBot({ token: 'group-token', groupId: 123 });
+    const twoTokenBot = createVKBot({
+      token: 'group-token',
+      userToken: 'user-token',
+      groupId: 123,
+    });
+
+    expect(groupOnlyBot.userApi).toBeUndefined();
+    expect(twoTokenBot.userApi).toBeDefined();
+  });
+
   it('builds messages.send parameters with optional fields', async () => {
     const bot = createVKBot({ token: 'test-token', groupId: 123 });
     const call = vi.spyOn(bot.api, 'call').mockResolvedValue(77 as never);

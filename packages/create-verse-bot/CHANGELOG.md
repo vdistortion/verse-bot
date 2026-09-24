@@ -5,6 +5,17 @@ All notable changes to `create-verse-bot` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Published package and generated projects include the Apache-2.0 license file.
+- CLI suggests the optional `tg-rich-messages` package for Telegram projects.
+
+### Changed
+
+- Generated project templates include lint and format scripts and updated development dependencies.
+
 ## [0.2.0] - 2026-09-23
 
 ### Changed

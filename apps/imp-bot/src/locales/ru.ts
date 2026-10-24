@@ -43,16 +43,6 @@ export const commands: Record<string, CommandDef> = {
     button: '🧨 Отмочить',
     help: '⚠️ Нестабильно',
   },
-  random: {
-    command: 'random',
-    button: '🎲 Рандом',
-    help: '🎲 Источник неизвестен',
-  },
-  content: {
-    command: 'content',
-    hidden: true,
-    help: 'Контент по номеру (например, /content_1)',
-  },
   help: {
     command: 'help',
     tgDescription: '⚠️ Справка',
@@ -114,8 +104,6 @@ export function getButtons(fullMenu: boolean) {
   if (commands.cat.button)
     buttons.push({ label: commands.cat.button, command: '/' + commands.cat.command });
   if (fullMenu) {
-    if (commands.random.button)
-      buttons.push({ label: commands.random.button, command: '/' + commands.random.command });
     if (commands.advice.button)
       buttons.push({ label: commands.advice.button, command: '/' + commands.advice.command });
   }
@@ -131,7 +119,6 @@ export function getHelpLines(): unknown[] {
   for (const cmd of Object.values(commands)) {
     if (cmd.hidden || !cmd.help) continue;
     if (cmd.adminOnly) continue;
-    if (cmd.command === 'random' && Math.random() < 0.2) continue;
     if (cmd.command === 'advice' && Math.random() < 0.1) continue;
     const cmdText = `/${cmd.command}`;
     if (lines.length > 0) lines.push(lineBreak());
@@ -203,7 +190,6 @@ export const phrases = {
     notFound: (fmt: Format) => fmt`Кот убежал в сервера. Попробуй позже 🐾`,
   },
 
-  contentHint: (_fmt: Format, number: number) => `/content_${String(number)}`,
 
   unknownCommand: (ctx: UniversalContext) =>
     formatFor(

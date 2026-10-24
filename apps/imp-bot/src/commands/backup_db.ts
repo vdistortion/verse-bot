@@ -34,7 +34,7 @@ export const backupDbCommand = requireAdmin(async (ctx) => {
     // Fallback: JSON-дамп
     if (ctx.db) {
       const backupData: Record<string, unknown[]> = {};
-      const tablesToBackup = ['bot_content', 'users', 'command_logs'];
+      const tablesToBackup = ['users', 'command_logs'];
 
       for (const tableName of tablesToBackup) {
         try {

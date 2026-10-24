@@ -17,6 +17,7 @@ describe('createVKKeyboard', () => {
         { label: 'Help', command: '/help' },
         { label: 'Answer', callbackData: 'answer:1', color: 'positive' },
         { label: 'Label fallback' },
+        { label: 'Источник', url: 'https://example.com/fact' },
       ],
     ]);
     const parsed = JSON.parse(keyboard);
@@ -27,5 +28,10 @@ describe('createVKKeyboard', () => {
     expect(JSON.parse(parsed.buttons[0][1].action.payload).callbackData).toBe('answer:1');
     expect(parsed.buttons[0][1].color).toBe('positive');
     expect(JSON.parse(parsed.buttons[0][2].action.payload).command).toBe('Label fallback');
+    expect(parsed.buttons[0][3].action).toMatchObject({
+      type: 'open_link',
+      label: 'Источник',
+      link: 'https://example.com/fact',
+    });
   });
 });

@@ -8,7 +8,9 @@ export function createTelegramInlineKeyboard(
 
   universalKeyboard.forEach((row) => {
     const rowButtons = row.map((btn) =>
-      InlineKeyboard.text(btn.label, btn.callbackData ?? btn.command ?? btn.label),
+      btn.url
+        ? InlineKeyboard.url(btn.label, btn.url)
+        : InlineKeyboard.text(btn.label, btn.callbackData ?? btn.command ?? btn.label),
     );
     inlineKeyboard.row(...rowButtons);
   });

@@ -8,6 +8,7 @@ describe('Telegram universal keyboards', () => {
         { label: 'Start', command: '/start' },
         { label: 'Answer 1', callbackData: 'answer:1' },
         { label: 'Help' },
+        { label: 'Источник', url: 'https://example.com/fact' },
       ],
     ]);
 
@@ -16,6 +17,7 @@ describe('Telegram universal keyboards', () => {
         { text: 'Start', callback_data: '/start' },
         { text: 'Answer 1', callback_data: 'answer:1' },
         { text: 'Help', callback_data: 'Help' },
+        { text: 'Источник', url: 'https://example.com/fact' },
       ],
     ]);
   });

@@ -29,6 +29,8 @@ export interface UniversalCommandButton {
 export interface UniversalKeyboardButton {
   label: string;
   command?: string;
+  /** Opens an external URL instead of dispatching a command or callback. */
+  url?: string;
   /** Callback data for inline buttons. Falls back to `command`, then `label`. */
   callbackData?: string;
   /** VK button color. Telegram adapters ignore this option. */

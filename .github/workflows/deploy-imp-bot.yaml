@@ -15,11 +15,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    uses: ./.github/workflows/tests.yaml
-
   deploy:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read

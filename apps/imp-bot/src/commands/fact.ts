@@ -11,7 +11,7 @@ export const factCommand = catchErrors(async (ctx) => {
   extra.inlineKeyboard = [
     [
       ...(source ? [{ label: 'Источник', url: source.url }] : []),
-      { label: 'Ещё фрагмент', command: '/fact' },
+      { label: '🗯 Ещё фрагмент', command: '/fact' },
     ],
   ];
   const message = formatFor(ctx.platform)`${bold(fact.title)}\n\n${fact.body}`;

@@ -3,7 +3,7 @@ export { backupDbCommand } from './backup_db.js';
 export { backupFilesCommand } from './backup_files.js';
 export { startCommand } from './start.js';
 export { catCommand } from './cat.js';
-export { quoteCommand } from './quote.js';
+export { factCommand } from './fact.js';
 export { adviceCommand } from './advice.js';
 export { stopCommand } from './stop.js';
 export { helpCommand } from './help.js';

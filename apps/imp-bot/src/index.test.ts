@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => {
       idCommand: command,
       listUsersCommand: command,
       myLogCommand: command,
-      quoteCommand: command,
+      factCommand: command,
       startCommand: command,
       statsCommand: command,
       stopCommand: command,

@@ -23,7 +23,7 @@ import {
   idCommand,
   listUsersCommand,
   myLogCommand,
-  quoteCommand,
+  factCommand,
   startCommand,
   statsCommand,
   stopCommand,
@@ -55,7 +55,7 @@ const botsToStart: { name: string; start: () => Promise<void> }[] = [];
 const commonCommands = {
   start: startCommand,
   cat: catCommand,
-  quote: quoteCommand,
+  fact: factCommand,
   advice: adviceCommand,
   help: helpCommand,
   stop: stopCommand,

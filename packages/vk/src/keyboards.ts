@@ -21,12 +21,16 @@ export function createVKInlineKeyboard(buttonRows: UniversalKeyboardButton[][]):
   const buttons = buttonRows.map((row) =>
     row.map((btn) => ({
       action: {
-        type: 'callback',
+        type: btn.url ? 'open_link' : 'callback',
         label: btn.label,
-        payload:
-          btn.callbackData !== undefined
-            ? JSON.stringify({ callbackData: btn.callbackData })
-            : JSON.stringify({ command: btn.command ?? btn.label }),
+        ...(btn.url
+          ? { link: btn.url }
+          : {
+              payload:
+                btn.callbackData !== undefined
+                  ? JSON.stringify({ callbackData: btn.callbackData })
+                  : JSON.stringify({ command: btn.command ?? btn.label }),
+            }),
       },
       color: btn.color ?? 'primary',
     })),

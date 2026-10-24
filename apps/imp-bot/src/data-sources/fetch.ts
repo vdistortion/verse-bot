@@ -18,3 +18,11 @@ export async function getApiCat<T>() {
 export function getApiAdvice<T>() {
   return http<T>('https://fucking-great-advice.ru/api/random');
 }
+
+export function getApiRandomFact<T>() {
+  return http<T>('https://facts.museum/api/facts/random/');
+}
+
+export function getApiFactByLegacy<T>(legacyId: number) {
+  return http<T>(`https://facts.museum/api/facts/by-legacy/${legacyId}/`);
+}

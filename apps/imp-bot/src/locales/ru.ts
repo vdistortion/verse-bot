@@ -74,11 +74,6 @@ export const commands: Record<string, CommandDef> = {
     adminOnly: true,
     help: 'Создать полный бэкап базы',
   },
-  backupfiles: {
-    command: 'backupfiles',
-    adminOnly: true,
-    help: 'Создать бэкап файлов контента',
-  },
   list_users: {
     command: 'list_users',
     adminOnly: true,
@@ -165,10 +160,7 @@ export const phrases = {
     message: (fmt: Format, platform: Platform, dbUserId?: number) => {
       const userIdPlaceholder = dbUserId !== undefined ? String(dbUserId) : '<id>';
       const backupCommands =
-        platform === 'telegram'
-          ? `/backupdb – 💾 Сделать бэкап базы данных\n` +
-            `/backupfiles – 📦 Бэкап файлов контента\n`
-          : '';
+        platform === 'telegram' ? `/backupdb – 💾 Сделать бэкап базы данных\n` : '';
       const adminCommands =
         backupCommands +
         `/list_users – 👥 Список активных пользователей\n` +

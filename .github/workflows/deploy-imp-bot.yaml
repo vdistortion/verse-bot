@@ -51,7 +51,6 @@ jobs:
             echo "POSTGRES_HOST=db" >> .env
             echo "STATIC_DOMAIN=${{ secrets.STATIC_DOMAIN }}" >> .env
             echo "STATIC_PATH_PREFIX=${{ secrets.STATIC_PATH_PREFIX }}" >> .env
-            echo "PUBLIC_URL=https://${{ secrets.STATIC_DOMAIN }}/${{ secrets.STATIC_PATH_PREFIX }}" >> .env
             echo "CONTENT_DIR=${{ secrets.CONTENT_DIR }}" >> .env
 
             export STATIC_DOMAIN="${{ secrets.STATIC_DOMAIN }}"

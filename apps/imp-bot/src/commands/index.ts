@@ -1,6 +1,5 @@
 export { idCommand } from './id.js';
 export { backupDbCommand } from './backup_db.js';
-export { backupFilesCommand } from './backup_files.js';
 export { startCommand } from './start.js';
 export { catCommand } from './cat.js';
 export { factCommand } from './fact.js';

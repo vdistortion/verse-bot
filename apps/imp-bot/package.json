@@ -15,12 +15,10 @@
     "@verse-bot/postgres": "^0.1.0",
     "@verse-bot/telegram": "^0.1.0",
     "@verse-bot/vk": "^0.1.0",
-    "archiver": "^8.0.0",
     "tg-rich-messages": "^0.4.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/archiver": "^8.0.0",
     "grammy": "^1.46.0"
   }
 }

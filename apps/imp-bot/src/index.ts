@@ -17,7 +17,6 @@ import {
   adminCommand,
   adviceCommand,
   backupDbCommand,
-  backupFilesCommand,
   catCommand,
   helpCommand,
   idCommand,
@@ -75,7 +74,6 @@ if (TELEGRAM_BOT_TOKEN) {
     commands: {
       ...commonCommands,
       backupdb: backupDbCommand,
-      backupfiles: backupFilesCommand,
     },
     buttons: uniqueButtonsForRegistration,
     userLogCommand: userLogCommand,

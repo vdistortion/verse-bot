@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => {
       adminCommand: command,
       adviceCommand: command,
       backupDbCommand: command,
-      backupFilesCommand: command,
       catCommand: command,
       helpCommand: command,
       idCommand: command,
@@ -85,8 +84,6 @@ describe('imp-bot startup configuration', () => {
     expect(telegramConfig.commands.start).toBe(vkConfig.commands.start);
     expect(telegramConfig.commands.stats).toBe(vkConfig.commands.stats);
     expect(telegramConfig.commands.backupdb).toBeDefined();
-    expect(telegramConfig.commands.backupfiles).toBeDefined();
     expect(vkConfig.commands.backupdb).toBeUndefined();
-    expect(vkConfig.commands.backupfiles).toBeUndefined();
   });
 });

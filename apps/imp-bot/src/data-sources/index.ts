@@ -15,3 +15,8 @@ export async function getFact(): Promise<IApiFactData> {
   const randomFact = await getApiRandomFact<IApiRandomFactData>();
   return getApiFactByLegacy<IApiFactData>(randomFact.legacy_nid);
 }
+
+/** API факта не отдаёт картинку, но сайт хранит её по предсказуемому адресу. */
+export function getFactImageUrl(legacyNid: number): string {
+  return `https://facts.museum/media/facts/${legacyNid}/image.png`;
+}

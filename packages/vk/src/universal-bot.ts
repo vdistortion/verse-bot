@@ -248,8 +248,8 @@ function createUniversalContext(
         );
       }
 
-      const fallbackText = [captionText, photoUrl].filter(Boolean).join('\n\n');
-      await source.send(fallbackText || '📷', {
+      const fallbackText = captionText || '📷';
+      await source.send(fallbackText, {
         ...sendOptions,
         random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
       });
@@ -376,7 +376,15 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       answer: async (answerText) => {
         if (callbackAnswered) return;
         callbackAnswered = true;
-        await event.answer({ type: 'show_snackbar', text: answerText ?? '' });
+        if (answerText) {
+          await event.answer({ type: 'show_snackbar', text: answerText });
+        } else {
+          await vk.api.messages.sendMessageEventAnswer({
+            event_id: event.eventId,
+            peer_id: event.peerId,
+            user_id: event.userId,
+          });
+        }
       },
       editMessage: async (message, options?: UniversalEditOptions) => {
         const keyboard = options?.inlineKeyboard

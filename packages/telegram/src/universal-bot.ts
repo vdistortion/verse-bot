@@ -7,6 +7,7 @@ import {
   createAuthMiddleware,
   createLoggingMiddleware,
   dispatchUniversalCommand,
+  withTypingIndicator,
   type BotDatabase,
   type RichMessage,
   type UniversalCommandButton,
@@ -60,6 +61,8 @@ export interface TelegramBotConfig {
   ) => Promise<void>;
   /** Путь к папке с контентом (для резервного поиска изображений). */
   contentDir?: string;
+  /** Показывать «печатает…», пока выполняется обработчик команды. */
+  typingIndicator?: boolean;
   unknownCommandPhrase?: (ctx: UniversalContext) => RichMessage;
   getButtonsForUnknown?: () => UniversalCommandButton[];
 }
@@ -309,6 +312,29 @@ export function createUniversalTelegramBot(config: TelegramBotConfig): Bot<BotCo
     if (logMw) await logMw(uctx, next);
     else await next();
   });
+
+  if (config.typingIndicator) {
+    bot.use(async (ctx, next) => {
+      const uctx = ctx.uctx;
+      if (!uctx?.peerId || (!ctx.message && !ctx.callbackQuery)) return next();
+
+      if (!ctx.callbackQuery && uctx.chatType !== 'private' && !config.onMessage) {
+        const text = uctx.text.trim();
+        const commandName = text.startsWith('/') ? text.slice(1).split(/[@\s]/)[0] : text;
+        const expectsReply =
+          Boolean(config.commands[commandName]) ||
+          config.buttons.some((button) => button.label === text) ||
+          /^\/?content_\d+$/i.test(commandName) ||
+          /^\/?userlog_\d+$/i.test(commandName);
+        if (!expectsReply) return next();
+      }
+
+      return withTypingIndicator(
+        () => ctx.api.sendChatAction(uctx.peerId, 'typing'),
+        () => next(),
+      );
+    });
+  }
 
   bot.on('callback_query:data', async (ctx) => {
     const uctx = ctx.uctx;

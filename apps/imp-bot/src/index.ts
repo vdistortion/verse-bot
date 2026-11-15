@@ -78,6 +78,7 @@ if (TELEGRAM_BOT_TOKEN) {
     buttons: uniqueButtonsForRegistration,
     userLogCommand: userLogCommand,
     contentDir: CONTENT_DIR,
+    typingIndicator: true,
     unknownCommandPhrase: phrases.unknownCommand,
     getButtonsForUnknown: () => getButtons(false),
   });
@@ -92,6 +93,7 @@ if (VK_GROUP_TOKEN && VK_GROUP_ID) {
     adminId: VK_ADMIN_ID,
     database,
     contentDir: CONTENT_DIR,
+    typingIndicator: true,
     commands: commonCommands,
     buttons: uniqueButtonsForRegistration,
     userLogCommand: userLogCommand,

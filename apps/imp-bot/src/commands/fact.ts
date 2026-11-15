@@ -1,6 +1,6 @@
 import { catchErrors, type UniversalReplyOptions } from '@verse-bot/core';
 import { bold } from 'tg-rich-messages';
-import { getFact } from '../data-sources/index.js';
+import { getFact, getFactImageUrl } from '../data-sources/index.js';
 import { phrases } from '../locales/ru.js';
 import { formatFor } from '../format.js';
 
@@ -15,6 +15,15 @@ export const factCommand = catchErrors(async (ctx) => {
     ],
   ];
   const message = formatFor(ctx.platform)`${bold(fact.title)}\n\n${fact.body}`;
+
+  if (ctx.replyWithPhoto) {
+    try {
+      await ctx.replyWithPhoto(getFactImageUrl(fact.legacy_nid), message, extra);
+      return;
+    } catch {
+      // Не удалось отправить картинку — просто отправляем текст.
+    }
+  }
 
   await ctx.replySafe(message, extra);
 }, phrases);

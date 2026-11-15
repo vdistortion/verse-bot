@@ -5,6 +5,7 @@ import {
   createAuthMiddleware,
   createLoggingMiddleware,
   dispatchUniversalCommand,
+  withTypingIndicator,
   type RichMessage,
   type BotDatabase,
   type UniversalCommandButton,
@@ -37,6 +38,8 @@ export interface VKBotConfig {
   contentCommand?: (ctx: UniversalContext, itemNumber: number) => Promise<void>;
   userLogCommand?: (ctx: UniversalContext, userId: number) => Promise<void>;
   contentDir?: string;
+  /** Показывать «печатает…», пока выполняется обработчик команды. */
+  typingIndicator?: boolean;
   onReplyWithPhoto?: (
     ctx: UniversalContext,
     photoUrl: string,
@@ -245,8 +248,8 @@ function createUniversalContext(
         );
       }
 
-      const fallbackText = [captionText, photoUrl].filter(Boolean).join('\n\n');
-      await source.send(fallbackText || '📷', {
+      const fallbackText = captionText || '📷';
+      await source.send(fallbackText, {
         ...sendOptions,
         random_id: Math.floor(Math.random() * VK_MAX_RANDOM_ID),
       });
@@ -267,6 +270,30 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
   for (const { command, label } of config.buttons) {
     buttonToCommand.set(label, command);
   }
+
+  const runWithTyping = <T>(
+    uctx: UniversalContext,
+    enabled: boolean,
+    operation: () => Promise<T>,
+  ): Promise<T> => {
+    if (!config.typingIndicator || !enabled) return operation();
+
+    return withTypingIndicator(
+      () =>
+        vk.api.messages.setActivity({
+          peer_id: uctx.peerId,
+          type: 'typing',
+          group_id: config.groupId,
+        }),
+      operation,
+    );
+  };
+
+  const shouldIndicateTyping = (uctx: UniversalContext, text: string): boolean =>
+    uctx.chatType === 'private' ||
+    Boolean(config.onMessage) ||
+    text.startsWith('/') ||
+    buttonToCommand.has(text);
 
   const authMw = config.database ? createAuthMiddleware(config.database.persistence) : undefined;
   const logMw = config.database ? createLoggingMiddleware(config.database.persistence) : undefined;
@@ -298,21 +325,22 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       });
       uctx.isAdmin = await checkUniversalAdmin(uctx, config.checkAdmin);
 
-      const runCommand = async () => {
-        const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
+      const runCommand = () =>
+        runWithTyping(uctx, shouldIndicateTyping(uctx, text), async () => {
+          const commandToExecute = text.startsWith('/') ? text.slice(1) : buttonToCommand.get(text);
 
-        const handled = await dispatchUniversalCommand(uctx, commandToExecute ?? text, config);
-        if (!handled && config.onMessage) {
-          await config.onMessage(uctx);
-          return;
-        }
-        if (!handled && uctx.chatType === 'private' && config.unknownCommandPhrase) {
-          const buttons = config.getButtonsForUnknown?.() ?? [];
-          await uctx.reply(config.unknownCommandPhrase(uctx), {
-            replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
-          });
-        }
-      };
+          const handled = await dispatchUniversalCommand(uctx, commandToExecute ?? text, config);
+          if (!handled && config.onMessage) {
+            await config.onMessage(uctx);
+            return;
+          }
+          if (!handled && uctx.chatType === 'private' && config.unknownCommandPhrase) {
+            const buttons = config.getButtonsForUnknown?.() ?? [];
+            await uctx.reply(config.unknownCommandPhrase(uctx), {
+              replyKeyboard: buttons.length > 0 ? [buttons] : undefined,
+            });
+          }
+        });
       if (authMw) {
         await authMw(uctx, async () => {
           if (logMw) await logMw(uctx, runCommand);
@@ -348,7 +376,15 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
       answer: async (answerText) => {
         if (callbackAnswered) return;
         callbackAnswered = true;
-        await event.answer({ type: 'show_snackbar', text: answerText ?? '' });
+        if (answerText) {
+          await event.answer({ type: 'show_snackbar', text: answerText });
+        } else {
+          await vk.api.messages.sendMessageEventAnswer({
+            event_id: event.eventId,
+            peer_id: event.peerId,
+            user_id: event.userId,
+          });
+        }
       },
       editMessage: async (message, options?: UniversalEditOptions) => {
         const keyboard = options?.inlineKeyboard
@@ -365,13 +401,14 @@ export function createUniversalVKBot(config: VKBotConfig): VKBot {
     };
     uctx.callback = callback;
 
-    const runCommand = async () => {
-      if (config.onCallback) {
-        await config.onCallback(uctx, callbackData);
-      } else if (command) {
-        await dispatchUniversalCommand(uctx, command, config);
-      }
-    };
+    const runCommand = () =>
+      runWithTyping(uctx, true, async () => {
+        if (config.onCallback) {
+          await config.onCallback(uctx, callbackData);
+        } else if (command) {
+          await dispatchUniversalCommand(uctx, command, config);
+        }
+      });
 
     try {
       uctx.isAdmin = await checkUniversalAdmin(uctx, config.checkAdmin);

@@ -15,6 +15,7 @@ export type {
 export type { UniversalContext, UniversalAdminCheck } from './context.js';
 export { checkUniversalAdmin } from './admin.js';
 export { http } from './http.js';
+export { withTypingIndicator, type TypingIndicatorOptions, type TypingSchedule } from './typing.js';
 export { catchErrors, requireAdmin, requirePrivateChat } from './command-guards.js';
 export {
   dispatchUniversalCommand,

@@ -30,6 +30,7 @@ At least one platform token must be configured. `VK_GROUP_ID` is required when `
 - `contentCommand` and `userLogCommand` — optional dynamic command handlers;
 - `database` — optional `BotDatabase` integration;
 - `onReplyWithPhoto` and `contentDir` — optional content delivery settings;
+- `typingIndicator` — optional automatic "typing…" status while a handler runs;
 - `unknownCommandPhrase` and `getButtonsForUnknown` — optional unknown-command response settings.
 
 ### `VKBotConfig`
@@ -41,8 +42,11 @@ At least one platform token must be configured. `VK_GROUP_ID` is required when `
 - `onMessage` — optional fallback for incoming messages not handled by a command;
 - `contentCommand` and `userLogCommand` — optional dynamic command handlers;
 - `database` — optional `BotDatabase` integration;
+- `typingIndicator` — optional automatic "typing…" status while a handler runs;
 - `onReplyWithPhoto`, `unknownCommandPhrase` and `getButtonsForUnknown` — optional response settings.
 
 Both factories provide the shared behavior while leaving platform-specific API details inside their adapters. Callback contexts expose `data`, `messageId`, `answer(text?)` and `editMessage(message, options?)`; `onCallback` receives the normalized data string, while the original platform payload is available as `ctx.payload`. The photo hook receives `UniversalContext` in both adapters. The VK factory returns a bot with the group client as `api` and, when configured, the second authenticated client as `userApi`.
+
+With `typingIndicator: true`, the adapter shows the platform "typing…" status while a command, callback, or fallback handler is running and refreshes it until the handler finishes. Indicator errors are logged but never interrupt the response.
 
 For inline keyboards built through `UniversalReplyOptions`, buttons may also set `callbackData`; VK buttons additionally support `color`.

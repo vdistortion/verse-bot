@@ -32,7 +32,7 @@ export function createVKInlineKeyboard(buttonRows: UniversalKeyboardButton[][]):
                   : JSON.stringify({ command: btn.command ?? btn.label }),
             }),
       },
-      color: btn.color ?? 'primary',
+      color: btn.url ? undefined : (btn.color ?? 'primary'),
     })),
   );
   return JSON.stringify({ inline: true, buttons });

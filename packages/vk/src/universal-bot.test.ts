@@ -141,6 +141,57 @@ describe('createUniversalVKBot', () => {
     });
   });
 
+  it('shows the typing status while a handler runs when enabled', async () => {
+    const command = vi.fn().mockResolvedValue(undefined);
+    const bot = createUniversalVKBot({
+      token: 'test-vk-token',
+      groupId: 1,
+      commands: { start: command },
+      buttons: [],
+      typingIndicator: true,
+    });
+    const call = vi.spyOn(bot.api, 'callWithRequest').mockResolvedValue(1 as never);
+    const event = new MessageContext({
+      api: bot.api,
+      upload: bot.upload,
+      type: 'message',
+      subTypes: ['message_new'],
+      payload: {
+        message: {
+          id: 1,
+          conversation_message_id: 1,
+          out: 0,
+          peer_id: 20,
+          from_id: 10,
+          text: '/start',
+          date: 1,
+          random_id: 0,
+          attachments: [],
+          important: false,
+        },
+        client_info: {
+          button_actions: ['callback'],
+          keyboard: true,
+          inline_keyboard: true,
+          carousel: false,
+          lang_id: 0,
+        },
+      },
+      source: UpdateSource.POLLING,
+      updateType: 'message_new',
+    });
+
+    await bot.updates.dispatchMiddleware(event);
+
+    expect(command).toHaveBeenCalledOnce();
+    expect(call.mock.calls.map(([request]) => request)).toContainEqual(
+      expect.objectContaining({
+        method: 'messages.setActivity',
+        params: expect.objectContaining({ peer_id: 20, type: 'typing', group_id: 1 }),
+      }),
+    );
+  });
+
   it('returns null when the VK profile lookup fails', async () => {
     let profile: UserProfile | null | undefined;
     const bot = createUniversalVKBot({

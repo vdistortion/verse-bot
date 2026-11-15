@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `UniversalAdminCheck` for adapter-provided asynchronous role checks.
 - `checkUniversalAdmin` helper and a shared `UniversalCommandButton` type for adapter button mappings.
 - Original update payloads, inline-button `callbackData`, and VK button color metadata in shared types.
+- `withTypingIndicator` helper for keeping a platform typing status active during asynchronous work.
 
 ### Fixed
 

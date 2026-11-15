@@ -72,6 +72,44 @@ describe('createUniversalTelegramBot', () => {
     });
   });
 
+  it('shows the typing status while a handler runs when enabled', async () => {
+    const command = vi.fn().mockResolvedValue(undefined);
+    const bot = createUniversalTelegramBot({
+      token: 'test:telegram-token',
+      commands: { start: command },
+      buttons: [],
+      typingIndicator: true,
+    });
+    bot.botInfo = botInfo;
+    const apiCalls: { method: string; payload: Record<string, unknown> }[] = [];
+    bot.api.config.use(async (_previous, method, payload) => {
+      apiCalls.push({ method, payload });
+      return { ok: true, result: true } as never;
+    });
+
+    const update: Update = {
+      update_id: 1,
+      message: {
+        message_id: 2,
+        date: 1,
+        chat: { id: 20, type: 'private', first_name: 'Alice' },
+        from: { id: 10, is_bot: false, first_name: 'Alice' },
+        text: '/start',
+        entities: [{ type: 'bot_command', offset: 0, length: 6 }],
+      },
+    };
+
+    await bot.handleUpdate(update);
+
+    expect(command).toHaveBeenCalledOnce();
+    expect(apiCalls).toContainEqual(
+      expect.objectContaining({
+        method: 'sendChatAction',
+        payload: expect.objectContaining({ chat_id: 20, action: 'typing' }),
+      }),
+    );
+  });
+
   it('exposes callback capabilities for answering and editing a photo caption', async () => {
     const bot = createUniversalTelegramBot({
       token: 'test:telegram-token',

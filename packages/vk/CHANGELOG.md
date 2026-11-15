@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Inline callback data and per-button VK colors; VK photo attachment IDs can be sent directly through `replyWithPhoto`.
 - Profile results include VK's `screen_name` as `username`.
 - Shared `replySafe`, one-time keyboards, and keyboard removal behavior with Telegram.
+- Optional `typingIndicator` setting for showing "typing…" while handlers run.
 
 ### Changed
 
